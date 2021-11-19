@@ -1,0 +1,4 @@
+.vscode
+key.txt
+cfg/*
+__pycache__
