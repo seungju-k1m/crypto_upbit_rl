@@ -6,7 +6,7 @@ import logging
 import os
 
 
-_path_ = './cfg/demo.json'
+_path_ = './cfg/demo_bi.json'
 
 _parser_ = jsonParser(_path_)
 _data_ = _parser_.loadParser()
