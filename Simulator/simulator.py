@@ -131,7 +131,7 @@ class Simulator(Env):
                     action = "ASK"
                     reward = (current_price - self.bid_price) * self.coin_account / self.init_krw_account
                     reward -= fee
-                    self.krw_account = current_price * self.coin_account
+                    self.krw_account = current_price * self.coin_account * (1 - fee)
                     self.coin_account = 0
             else:
                 if action == 0:
@@ -143,7 +143,7 @@ class Simulator(Env):
                     self.coin = True
                     reward = -fee
                     self.bid_price = current_price
-                    self.coin_account = self.krw_account * (1-0.0005) / current_price
+                    self.coin_account = self.krw_account * (1-fee) / current_price
                     self.krw_account = 0
                     
             self.prev_notional_price = state[idx][1]
