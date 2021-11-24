@@ -1,6 +1,6 @@
 {
-    "ACCESS_KEY":"jy66T1dXlJCxxj824XhSgLawFx66QKX7bDulB9sM",
-    "SECRETE_KEY":"hN4d0SQMjNY7259kUp8HRf4C8Hj6DQxAXOqrlYox",
+    "ACCESS_KEY":false,
+    "SECRETE_KEY":false,
     "MARKET":"KRW-BTC",
     "LOG_MODE":false,
     "BACKTEST":true,
@@ -10,6 +10,8 @@
     "use_BPTT":true,
     "use_FLOAT64":true,
     "use_init_param":true,
+
+    "REPLAY_MEMORY_LEN":1000,
 
     "unroll_step":179,
 
@@ -90,6 +92,25 @@
         }
     },
     "agent":{
+        "module04":{
+            "netCat":"Cat",
+            "dim":1,
+            "prior":0,
+            "input":[0, 1, 2, 3]
+        },
+        "module05":{
+            "netCat": "MLP",
+            "iSize":64,
+            "nLayer":3,
+            "fSize":[256, 256, 3],
+            "act":["relu", "relu", "linear"],
+            "BN":[false, false, false],
+            "prevNodeNames":["module04"],
+            "prior":1,
+            "output":true
+        }
+    },
+    "agent_":{
         "module04":{
             "netCat":"Stack",
             "dim":1,
