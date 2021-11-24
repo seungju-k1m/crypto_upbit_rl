@@ -111,7 +111,7 @@ class Learner:
             ratio = torch.exp(log_ratio)
             cliped_c = torch.min(RHO_C, ratio).view(BATCH, UNROLL_STEP+1)
             cliped_p = torch.min(RHO_P, ratio).view(BATCH, UNROLL_STEP+1)
-            mean_value = detach_value.mean().numpy()
+            mean_value = detach_value.mean().cpu().numpy()
             detach_value[:, -1] *= done
             bootstrap_value = detach_value[:, -1]
             delta_target_list = [torch.zeros(BATCH).to(self.device)]
@@ -174,8 +174,8 @@ class Learner:
             optim.zero_grad()
         c_lr = self._decay_lr()
         info = {}
-        info['norm'] = c_norm.numpy()
-        info['p_norm'] = p_norm.numpy()
+        info['norm'] = c_norm.cpu().numpy()
+        info['p_norm'] = p_norm.cpu().numpy()
         info['lr'] = c_lr
         return info
     

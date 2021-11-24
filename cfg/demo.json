@@ -8,7 +8,7 @@
     "learner_device":"cpu",
 
     "use_BPTT":true,
-    "use_FLOAT64":true,
+    "use_FLOAT64":false,
     "use_init_param":true,
 
     "REPLAY_MEMORY_LEN":1000,
