@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 import logging
 import os
+import torch
 
 
 _path_ = './cfg/demo.json'
@@ -20,11 +21,31 @@ LOG_MODE = _data_['LOG_MODE']
 
 MAX_POSITION = _data_['MAX_POSITION'] if 'MAX_POSITION' in _key_ else 10
 BACKTEST = _data_['BACKTEST'] if 'BACKTEST' in _key_ else False
+PREV_AGENT_INFO = _data_['actor_agent_prev']
+LEARNER_AGENT_INFO = _data_['learner_agent_prev']
+AGENT_INFO = _data_['agent']
 
-if BACKTEST:
-    STARTDAY = '2021-01-02 00:00:00'
+DEVICE = _data_["device"]
+LEARNER_DEVICE = _data_["learner_device"]
+USE_BPTT = _data_["use_BPTT"]
+USE_FLOAT64 = _data_["use_FLOAT64"]
+USE_INIT_PARAM = _data_['use_init_param']
 
-    TIMEINTERVAL = 2
+UNROLL_STEP = _data_["unroll_step"]
+
+OPTIM_INFO = _data_["optim"]
+
+ENTROPY_COEFFI = _data_["entropy_coeffi"]
+
+REPLAY_MEMORY_LEN = _data_["REPLAY_MEMORY_LEN"]
+
+if USE_FLOAT64:
+    torch.set_default_dtype(torch.float64)
+
+STARTDAY = '2021-09-13 00:00:00'
+DURATION = 15
+
+TIMEINTERVAL = 2
 
 
 URL = "https://api.upbit.com"
@@ -39,17 +60,34 @@ _str_time_ = _current_time_.strftime("%m_%d_%Y_%H_%M_%S")
 _log_path_ = os.path.join(
     './log', _str_time_
 )
-if not os.path.isdir(_log_path_):
-    os.mkdir(_log_path_)
+
 
 _indicator_log_path_ = os.path.join(
     _log_path_, 'indicator.log'
 )
 
+TRAIN_LOG_MODE = False
+if TRAIN_LOG_MODE:
+    if not os.path.isdir(_log_path_):
+        os.mkdir(_log_path_)
+    _train_log_path_ = os.path.join(
+        _log_path_, "train.log"
+    )
+    TRAIN_LOGGER = setup_logger("train", _train_log_path_)
+    _train_header_ = "step,norm,mean_value,entropy"
+    TRAIN_LOGGER.info(_train_header_)
+
+    _actor_log_path_ = os.path.join(
+        _log_path_, "actor.log"
+    )
+    ACTOR_LOGGER = setup_logger("actor", _actor_log_path_)
+    _actor_header_ = "day,income"
+    ACTOR_LOGGER.info(_actor_header_)
 
 # Logging !!
 if LOG_MODE:
-    
+    if not os.path.isdir(_log_path_):
+        os.mkdir(_log_path_)
     INDICT_LOGGER = setup_logger('indictator', _indicator_log_path_)
     _ask_log_path_ = os.path.join(
         _log_path_, 'ask.log'
@@ -74,3 +112,8 @@ if LOG_MODE:
     BID_LOGGER.info(_bid_header_)
 
 # ------------------------------------------------
+
+RENDER_TIME = 2
+RUN_UNIT_TIME = 1
+# 0:1, 1:5, 2:15, 3:60
+UNIT_MINUTE = [1, 5, 15, 60]

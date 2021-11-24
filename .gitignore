@@ -1,6 +1,6 @@
 .vscode
 key.txt
-cfg/*
+# cfg/*
 __pycache__
 log/*
-data/*
+# data/*

@@ -3,6 +3,8 @@ import jwt
 import uuid
 import requests
 
+from datetime import datetime, timedelta
+
 import hashlib
 from urllib.parse import urlencode
 from baseline.utils import writeTrainInfo
@@ -228,13 +230,9 @@ def get_ask(portion=0.1):
 
 # ---------orderbook
 
-def get_order_book(to):
-    if to is None:
-        to = STARTDAY
+def get_order_book():
     query = {
-        'market':MARKET,
-        'to':to,
-        'count':count
+        'markets':[MARKET]
     }
     query_string = urlencode(query).encode()
     m = hashlib.sha512()
@@ -246,5 +244,5 @@ def get_order_book(to):
         'query_hash':query_hash,
         'query_hash_alg':"SHA512"
     }
-    res = generate_all_procedure(payload, SECRETE_KEY, query, 'v1/candles/minutes/{}'.format(unit))
-    return res.json()
+    res = generate_all_procedure(payload, SECRETE_KEY, query, 'v1/orderbook')
+    return res.json()[0]
