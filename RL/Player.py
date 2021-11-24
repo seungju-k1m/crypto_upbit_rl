@@ -157,6 +157,8 @@ class Player():
                 if step % 100 == 0:
                     self.pull_param()
                     # print(cumulative_reward)
+                if step % 1440 == 0:
+                    print(cumulative_reward)
                 
                 if done:
                     number_of_steps = UNROLL_STEP - int(len(self.obsDeque) / 3) + 1
