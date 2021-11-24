@@ -40,7 +40,7 @@ ENTROPY_COEFFI = _data_["entropy_coeffi"]
 REPLAY_MEMORY_LEN = _data_["REPLAY_MEMORY_LEN"]
 
 try:
-    REDIS_SERVER = _data_["REDIS_SERVER"]
+    REDIS_SERVER = _data_["redis_server"]
 except:
     REDIS_SERVER = "localhost"
 
