@@ -129,6 +129,7 @@ class Simulator(Env):
                     # reward = 0.01
                 elif action == 1:
                     action = "ASK"
+                    self.coin = False
                     reward = (current_price - self.bid_price) * self.coin_account / (self.bid_price * self.coin_account)
                     reward -= fee
                     self.krw_account = current_price * self.coin_account * (1 - fee)
