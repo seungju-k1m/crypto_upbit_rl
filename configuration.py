@@ -13,7 +13,7 @@ _parser_ = jsonParser(_path_)
 _data_ = _parser_.loadParser()
 _key_ = list(_data_.keys())
 
-
+FEE = _data_['FEE']
 ACCESS_KEY = _data_['ACCESS_KEY']
 SECRETE_KEY = _data_['SECRETE_KEY']
 MARKET = _data_['MARKET']

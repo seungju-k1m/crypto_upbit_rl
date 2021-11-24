@@ -1,6 +1,6 @@
 # BITCOIN SIMULATOR FOR BACKTEST
 from datetime import datetime
-from configuration import DURATION, RENDER_TIME, UNIT_MINUTE
+from configuration import DURATION, RENDER_TIME, UNIT_MINUTE, FEE
 from gym import Env
 from typing import Union, List
 
@@ -116,7 +116,7 @@ class Simulator(Env):
             self.count += 1
             idx = UNIT_MINUTE.index(unit)
             delta = (state[idx][1] - self.prev_notional_price) / self.init_account
-            fee = 0.0000
+            fee = FEE
             if self.coin:
                 if action == 0:
                     action = "HOLD"

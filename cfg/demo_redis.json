@@ -5,6 +5,7 @@
     "MARKET":"KRW-BTC",
     "LOG_MODE":false,
     "BACKTEST":true,
+    "FEE":0.0005,
     "device":"cpu",
     "learner_device":"cpu",
 
