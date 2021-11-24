@@ -11,7 +11,7 @@
     "use_FLOAT64":false,
     "use_init_param":true,
 
-    "REPLAY_MEMORY_LEN":1000,
+    "REPLAY_MEMORY_LEN":100,
 
     "unroll_step":179,
 

@@ -63,10 +63,14 @@ class Learner:
         idx = [1, 5, 15, 60]
         embedding = []
         SEQ, BATCH, _ = state[0].shape
+        if USE_FLOAT64:
+            dtype = torch.float64
+        else:
+            dtype = torch.float32
         for c, s, m, i in zip(cell_state, state, self.prev_models, idx):
             c = c.detach()
             m.setCellState(c)
-            k = m.forward([s])[0]
+            k = m.forward([s.type(dtype)])[0]
             k = k.view(-1, 32, 16)
             if USE_BPTT:
                 if i == 1:
