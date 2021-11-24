@@ -146,8 +146,9 @@ class Player():
                 state, reward, done, info = self.sim.step(action, unit=RUN_UNIT_TIME)
                 prev_state = deepcopy(state)
                 cumulative_reward += reward
-                if cumulative_reward < -1:
-                    done = True
+                if self.sim.coin_account < 0.1:
+                    if self.sim.krw_account < 5000000:
+                        done = True
                 if not done:
                     state += [policy[0]]
                     state += cell_state
