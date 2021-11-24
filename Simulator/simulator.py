@@ -75,7 +75,11 @@ class Simulator(Env):
         state = self.pipeline.get(0, unit=1)
         self.coin = False
         state = [np.append(normalize(i, j), np.array(float(self.coin))) for j, i in enumerate(state)]
-        self.init_account = self.init_volume * state[0][1]
+        self.krw_account = self.init_volume * state[0][1]
+        self.coin_account = 0
+        self.bid_price = state[0][1]
+        self.total_account = self.krw_account
+        self.init_krw_account =  self.init_volume * state[0][1]
         return state
 
     def render(self, state):
@@ -115,19 +119,20 @@ class Simulator(Env):
             done = False
             self.count += 1
             idx = UNIT_MINUTE.index(unit)
-            delta = (state[idx][1] - self.prev_notional_price) / self.init_account
+            current_price = state[idx][1]
+            delta = (state[idx][1] - self.prev_notional_price)
             fee = FEE
             if self.coin:
                 if action == 0:
                     action = "HOLD"
-                    reward = delta
-                    
+                    reward = 0
                     # reward = 0.01
                 elif action == 1:
                     action = "ASK"
-                    self.coin = False
-                    reward = -fee
-                
+                    reward = (current_price - self.bid_price) * self.coin_account / self.init_krw_account
+                    reward -= fee
+                    self.krw_account = current_price * self.coin_account
+                    self.coin_account = 0
             else:
                 if action == 0:
                     action = "HOLD"
@@ -137,7 +142,10 @@ class Simulator(Env):
                     action = "BID"
                     self.coin = True
                     reward = -fee
-            # self.init_account += reward
+                    self.bid_price = current_price
+                    self.coin_account = self.krw_account * (1-0.0005) / current_price
+                    self.krw_account = 0
+                    
             self.prev_notional_price = state[idx][1]
             state = [np.append(normalize(i, j), np.array(float(self.coin))) for j, i in enumerate(state)]
         return state, reward, done, None
