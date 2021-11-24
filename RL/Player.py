@@ -147,7 +147,7 @@ class Player():
                 prev_state = deepcopy(state)
                 cumulative_reward += reward
                 if self.sim.coin_account < 0.1:
-                    if self.sim.krw_account < 5000000:
+                    if self.sim.krw_account < 1000000:
                         done = True
                 if not done:
                     state += [policy[0]]
