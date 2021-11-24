@@ -167,7 +167,7 @@ class Player():
                     number_of_steps = UNROLL_STEP - int(len(self.obsDeque) / 3) + 1
                     prev_traj = self.prevDeque[-3*number_of_steps:]
                     traj = prev_traj + self.obsDeque
-                    traj += [done]
+                    traj += [False]
                     traj = self.process_traj(traj)
                     self.connect.rpush("trajectory", pickle.dumps(traj))
                     self.obsDeque.clear()

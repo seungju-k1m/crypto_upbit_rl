@@ -93,6 +93,52 @@
             "return_hidden":false
         }
     },
+    "agent__":{
+        "module04":{
+            "netCat":"Cat",
+            "dim":1,
+            "prior":0,
+            "input":[0, 1, 2, 3]
+        },
+        "module04_1":{
+            "netCat":"Stack",
+            "dim":1,
+            "prior":0,
+            "input":[
+                0,
+                1,
+                2,
+                3
+            ]
+        },
+        "module05_1":{
+            "netCat":"Attention",
+            "iSize":16,
+            "fSize":32,
+            "use_bias":false,
+            "activation":"tanh",
+            "device":"cpu",
+            "prior":1,
+            "prevNodeNames":["module04_1"]
+        },
+        "module06":{
+            "netCat":"Cat",
+            "dim":1,
+            "prior":2,
+            "prevNodeNames":["module04", "module05_1"]
+        },
+        "module05":{
+            "netCat": "MLP",
+            "iSize":96,
+            "nLayer":3,
+            "fSize":[256, 256, 3],
+            "act":["relu", "relu", "linear"],
+            "BN":[false, false, false],
+            "prevNodeNames":["module04"],
+            "prior":1,
+            "output":true
+        }
+    },
     "agent":{
         "module04":{
             "netCat":"Cat",
