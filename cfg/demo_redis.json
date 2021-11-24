@@ -93,7 +93,7 @@
             "return_hidden":false
         }
     },
-    "agent_":{
+    "agent":{
         "module04":{
             "netCat":"Cat",
             "dim":1,
@@ -112,7 +112,7 @@
             "output":true
         }
     },
-    "agent":{
+    "agent_":{
         "module04":{
             "netCat":"Stack",
             "dim":1,
