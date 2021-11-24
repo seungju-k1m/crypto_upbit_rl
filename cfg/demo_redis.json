@@ -6,7 +6,7 @@
     "LOG_MODE":false,
     "BACKTEST":true,
     "device":"cpu",
-    "learner_device":"cpu",
+    "learner_device":"cuda:0",
 
     "use_BPTT":true,
     "use_FLOAT64":true,
