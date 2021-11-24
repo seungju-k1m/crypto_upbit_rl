@@ -133,8 +133,8 @@ class Learner:
             target_value = detach_value + delta_target
             action_target = reward[:, :-1] + DISCOUNT * target_value[:, 1:]
             prev_target_value = target_value[:, :-1].contiguous()
-
-            advantage = action_target - prev_target_value
+            advantage = action_target - detach_value[:, :-1].contiguous()
+        
         selected_log_policy = selected_log_policy.view(BATCH, UNROLL_STEP+1)
         selected_log_policy *= cliped_p
         selected_log_policy = selected_log_policy[:, :-1].contiguous()
