@@ -7,7 +7,7 @@ import os
 import torch
 
 
-_path_ = './cfg/demo.json'
+_path_ = './cfg/demo_redis.json'
 
 _parser_ = jsonParser(_path_)
 _data_ = _parser_.loadParser()

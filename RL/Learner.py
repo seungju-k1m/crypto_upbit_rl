@@ -153,6 +153,7 @@ class Learner:
         mean_entropy = (entropy / (BATCH * UNROLL_STEP)).detach().cpu().numpy()
         info['entropy'] = float(mean_entropy)
         info['mean_value'] = float(mean_value)
+        info['obj'] = float(obj.detach().cpu().numpy())
         return info
 
     def step(self, t):
@@ -226,6 +227,7 @@ class Learner:
         step = 0
         norm, mean_value, entropy = 0, 0, 0
         p_norm = 0
+        obj = 0
 
         for t in count():
             transition = self.memory.sample()
@@ -241,6 +243,7 @@ class Learner:
             entropy += info['entropy']
             p_norm += info['p_norm']
             lr = info['lr']
+            obj += info['obj']
             
             state_dict = self.state_dict()
             self.connect.set(
@@ -258,9 +261,10 @@ class Learner:
                 mean_value /= 100
                 entropy /= 100
                 p_norm /= 100
+                obj /= 100
 
-                print("STEP:{} // NORM:{:.3f} // P_NORM:{:.3f} // VALUE:{:.3f} // ENTROPY:{:.3f} // LR:{:.5f}".format(
-                    step, norm, p_norm, mean_value, entropy, lr
+                print("STEP:{} // NORM:{:.3f} // P_NORM:{:.3f} // VALUE:{:.3f} // ENTROPY:{:.3f} // LR:{:.5f} // OBJ:{:.3f}".format(
+                    step, norm, p_norm, mean_value, entropy, lr, obj
                 ))
                 if TRAIN_LOG_MODE:
                     TRAIN_LOGGER.info(
@@ -269,5 +273,6 @@ class Learner:
                 
                 norm, mean_value, entropy =0, 0, 0
                 p_norm = 0
+                obj = 0
 
 
