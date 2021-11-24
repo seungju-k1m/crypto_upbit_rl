@@ -99,7 +99,7 @@ if __name__ == "__main__":
     # -------------- Player ----------------
     args = parser.parse_args()
     num_worker = args.num_worker
-    num_worker = 3
+    num_worker = 2
     
     ray.init(num_cpus=num_worker)
     Player = ray.remote(

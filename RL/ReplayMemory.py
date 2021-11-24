@@ -20,7 +20,7 @@ class Replay(threading.Thread):
         super(Replay, self).__init__()
         self.setDaemon(True)
         self.memory = ReplayMemory(REPLAY_MEMORY_LEN)
-        self.connect = redis.StrictRedis()
+        self.connect = redis.StrictRedis(host=REDIS_SERVER, port=6379)
         self._lock = threading.Lock()
         self.deque = []
         self.device = torch.device(LEARNER_DEVICE)

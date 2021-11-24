@@ -20,7 +20,7 @@ class Learner:
         self.device = torch.device(LEARNER_DEVICE)
         self.build_model()
         self.build_optim()
-        self.connect = redis.StrictRedis()
+        self.connect = redis.StrictRedis(host=REDIS_SERVER, port=6379)
         self.memory = Replay()
         self.memory.start()
         

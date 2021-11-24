@@ -31,7 +31,7 @@ class Player():
         self.to()
         self.train_mode = train_mode
         self.obsDeque = []
-        self.connect = redis.StrictRedis()
+        self.connect = redis.StrictRedis(host=REDIS_SERVER, port=6379)
         self.prev_embedding = [None, None, None, None]
         self.count = 0
 

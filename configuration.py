@@ -7,7 +7,7 @@ import os
 import torch
 
 
-_path_ = './cfg/demo.json'
+_path_ = './cfg/demo_redis.json'
 
 _parser_ = jsonParser(_path_)
 _data_ = _parser_.loadParser()
@@ -38,6 +38,11 @@ OPTIM_INFO = _data_["optim"]
 ENTROPY_COEFFI = _data_["entropy_coeffi"]
 
 REPLAY_MEMORY_LEN = _data_["REPLAY_MEMORY_LEN"]
+
+try:
+    REDIS_SERVER = _data_["REDIS_SERVER"]
+except:
+    REDIS_SERVER = "localhost"
 
 if USE_FLOAT64:
     torch.set_default_dtype(torch.float64)
