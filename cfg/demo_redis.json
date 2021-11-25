@@ -17,7 +17,7 @@
 
     "unroll_step":179,
 
-    "entropy_coeffi":0.001,
+    "entropy_coeffi":0.0001,
     
     "actor_agent_prev":{
         "moduleSEQ_00":{
