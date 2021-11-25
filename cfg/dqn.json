@@ -1,7 +1,6 @@
 {
     "ACCESS_KEY":"jy66T1dXlJCxxj824XhSgLawFx66QKX7bDulB9sM",
     "SECRETE_KEY":"hN4d0SQMjNY7259kUp8HRf4C8Hj6DQxAXOqrlYox",
-    "redis_server":"10.173.159.188",
     "MARKET":"KRW-BTC",
     "LOG_MODE":false,
     "BACKTEST":true,
