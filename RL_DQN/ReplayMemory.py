@@ -42,7 +42,7 @@ class Replay(threading.Thread):
     def run(self):
         t = 0
         while True:
-            if len(self.memory) > REPLAY_MEMORY_LEN * 0.1:
+            if len(self.memory) > REPLAY_MEMORY_LEN * 0.01:
                 if len(self.deque) < 5:
                     self.deque.append(self.buffer())
             t += 1
