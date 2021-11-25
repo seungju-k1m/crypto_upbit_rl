@@ -60,12 +60,12 @@
             "nLayer":1,
             "fSize":[1],
             "act":["linear"],
-            "BN":[false, false],
+            "BN":[false],
             "prior":2,
             "prevNodeNames":["module01"]
         },
         "module04":{
-            "netCat":"Add",
+            "netCat":"Substract",
             "prior":3,
             "prevNodeNames":["module02", "module03"],
             "output":true
