@@ -21,8 +21,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     num_worker = args.num_worker
     num_worker = 1
-    # p = Player()
-    # p.run()
+    p = Player()
+    p.run()
     
     ray.init(num_cpus=num_worker)
     Player = ray.remote(
