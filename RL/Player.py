@@ -232,3 +232,6 @@ class Player():
                 file.write(xx)
                 file.close()
                 break
+
+    def runv2(self):
+        pass

@@ -74,15 +74,15 @@ if __name__ == "__main__":
     # sim = Simulator(to='2021-09-13 00:00:00', duration=15)
     # sim.init_random()
     # sim.reset()
-    # # sim.renderer.set_ylim(
-    # #     55000000, 80000000
-    # # )
+    # sim.renderer.set_ylim(
+    #     55000000, 80000000
+    # )
     # while 1:
-    #     s, reward, done, info = sim.step(unit=UNIT_MINUTE[RENDER_TIME])
+    #     s, reward, done, info = sim.step()
     #     # s, reward, done, info = sim.step(unit=1)
     #     if done:
     #         break
-    #     sim.render(s, mode="2")
+    #     sim.render(s)
     # sim.reset()
 
     # ---------------------------------------
