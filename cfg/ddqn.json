@@ -6,7 +6,7 @@
     "BACKTEST":true,
     "FEE":0.0005,
 
-    "use_gym":false,
+    "use_gym":true,
     "device":"cpu",
     "learner_device":"cpu",
 
@@ -37,27 +37,37 @@
         "module01":{
             "netCat":"MLP",
             "iSize":2240,
-            "nLayer":2,
-            "fSize":[256, 6],
-            "act":["relu", "linear"],
-            "BN":false,
+            "nLayer":1,
+            "fSize":[256],
+            "act":["relu"],
+            "BN":[false],
             "prior":1,
             "prevNodeNames":["module00"]
         },
         "module02":{
             "netCat":"MLP",
-            "iSize":2240,
-            "nLayer":2,
-            "fSize":[256, 1],
-            "act":["relu", "linear"],
-            "BN":false,
-            "prior":1,
-            "prevNodeNames":["module00"]
+            "iSize":256,
+            "nLayer":1,
+            "fSize":[6],
+            "act":["linear"],
+            "BN":[false],
+            "prior":2,
+            "prevNodeNames":["module01"]
         },
         "module03":{
-            "netCat":"Substract",
+            "netCat":"MLP",
+            "iSize":256,
+            "nLayer":1,
+            "fSize":[1],
+            "act":["linear"],
+            "BN":[false, false],
             "prior":2,
-            "prevNodeNames":["module01", "module02"],
+            "prevNodeNames":["module01"]
+        },
+        "module04":{
+            "netCat":"Add",
+            "prior":3,
+            "prevNodeNames":["module02", "module03"],
             "output":true
         }
     }
