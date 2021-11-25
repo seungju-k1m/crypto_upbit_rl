@@ -47,7 +47,7 @@ class Simulator(Env):
         self.init_pipeline()
         self.coin = False
 
-    def reset(self):
+    def reset(self, mode='x'):
         def normalize(x, i):
             if i == 0:
                 x[2] /= 100000
@@ -66,11 +66,19 @@ class Simulator(Env):
         render_time = UNIT_MINUTE[RENDER_TIME]
         self.midpoint = self.pipeline.data[render_time]['midpoint'].to_numpy()
         self.datetime = pd.to_datetime(self.pipeline.data[render_time]['time']).to_numpy()
+        self.volume = self.pipeline.data[render_time]['acc_volume'].to_numpy()
         self.count = 0
-        self.renderer.init_data(
-            self.datetime[:self.num_len],
-            self.midpoint[:self.num_len]
-        )
+        if mode is 'human':
+            self.renderer.init_data(
+                self.datetime[:self.num_len],
+                self.midpoint[:self.num_len]
+            )
+        else:
+            self.renderer.init_data(
+                self.datetime[:self.num_len],
+                self.midpoint[:self.num_len],
+                self.volume[:self.num_len]
+            )
         self.prev_notional_price = self.midpoint[0]
         state = self.pipeline.get(0, unit=1)
         self.coin = False
@@ -82,33 +90,38 @@ class Simulator(Env):
         self.init_krw_account =  self.init_volume * state[0][1]
         return state
 
-    def render(self, state):
+    def render(self, state, mode="human"):
         s = state[RENDER_TIME]
         tt, midpoint = s[:2]
+        acc_volume = s[-2]
         if self.count < self.num_len:
             pass
         else:
             self.renderer.render(
                 midpoint=midpoint,
-                tt=tt
+                tt=tt,
+                mode=mode,
+                acc_volume=acc_volume
             )
 
     def step(self, action=0, unit=1):
         # action -> 0, 1, 2
         def normalize(x, i):
-            if i == 0:
-                x[2] /= 100000
-                x[3] /= 100
-            if i == 1:
-                x[2] /= 100000
+            x[2] = x[2] / 100000
+            x[3] = x[3] / 100
+            # if i == 0:
+            #     x[2] = x[2] / 100000
+            #     x[3] = x[3] / 100
+            # if i == 1:
+            #     x[2] /= 100000
                 
-                x[3] /= 500
-            if i == 2:
-                x[2] /= 100000
-                x[3] /= 1500
-            if i == 3:
-                x[2] /= 500000
-                x[3] /= 6000
+            #     x[3] /= 500
+            # if i == 2:
+            #     x[2] /= 100000
+            #     x[3] /= 500
+            # if i == 3:
+            #     x[2] /= 500000
+            #     x[3] /= 500
             return x
 
         state = self.pipeline.get(self.count, unit=unit)
