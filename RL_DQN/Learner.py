@@ -223,7 +223,7 @@ class Learner:
 
                 print(
                     "step:{} // mean_value:{:.3f} // norm: {:.3f} // REWARD:{:.3f}".format(
-                        step, mean_value / 100, norm/ 100, cumulative_reward)
+                        step, mean_value / 1000, norm/ 1000, cumulative_reward)
                 )
 
                 if len(data) > 0:
@@ -231,10 +231,10 @@ class Learner:
                         "Reward", cumulative_reward, step
                     )
                 self.writer.add_scalar(
-                    "value", mean_value / 100, step
+                    "value", mean_value / 1000, step
                 )
                 self.writer.add_scalar(
-                    "norm", norm/ 100, step
+                    "norm", norm/ 1000, step
                 )
                 mean_value, norm = 0, 0
                 torch.save(self.state_dict(), './weight/dqn/weight.pth')
