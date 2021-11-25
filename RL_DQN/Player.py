@@ -259,7 +259,8 @@ class Player():
         mean_cumulative_reward = 0
         per_episode = 2
         step = 0
-
+        key = "ale.lives"
+        # key = "lives"
         def rgb_to_gray(img, W=84, H=84):
             grayImage = im.fromarray(img, mode="RGB").convert("L")
 
@@ -300,12 +301,12 @@ class Player():
                 # self.sim.render()
 
                 if live == -1:
-                    live = info["lives"]
+                    live = info[key]
                 
-                if info["lives"] != 0:
-                    _done = live != info["lives"]
+                if info[key] != 0:
+                    _done = live != info[key]
                     if _done:
-                        live = info["lives"]
+                        live = info[key]
                 else:
                     _done = reward != 0
                 
