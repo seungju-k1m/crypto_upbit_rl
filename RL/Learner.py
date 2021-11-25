@@ -96,7 +96,7 @@ class Learner:
         policy_logit = output[:, :, 1:].contiguous()
         policy = torch.softmax(policy_logit, dim=-1)
         view_policy = policy.view(-1, 2)
-        entropy = - torch.sum(torch.sum(view_policy * torch.log(view_policy), 1))
+        entropy = - torch.sum(torch.sum(view_policy * torch.log(view_policy+1e-4), 1))
         selected_policy = policy.view(-1)[action_idx]
         selected_log_policy = torch.log(selected_policy)
 
@@ -111,7 +111,7 @@ class Learner:
         with torch.no_grad():
             detach_policy = torch.softmax(detach_policy_logit, dim=-1)
             detach_selected_policy = detach_policy.view(-1)[action_idx]
-            log_ratio = torch.log(detach_selected_policy) - torch.log(old_policy)
+            log_ratio = torch.log(detach_selected_policy + 1e-4) - torch.log(old_policy+1e-4)
             ratio = torch.exp(log_ratio)
             cliped_c = torch.min(RHO_C, ratio).view(BATCH, UNROLL_STEP+1)
             cliped_p = torch.min(RHO_P, ratio).view(BATCH, UNROLL_STEP+1)
