@@ -7,11 +7,13 @@ import os
 import torch
 
 
-_path_ = './cfg/demo_redis.json'
+_path_ = './cfg/dqn.json'
+
 
 _parser_ = jsonParser(_path_)
 _data_ = _parser_.loadParser()
 _key_ = list(_data_.keys())
+DATA = _data_
 
 FEE = _data_['FEE']
 ACCESS_KEY = _data_['ACCESS_KEY']
@@ -19,33 +21,25 @@ SECRETE_KEY = _data_['SECRETE_KEY']
 MARKET = _data_['MARKET']
 LOG_MODE = _data_['LOG_MODE']
 
-MAX_POSITION = _data_['MAX_POSITION'] if 'MAX_POSITION' in _key_ else 10
-BACKTEST = _data_['BACKTEST'] if 'BACKTEST' in _key_ else False
-PREV_AGENT_INFO = _data_['actor_agent_prev']
-LEARNER_AGENT_INFO = _data_['learner_agent_prev']
-AGENT_INFO = _data_['agent']
-
 DEVICE = _data_["device"]
 LEARNER_DEVICE = _data_["learner_device"]
-USE_BPTT = _data_["use_BPTT"]
-USE_FLOAT64 = _data_["use_FLOAT64"]
-USE_INIT_PARAM = _data_['use_init_param']
 
 UNROLL_STEP = _data_["unroll_step"]
 
 OPTIM_INFO = _data_["optim"]
 
-ENTROPY_COEFFI = _data_["entropy_coeffi"]
 
 REPLAY_MEMORY_LEN = _data_["REPLAY_MEMORY_LEN"]
+
+if "use_gym" in _key_:
+    USE_GYM = _data_["use_gym"]
+else:
+    USE_GYM = False
 
 try:
     REDIS_SERVER = _data_["redis_server"]
 except:
     REDIS_SERVER = "localhost"
-
-if USE_FLOAT64:
-    torch.set_default_dtype(torch.float64)
 
 STARTDAY = '2021-09-13 00:00:00'
 DURATION = 15
@@ -66,6 +60,7 @@ _log_path_ = os.path.join(
     './log', _str_time_
 )
 
+LOG_PATH = _log_path_
 
 _indicator_log_path_ = os.path.join(
     _log_path_, 'indicator.log'

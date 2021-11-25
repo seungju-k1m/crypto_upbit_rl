@@ -2,6 +2,7 @@ from configuration import MARKET, RENDER_MODE, SECRETE_KEY, UNIT_MINUTE
 import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
+import PIL
 
 
 class Renderer:
@@ -14,7 +15,7 @@ class Renderer:
         self.y_vec = None
         self.BOOL_SET_YLIM = False
         self.ylim = None
-        self.width = 0.0005 * unit
+        self.width = 0.001 * unit
         self.unit = unit
         self.y2_div = 1 / (10 * unit)
         color = ['w', 'w', 'w', 'w']
@@ -122,6 +123,10 @@ class Renderer:
             
             obs = self.figure_to_array(line1.figure)
             obs = Image.fromarray(obs).convert("L")
+            # obs = obs.resize((96, 72), PIL.Image.BILINEAR)
+            # obs = obs.resize((96, 72), PIL.Image.BICUBIC)
+            # obs = obs.resize((96, 72), PIL.Image.NEAREST)
+            obs = obs.resize((96, 72), PIL.Image.BOX)
             obs = np.array(obs)
             if RENDER_MODE:
                 plt.show(block=False)
@@ -138,6 +143,7 @@ class Renderer:
     def get_current_fig(self):
         a = self.figure_to_array(self.line1.figure)
         obs = Image.fromarray(a).convert("L")
+        obs = obs.resize((96, 72), PIL.Image.BOX)
         obs = np.array(obs)
         return obs
 

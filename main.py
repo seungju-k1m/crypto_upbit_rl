@@ -71,18 +71,18 @@ if __name__ == "__main__":
 
     # --------------Simulator----------------
 
-    # sim = Simulator(to='2021-09-13 00:00:00', duration=15)
-    # sim.init_random()
-    # sim.reset()
+    sim = Simulator(to='2021-09-13 00:00:00', duration=15)
+    sim.init_random()
+    sim.reset()
     # sim.renderer.set_ylim(
     #     55000000, 80000000
     # )
-    # while 1:
-    #     s, reward, done, info = sim.step()
-    #     # s, reward, done, info = sim.step(unit=1)
-    #     if done:
-    #         break
-    #     sim.render(s)
+    while 1:
+        s, reward, done, info = sim.step()
+        # s, reward, done, info = sim.step(unit=1)
+        if done:
+            break
+        sim.render(s)
     # sim.reset()
 
     # ---------------------------------------
