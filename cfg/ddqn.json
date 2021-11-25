@@ -15,9 +15,8 @@
     "unroll_step":1,
 
     "optim":{
-        "name":"adam",
-        "lr":3e-4,
-        "eps":0.01
+        "name":"rmsprop",
+        "lr":6e-4
     },
 
     "model":{
