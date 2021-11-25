@@ -65,11 +65,22 @@
             "prevNodeNames":["module01"]
         },
         "module04":{
-            "netCat":"Substract",
+            "netCat":"Add",
             "prior":3,
-            "prevNodeNames":["module02", "module03"],
+            "prevNodeNames":["module02", "module03"]
+        },
+        "module05":{
+            "netCat":"Mean",
+            "prior":3,
+            "prevNodeNames":["module02"]
+        },
+        "module06":{
+            "netCat":"Substract",
+            "prior":4,
+            "prevNodeNames":["module04", "module05"],
             "output":true
         }
+        
     }
     
 }
