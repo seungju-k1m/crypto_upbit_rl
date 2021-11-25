@@ -223,7 +223,7 @@ class Learner:
 
                 print(
                     "step:{} // mean_value:{:.3f} // norm: {:.3f} // REWARD:{:.3f}".format(
-                        step, mean_value / 1000, norm/ 1000, cumulative_reward)
+                        step, mean_value, norm, cumulative_reward)
                 )
 
                 if len(data) > 0:
