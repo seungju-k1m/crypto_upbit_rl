@@ -15,7 +15,7 @@
     "unroll_step":1,
 
     "optim":{
-        "name":"rmprop",
+        "name":"rmsprop",
         "lr":0.00025,
         "eps":0.01
     },
