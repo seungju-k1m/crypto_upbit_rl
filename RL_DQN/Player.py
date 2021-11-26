@@ -89,7 +89,7 @@ class Player():
         
         phase_01_random_step = 1e6
         phase_02_random_step = 1e7
-        step = step * 4
+        step = step
         if step < phase_01_random_step:
             epsilon = 1 - step * (1 - 0.1) / phase_01_random_step
         
