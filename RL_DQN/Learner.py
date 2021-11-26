@@ -76,15 +76,15 @@ class Learner:
             
             next_action_value = self.target_model.forward([next_state])[0]
 
-            # n_action_value = self.model.forward([next_state])[0]
-            # action_ddqn =  n_action_value.argmax(dim=-1).detach().cpu().numpy()
-            # action_ddqn = [6*i + a for i, a in enumerate(action_ddqn)]
-            # next_action_value = next_action_value.view(-1)
-            # next_action_value = next_action_value[action_ddqn]
-            # next_max_value =  next_action_value * done
+            n_action_value = self.model.forward([next_state])[0]
+            action_ddqn =  n_action_value.argmax(dim=-1).detach().cpu().numpy()
+            action_ddqn = [6*i + a for i, a in enumerate(action_ddqn)]
+            next_action_value = next_action_value.view(-1)
+            next_action_value = next_action_value[action_ddqn]
+            next_max_value =  next_action_value * done
 
-            next_max_value, _ = next_action_value.max(dim=-1) 
-            next_max_value = next_max_value * done
+            # next_max_value, _ = next_action_value.max(dim=-1) 
+            # next_max_value = next_max_value * done
             
     
         action_value = action_value.view(-1)
@@ -210,7 +210,7 @@ class Learner:
             # soft
             # self.target_model.updateParameter(self.model, 0.005)
             # hard
-            if step % 1000 == 0:
+            if step % 2500 == 0:
                 self.target_model.updateParameter(self.model, 1)
 
             state_dict = pickle.dumps(self.state_dict())

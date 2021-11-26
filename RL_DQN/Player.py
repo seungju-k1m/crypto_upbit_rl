@@ -28,8 +28,8 @@ class Player():
         if end_time is None:
             end_time = STARTDAY
         if USE_GYM:
-            self.sim = gym.make("PongNoFrameskip-v4")
-            # self.sim = gym.make('SpaceInvadersNoFrameskip-v4')
+            # self.sim = gym.make("PongNoFrameskip-v4")
+            self.sim = gym.make('SpaceInvadersNoFrameskip-v4')
         else:
             self.sim = Simulator(to=end_time, duration=DURATION)
 
@@ -94,10 +94,10 @@ class Player():
         if step < phase_01_random_step:
             epsilon = 1 - step * (1 - 0.1) / phase_01_random_step
         
-        elif step < phase_02_random_step:
-            epsilon = 0.1 - (step - phase_01_random_step) / phase_02_random_step
+        # elif step < phase_02_random_step:
+        #     epsilon = 0.1 - (step - phase_01_random_step) / phase_02_random_step
         else:
-            epsilon = 0
+            epsilon = 0.1
         if epsilon < 0:
             epsilon = 0.01
         
@@ -270,7 +270,7 @@ class Player():
             grayImage = im.fromarray(img, mode="RGB").convert("L")
 
             # grayImage = np.expand_dims(Avg, -1)
-            grayImage = grayImage.resize((96, 72), im.NEAREST)
+            grayImage = grayImage.resize((84, 84), im.NEAREST)
             return grayImage
         
         def stack_obs(img):
