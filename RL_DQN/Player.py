@@ -28,8 +28,8 @@ class Player():
         if end_time is None:
             end_time = STARTDAY
         if USE_GYM:
-            # self.sim = gym.make("PongNoFrameskip-v4")
-            self.sim = gym.make('SpaceInvadersNoFrameskip-v4')
+            self.sim = gym.make("PongNoFrameskip-v4")
+            # self.sim = gym.make('SpaceInvadersNoFrameskip-v4')
         else:
             self.sim = Simulator(to=end_time, duration=DURATION)
 
@@ -96,6 +96,10 @@ class Player():
         
         elif step < phase_02_random_step:
             epsilon = 0.1 - (step - phase_01_random_step) / phase_02_random_step
+        else:
+            epsilon = 0
+        if epsilon < 0:
+            epsilon = 0.01
         
         if random.random() < epsilon:
             action = random.choice([0, 1, 2, 3, 4, 5])
