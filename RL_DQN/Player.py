@@ -292,6 +292,7 @@ class Player():
             experience = []
 
             obs = self.sim.reset()
+            self.obsDeque.clear()
             for i in range(4):
                 stack_obs(obs)
             
