@@ -326,7 +326,8 @@ class Player():
                         pickle.dumps(experience)
                     )
                     experience.clear()
-                self.pull_param()
+                while step % 50 == 0:
+                    self.pull_param()
             mean_cumulative_reward += cumulative_reward
 
             if (t+1) % per_episode == 0:
