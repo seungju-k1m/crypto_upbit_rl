@@ -83,9 +83,10 @@ class Learner:
             # next_action_value = next_action_value[action_ddqn]
             # next_max_value =  next_action_value * done
 
-            next_max_value, _ = next_action_value.max(dim=-1) * done
+            next_max_value, _ = next_action_value.max(dim=-1) 
+            next_max_value = next_max_value * done
             
-        
+    
         action_value = action_value.view(-1)
         selected_action_value = action_value[action]
 
