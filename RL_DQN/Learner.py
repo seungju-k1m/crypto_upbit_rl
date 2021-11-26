@@ -70,9 +70,10 @@ class Learner:
         done = [float(not d) for d in done]
         done = torch.tensor(done).float().to(self.device)
         action_value = self.model.forward([state])[0]
+        n_action_value = self.model.forward([next_state])[0]
 
         with torch.no_grad():
-            action_ddqn =  action_value.argmax(dim=-1).detach().cpu().numpy()
+            action_ddqn =  n_action_value.argmax(dim=-1).detach().cpu().numpy()
             action_ddqn = [6*i + a for i, a in enumerate(action_ddqn)]
             next_action_value = self.target_model.forward([next_state])[0]
             next_action_value = next_action_value.view(-1)
