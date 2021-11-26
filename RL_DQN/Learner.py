@@ -179,7 +179,7 @@ class Learner:
     def gym_run(self):
         def wait_memory():
             while True:
-                if len(self.memory.deque) > 1:
+                if self.memory.cond:
                     break
                 else:
                     print(len(self.memory.memory))
