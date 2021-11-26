@@ -11,12 +11,13 @@
     "device":"cpu",
     "learner_device":"cuda:0",
 
-    "REPLAY_MEMORY_LEN":1000000,
+    "REPLAY_MEMORY_LEN":750000,
     "unroll_step":1,
 
     "optim":{
         "name":"rmsprop",
-        "lr":6e-4
+        "lr":0.00025,
+        "eps":0.01
     },
 
     "model":{

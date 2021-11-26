@@ -41,7 +41,6 @@ class Learner:
         else:
             self.run = self.bit_run
 
-
     def build_model(self):
         info = DATA["model"]
         self.model = baseAgent(info)
