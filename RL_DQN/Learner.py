@@ -225,7 +225,7 @@ class Learner:
                     cumulative_reward = -21
 
                 print(
-                    "step:{} // mean_value:{:.3f} // norm: {:.3f} // REWARD:{:.3f} // NUM_MEMORY".format(
+                    "step:{} // mean_value:{:.3f} // norm: {:.3f} // REWARD:{:.3f} // NUM_MEMORY:{}".format(
                         step, mean_value, norm, cumulative_reward, len(self.memory.memory))
                 )
 
