@@ -82,7 +82,7 @@ class Learner:
             next_max_value =  next_action_value * done
         
         action_value = action_value.view(-1)
-        selected_action_value = action_value[action].view(-1, 1)
+        selected_action_value = action_value[action].view(-1)
 
         target = reward + 0.99 * next_max_value
 
