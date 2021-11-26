@@ -82,13 +82,13 @@ class Learner:
             next_max_value =  next_action_value * done
         
         action_value = action_value.view(-1)
-        selected_action_value = action_value[action].view(-1)
+        selected_action_value = action_value[action]
 
         target = reward + 0.99 * next_max_value
 
         loss = torch.sum((target - selected_action_value) ** 2)
-
         loss.backward()
+
         info = self.step()
 
         info['mean_value'] = float(target.mean().detach().cpu().numpy())           
@@ -204,7 +204,7 @@ class Learner:
             # soft
             # self.target_model.updateParameter(self.model, 0.005)
             # hard
-            if step % 500 == 0:
+            if step % 1000 == 0:
                 self.target_model.updateParameter(self.model, 1)
 
             state_dict = pickle.dumps(self.state_dict())
