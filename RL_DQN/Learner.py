@@ -117,7 +117,7 @@ class Learner:
     def bit_run(self):
         def wait_memory():
             while True:
-                if len(self.memory.memory) > (REPLAY_MEMORY_LEN - 1):
+                if self.memory.cond:
                     break
                 else:
                     print(len(self.memory.memory))
