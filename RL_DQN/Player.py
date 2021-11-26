@@ -323,7 +323,7 @@ class Player():
                 state = next_state
 
                 if step % UNROLL_STEP == 0 or _done:
-                    experience += [done]
+                    experience += [_done]
                     self.connect.rpush(
                         "experience",
                         pickle.dumps(experience)
