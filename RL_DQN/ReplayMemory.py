@@ -21,6 +21,7 @@ class Replay(threading.Thread):
         self.setDaemon(True)
         self.memory = ReplayMemory(REPLAY_MEMORY_LEN)
         # PER 구현해보자
+        self.cond = False
         self.connect = redis.StrictRedis(host=REDIS_SERVER, port=6379)
         self._lock = threading.Lock()
         self.deque = []
@@ -42,9 +43,8 @@ class Replay(threading.Thread):
     def run(self):
         t = 0
         while True:
-            if len(self.memory) > REPLAY_MEMORY_LEN * 0.01:
-                if len(self.deque) < 5:
-                    self.deque.append(self.buffer())
+            if len(self.memory) > REPLAY_MEMORY_LEN * 0.05:
+                self.cond = True
             t += 1
             pipe = self.connect.pipeline()
             pipe.lrange("experience", 0, -1)
@@ -59,9 +59,8 @@ class Replay(threading.Thread):
             gc.collect()
         
     def sample(self):
-        if len(self.deque) > 0:
-            d = self.deque.pop(0)
-            return d
+        if self.cond:
+            return self.buffer()
         else:
             # print(len(self.memory))
             return False

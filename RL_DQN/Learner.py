@@ -24,6 +24,7 @@ class Learner:
         self.connect = redis.StrictRedis(host=REDIS_SERVER, port=6379)
         self.memory = Replay()
         self.memory.start()
+        
 
 
         self.writer = SummaryWriter(
