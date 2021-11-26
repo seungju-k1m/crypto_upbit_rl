@@ -28,7 +28,8 @@ class Player():
         if end_time is None:
             end_time = STARTDAY
         if USE_GYM:
-            self.sim = gym.make("PongNoFrameskip-v4")
+            # self.sim = gym.make("PongNoFrameskip-v4")
+            self.sim = gym.make('SpaceInvadersNoFrameskip-v4')
         else:
             self.sim = Simulator(to=end_time, duration=DURATION)
 
@@ -338,8 +339,3 @@ class Player():
                     )
                 )
                 mean_cumulative_reward = 0
-
-
-
-                
-

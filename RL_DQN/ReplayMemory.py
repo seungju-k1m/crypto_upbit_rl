@@ -27,7 +27,7 @@ class Replay(threading.Thread):
         self.device = torch.device(LEARNER_DEVICE)
     
     def buffer(self):
-        experiences = self.memory.sample(32)
+        experiences = deepcopy(self.memory.sample(32))
         experiences = np.array([pickle.loads(bin) for bin in experiences])
         # S, A, R, S_
         # experiences = np.array([list(map(pickle.loads, experiences))])

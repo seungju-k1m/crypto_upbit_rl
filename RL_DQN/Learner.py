@@ -85,12 +85,12 @@ class Learner:
 
         target = reward + 0.99 * next_max_value
 
-        loss = torch.mean((target - selected_action_value) ** 2)
+        loss = torch.sum((target - selected_action_value) ** 2)
 
         loss.backward()
         info = self.step()
 
-        info['mean_value'] = float(selected_action_value.mean().detach().cpu().numpy())           
+        info['mean_value'] = float(target.mean().detach().cpu().numpy())           
         return info
 
     def step(self):
@@ -243,4 +243,3 @@ class Learner:
                 torch.save(self.state_dict(), './weight/dqn/weight.pth')
 
                 
-
