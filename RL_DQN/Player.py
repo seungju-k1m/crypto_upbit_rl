@@ -295,9 +295,12 @@ class Player():
             action, _ = self.forward(state)
             
             while done is False:
+                reward = 0
                 for i in range(3):
-                    self.sim.step(action)
-                next_obs, reward, done, info = self.sim.step(action)
+                    _, __, r, _ = self.sim.step(action)
+                    reward += r
+                next_obs, r, done, info = self.sim.step(action)
+                reward += r
                 step += 1
                 # self.sim.render()
 
