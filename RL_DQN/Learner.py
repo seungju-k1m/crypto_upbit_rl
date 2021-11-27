@@ -262,7 +262,7 @@ class Learner:
             step_bin = pickle.dumps(step)
             self.connect.set("state_dict", state_dict)
             self.connect.set("count", step_bin)
-            mm = 100
+            mm = 1000
             if step % mm == 0:
                 pipe = self.connect.pipeline()
                 pipe.lrange("reward", 0, -1)
