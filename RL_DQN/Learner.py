@@ -25,8 +25,6 @@ class Learner:
         self.memory = Replay()
         self.memory.start()
         
-
-
         self.writer = SummaryWriter(
             os.path.join(
                 LOG_PATH, 'DQN'
@@ -53,6 +51,7 @@ class Learner:
         self.optim = getOptim(OPTIM_INFO, self.model)
         
     def train(self, transition, t=0) -> dict:
+        new_priority = None
         state, action, reward, next_state, done = transition
 
         state = torch.tensor(state).float()
@@ -92,13 +91,17 @@ class Learner:
 
         target = reward + 0.99 * next_max_value
 
-        loss = torch.sum((target - selected_action_value) ** 2)
+        td_error = target - selected_action_value
+        td_error = torch.clamp(td_error, -1, 1)
+
+        loss = torch.sum(td_error ** 2)
         loss.backward()
 
         info = self.step()
 
         info['mean_value'] = float(target.mean().detach().cpu().numpy())           
-        return info
+        
+        return info, new_priority
 
     def step(self):
         p_norm = 0
@@ -196,12 +199,22 @@ class Learner:
         step, norm, mean_value = 0, 0, 0
 
         for t in count():
+            if USE_PER:
+                self.memory.lock = True
             experience = self.memory.sample()
             if experience is False:
                 time.sleep(0.2)
                 continue
+            if USE_PER:
+                experience, priority, idx = experience
             step += 1
             info = self.train(experience)
+            if USE_PER:
+                self.memory.memory.update(
+                    list(idx), priority
+                )
+                self.memory.lock = False
+                time.sleep(0.025)
 
             norm += info['p_norm']
             mean_value += info['mean_value']

@@ -10,16 +10,29 @@ import numpy as np
 from copy import deepcopy
 from collections import deque
 from baseline.utils import loads, ReplayMemory
+from baseline.PER import PER
 
 from configuration import *
 
 # class Replay:
 class Replay(threading.Thread):
+# class Replay(threading.current_thread):
 
     def __init__(self):
         super(Replay, self).__init__()
         self.setDaemon(True)
-        self.memory = ReplayMemory(REPLAY_MEMORY_LEN)
+        self.use_PER = USE_PER
+        # self.memory = ReplayMemory(REPLAY_MEMORY_LEN)
+        self.lock = False
+        if self.use_PER:
+            self.memory = PER(
+                REPLAY_MEMORY_LEN,
+                max_value=1.0,
+                alpha=1)
+        else:
+            self.memory = ReplayMemory(REPLAY_MEMORY_LEN)
+        self.beta = 0.25
+
         # PER 구현해보자
         self.cond = False
         self.connect = redis.StrictRedis(host=REDIS_SERVER, port=6379)
@@ -28,7 +41,12 @@ class Replay(threading.Thread):
         self.device = torch.device(LEARNER_DEVICE)
     
     def buffer(self):
-        experiences = deepcopy(self.memory.sample(32))
+        if self.use_PER:
+            experiences, prob, idx = self.memory.sample(32)
+            n = len(self.memory)
+            weight = (1 / (n * prob)) ** self.beta / self.memory.max_weight
+        else:
+            experiences = deepcopy(self.memory.sample(32))
         experiences = np.array([pickle.loads(bin) for bin in experiences])
         # S, A, R, S_
         # experiences = np.array([list(map(pickle.loads, experiences))])
@@ -38,23 +56,31 @@ class Replay(threading.Thread):
         reward = list(experiences[:, 2])
         next_state = np.stack(experiences[:, 3], 0)
         done = list(experiences[:, -1])
-        return (state, action, reward, next_state, done)
+        if self.use_PER:
+            (state, action, reward, next_state, done), weight, idx
+        else:
+            return (state, action, reward, next_state, done)
     
     def run(self):
         t = 0
         while True:
             if len(self.memory) > REPLAY_MEMORY_LEN * 0.05:
+            # if len(self.memory) > 32:
                 self.cond = True
             t += 1
-            pipe = self.connect.pipeline()
-            pipe.lrange("experience", 0, -1)
-            pipe.ltrim("experience", -1, 0)
-            data = pipe.execute()[0]
-            self.connect.delete("trajectory")
-            if data is not None:
-                with self._lock:
-                    for d in data:
-                        self.memory.push(d)
+            if not self.lock:
+                pipe = self.connect.pipeline()
+                pipe.lrange("experience", 0, -1)
+                pipe.ltrim("experience", -1, 0)
+                data = pipe.execute()[0]
+                self.connect.delete("experience")
+                if data is not None:
+                    if not self.lock:
+                        for d in data:
+                            if not self.lock:
+                                self.memory.push(d)
+                            else:
+                                print("Something Happens")
             time.sleep(0.01)
             gc.collect()
         
