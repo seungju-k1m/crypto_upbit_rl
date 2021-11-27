@@ -285,7 +285,7 @@ class Learner:
                 print(
                     """step:{} // mean_value:{:.3f} // norm: {:.3f} // REWARD:{:.3f} // NUM_MEMORY:{} 
             TIME:{:.3f} // TRAIN_TIME:{:.3f} // SAMPLE_TIME:{:.3f} // UPDATE_TIME:{:.3f}""".format(
-                        step, mean_value / mm, norm / mm, cumulative_reward, len(self.memory.memory), tt / m, amount_train_tim, amount_sample_time, amount_update_time)
+                        step, mean_value / mm, norm / mm, cumulative_reward, len(self.memory.memory), tt / mm, amount_train_tim, amount_sample_time, amount_update_time)
                 )
                 amount_sample_time, amount_train_tim, amount_update_time = 0, 0, 0
                 if len(data) > 0:
