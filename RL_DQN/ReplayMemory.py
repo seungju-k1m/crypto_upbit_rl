@@ -77,7 +77,7 @@ class Replay(threading.Thread):
                 #     else:
                 #         break
                 if len(data) > 0:
-                    print(len(data))
+                    # print(len(data))
                     self.memory.push(data)
             time.sleep(0.01)
             gc.collect()
