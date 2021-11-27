@@ -79,8 +79,9 @@ class Replay(threading.Thread):
                 if len(data) > 0:
                     # print(len(data))
                     if self.lock:
-                        break
-                    else:
+                        while True:
+                            if not self.lock:
+                                break
                         self.memory.push(data)
                         data.clear()
             time.sleep(0.01)
