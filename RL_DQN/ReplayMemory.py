@@ -5,6 +5,7 @@ import _pickle as pickle
 import threading
 import redis
 
+import itertools
 import numpy as np
 
 from copy import deepcopy
@@ -35,6 +36,7 @@ class Replay(threading.Thread):
         self._lock = threading.Lock()
         self.deque = []
         self.device = torch.device(LEARNER_DEVICE)
+        self.total_frame = 0
     
     def buffer(self):
         if self.use_PER:
@@ -61,8 +63,8 @@ class Replay(threading.Thread):
         t = 0
         data = []
         while True:
-            if len(self.memory) > REPLAY_MEMORY_LEN * 0.05:
-            # if len(self.memory) > 1000:
+            # if len(self.memory) > REPLAY_MEMORY_LEN * 0.05:
+            if len(self.memory) > 1000:
                 self.cond = True
             t += 1
             if not self.lock:
@@ -87,6 +89,7 @@ class Replay(threading.Thread):
                             if not self.lock:
                                 break
                     self.memory.push(data)
+                    self.total_frame += len(data)
                     data.clear()
             time.sleep(0.01)
             gc.collect()

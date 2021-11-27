@@ -213,19 +213,31 @@ class Learner:
         step, norm, mean_value = 0, 0, 0
 
         for t in count():
+    
+            self.memory.lock = True
+            time.sleep(0.0025)
             experience = self.memory.sample()
+            prev_frame = self.memory.total_frame
+            self.memory.lock = False
+
             if experience is False:
                 time.sleep(0.2)
                 continue
+            experience = experience
             if USE_PER:
                 experience, idx = experience
             step += 1
             info, priority = self.train(experience)
             if USE_PER:
                 self.memory.lock = True
+                time.sleep(0.0025)
+                frame = self.memory.total_frame
+                delta_frame = frame - prev_frame
                 self.memory.memory.update(
-                    list(idx), priority
+                    list(idx), priority, delta_frame
                 )
+                if frame != self.memory.total_frame:
+                    print("SOMETHING REALLY WRONG")
                 self.memory.lock = False
 
             norm += info['p_norm']
