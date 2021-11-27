@@ -46,18 +46,21 @@ class Replay(threading.Thread):
             weight = (1 / (n * prob)) ** BETA / self.memory.max_weight
         else:
             experiences = deepcopy(self.memory.sample(32))
+        print(time.time() - z)
         experiences = np.array([pickle.loads(bin) for bin in experiences])
         # S, A, R, S_
         # experiences = np.array([list(map(pickle.loads, experiences))])
         # BATCH, 4
         state = np.stack(experiences[:, 0], 0)
+        print(time.time() - z)
         action = list(experiences[:, 1])
         reward = list(experiences[:, 2])
         next_state = np.stack(experiences[:, 3], 0)
         done = list(experiences[:, -1])
         print(time.time() - z)
+        print("-----------------------")
         if self.use_PER:
-            return (state, action, reward, next_state, done, weight), idx
+            return (state, action, reward, next_state, done, weight, idx)
         else:
             return (state, action, reward, next_state, done)
     
@@ -94,7 +97,7 @@ class Replay(threading.Thread):
                     if len(self.memory) > 1000:
                         self.cond = True
                         if len(self.deque) < 5:
-                            self.deque.append(self.buffer)
+                            self.deque.append(self.buffer())
             time.sleep(0.01)
             gc.collect()
         
@@ -103,7 +106,7 @@ class Replay(threading.Thread):
             if len(self.deque) == 0:
                 return self.buffer()
             else:
-                return self.deque.pop(0)
+                return self.deque.pop()
         else:
             # print(len(self.memory))
             return False

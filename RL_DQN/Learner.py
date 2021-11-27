@@ -53,10 +53,11 @@ class Learner:
     def train(self, transition, t=0) -> dict:
         new_priority = None
         if USE_PER:
-            state, action, reward, next_state, done, weight = transition
+            state, action, reward, next_state, done, weight, idx = transition
             weight = torch.tensor(weight).float().to(self.device)
         else:
             state, action, reward, next_state, done = transition
+            idx  = None
 
         state = torch.tensor(state).float()
         state = state / 255.
@@ -115,7 +116,7 @@ class Learner:
 
         info['mean_value'] = float(target.mean().detach().cpu().numpy())           
         
-        return info, new_priority
+        return info, new_priority, idx
 
     def step(self):
         p_norm = 0
@@ -222,17 +223,15 @@ class Learner:
             self.memory.lock = False
 
             if experience is False:
-                time.sleep(0.2)
+                time.sleep(0.002)
                 continue
 
             amount_sample_time += (time.time() - time_sample)
 
             tt = time.time()
             experience = experience
-            if USE_PER:
-                experience, idx = experience
             step += 1
-            info, priority = self.train(experience)
+            info, priority, idx = self.train(experience)
             amount_train_tim += (time.time() - tt)
 
             tt = time.time()

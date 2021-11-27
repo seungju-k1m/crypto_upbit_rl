@@ -4,3 +4,4 @@ key.txt
 __pycache__
 log/*
 # data/*
+dump.rdb
