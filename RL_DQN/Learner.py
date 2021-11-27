@@ -244,7 +244,7 @@ class Learner:
             tt = time.time()
             if USE_PER:
                 self.memory.lock = True
-                time.sleep(0.0000025)
+                time.sleep(0.00025)
                 frame = self.memory.total_frame
                 delta_frame = frame - prev_frame
                 self.memory.memory.update(
