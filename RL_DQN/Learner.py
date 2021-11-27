@@ -211,11 +211,13 @@ class Learner:
         print("Learning is Started !!")
 
         step, norm, mean_value = 0, 0, 0
-
+        prev_time = time.time()
+        amount_sample_time, amount_train_tim, amount_update_time = 0, 0, 0
         for t in count():
-            zx = time.time()
+            
             self.memory.lock = True
             time.sleep(0.0025)
+            time_sample = time.time()
             experience = self.memory.sample()
             prev_frame = self.memory.total_frame
             self.memory.lock = False
@@ -223,11 +225,18 @@ class Learner:
             if experience is False:
                 time.sleep(0.2)
                 continue
+
+            amount_sample_time += (time.time() - time_sample)
+
+            tt = time.time()
             experience = experience
             if USE_PER:
                 experience, idx = experience
             step += 1
             info, priority = self.train(experience)
+            amount_train_tim += (time.time() - tt)
+
+            tt = time.time()
             if USE_PER:
                 self.memory.lock = True
                 time.sleep(0.0025)
@@ -239,6 +248,7 @@ class Learner:
                 if frame != self.memory.total_frame:
                     print("SOMETHING REALLY WRONG")
                 self.memory.lock = False
+            amount_update_time += (time.time() - tt)
 
             norm += info['p_norm']
             mean_value += info['mean_value']
@@ -257,6 +267,7 @@ class Learner:
             mm = 100
             if step % mm == 0:
                 kk = time.time() - zx
+                zx = time.time()
                 pipe = self.connect.pipeline()
                 pipe.lrange("reward", 0, -1)
                 pipe.ltrim("reward", -1, 0)
@@ -269,12 +280,15 @@ class Learner:
                     cumulative_reward /= len(data)
                 else:
                     cumulative_reward = -21
-
+                amount_sample_time /= mm
+                amount_train_tim /= mm
+                amount_update_time /= mm
                 print(
-                    "step:{} // mean_value:{:.3f} // norm: {:.3f} // REWARD:{:.3f} // NUM_MEMORY:{} // TIME:{:.3f}".format(
-                        step, mean_value / mm, norm / mm, cumulative_reward, len(self.memory.memory), kk / mm)
+                    """step:{} // mean_value:{:.3f} // norm: {:.3f} // REWARD:{:.3f} // NUM_MEMORY:{} 
+                       TRAIN_TIME:{:.3f} // SAMPLE_TIME:{:.3f} // UPDATE_TIME:{:.3f}""".format(
+                        step, mean_value / mm, norm / mm, cumulative_reward, len(self.memory.memory), amount_train_tim, amount_sample_time, amount_update_time)
                 )
-
+                amount_sample_time, amount_train_tim, amount_update_time = 0, 0, 0
                 if len(data) > 0:
                     self.writer.add_scalar(
                         "Reward", cumulative_reward, step
