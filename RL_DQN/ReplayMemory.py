@@ -82,8 +82,8 @@ class Replay(threading.Thread):
                         while True:
                             if not self.lock:
                                 break
-                        self.memory.push(data)
-                        data.clear()
+                    self.memory.push(data)
+                    data.clear()
             time.sleep(0.01)
             gc.collect()
         
