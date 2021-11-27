@@ -211,12 +211,11 @@ class Learner:
         print("Learning is Started !!")
 
         step, norm, mean_value = 0, 0, 0
-        prev_time = time.time()
         amount_sample_time, amount_train_tim, amount_update_time = 0, 0, 0
         for t in count():
             
             self.memory.lock = True
-            time.sleep(0.0025)
+            time.sleep(0.0000025)
             time_sample = time.time()
             experience = self.memory.sample()
             prev_frame = self.memory.total_frame
@@ -239,7 +238,7 @@ class Learner:
             tt = time.time()
             if USE_PER:
                 self.memory.lock = True
-                time.sleep(0.0025)
+                time.sleep(0.0000025)
                 frame = self.memory.total_frame
                 delta_frame = frame - prev_frame
                 self.memory.memory.update(
@@ -266,8 +265,6 @@ class Learner:
             self.connect.set("count", step_bin)
             mm = 100
             if step % mm == 0:
-                kk = time.time() - zx
-                zx = time.time()
                 pipe = self.connect.pipeline()
                 pipe.lrange("reward", 0, -1)
                 pipe.ltrim("reward", -1, 0)
