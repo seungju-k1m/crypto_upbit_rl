@@ -208,7 +208,7 @@ class Learner:
             if USE_PER:
                 experience, priority, idx = experience
             step += 1
-            info = self.train(experience)
+            info, priority = self.train(experience)
             if USE_PER:
                 self.memory.memory.update(
                     list(idx), priority
