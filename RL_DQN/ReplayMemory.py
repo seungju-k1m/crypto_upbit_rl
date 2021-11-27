@@ -34,11 +34,12 @@ class Replay(threading.Thread):
         self.cond = False
         self.connect = redis.StrictRedis(host=REDIS_SERVER, port=6379)
         self._lock = threading.Lock()
-        self.deque = []
+        self.deque = deque(maxlen=5)
         self.device = torch.device(LEARNER_DEVICE)
         self.total_frame = 0
     
     def buffer(self):
+        z = time.time()
         if self.use_PER:
             experiences, prob, idx = self.memory.sample(32)
             n = len(self.memory)
@@ -54,6 +55,7 @@ class Replay(threading.Thread):
         reward = list(experiences[:, 2])
         next_state = np.stack(experiences[:, 3], 0)
         done = list(experiences[:, -1])
+        print(time.time() - z)
         if self.use_PER:
             return (state, action, reward, next_state, done, weight), idx
         else:
@@ -63,9 +65,7 @@ class Replay(threading.Thread):
         t = 0
         data = []
         while True:
-            if len(self.memory) > REPLAY_MEMORY_LEN * 0.05:
-            # if len(self.memory) > 1000:
-                self.cond = True
+            # if len(self.memory) > REPLAY_MEMORY_LEN * 0.05:
             t += 1
             if not self.lock:
                 pipe = self.connect.pipeline()
@@ -91,12 +91,19 @@ class Replay(threading.Thread):
                     self.memory.push(data)
                     self.total_frame += len(data)
                     data.clear()
+                    if len(self.memory) > 1000:
+                        self.cond = True
+                        if len(self.deque) < 5:
+                            self.deque.append(self.buffer)
             time.sleep(0.01)
             gc.collect()
         
     def sample(self):
         if self.cond:
-            return self.buffer()
+            if len(self.deque) == 0:
+                return self.buffer()
+            else:
+                return self.deque.pop(0)
         else:
             # print(len(self.memory))
             return False
