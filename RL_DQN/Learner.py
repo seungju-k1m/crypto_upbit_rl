@@ -254,7 +254,8 @@ class Learner:
             step_bin = pickle.dumps(step)
             self.connect.set("state_dict", state_dict)
             self.connect.set("count", step_bin)
-            if step % 1000 == 0:
+            mm = 100
+            if step % mm == 0:
                 kk = time.time() - zx
                 pipe = self.connect.pipeline()
                 pipe.lrange("reward", 0, -1)
@@ -271,7 +272,7 @@ class Learner:
 
                 print(
                     "step:{} // mean_value:{:.3f} // norm: {:.3f} // REWARD:{:.3f} // NUM_MEMORY:{} // TIME:{:.3f}".format(
-                        step, mean_value / 1000, norm / 1000, cumulative_reward, len(self.memory.memory), kk / 1000.)
+                        step, mean_value / mm, norm / mm, cumulative_reward, len(self.memory.memory), kk / mm)
                 )
 
                 if len(data) > 0:
@@ -279,10 +280,10 @@ class Learner:
                         "Reward", cumulative_reward, step
                     )
                 self.writer.add_scalar(
-                    "value", mean_value / 1000, step
+                    "value", mean_value / mm, step
                 )
                 self.writer.add_scalar(
-                    "norm", norm/ 1000, step
+                    "norm", norm/ mm, step
                 )
                 mean_value, norm = 0, 0
                 torch.save(self.state_dict(), './weight/dqn/weight.pth')
