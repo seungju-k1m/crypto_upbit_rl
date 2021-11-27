@@ -214,10 +214,13 @@ class Learner:
         step, norm, mean_value = 0, 0, 0
         amount_sample_time, amount_train_tim, amount_update_time = 0, 0, 0
         init_time = time.time()
+        mm = 100
         for t in count():
             
+            # ------sample--------
             self.memory.lock = True
             time.sleep(0.0000025)
+
             time_sample = time.time()
             experience = self.memory.sample()
             prev_frame = self.memory.total_frame
@@ -228,13 +231,16 @@ class Learner:
                 continue
 
             amount_sample_time += (time.time() - time_sample)
+            # -----------------
 
+            # ------train---------
             tt = time.time()
-            experience = experience
             step += 1
             info, priority, idx = self.train(experience)
             amount_train_tim += (time.time() - tt)
+            # -----------------
 
+            # ------Update------
             tt = time.time()
             if USE_PER:
                 self.memory.lock = True
@@ -247,7 +253,7 @@ class Learner:
                 if frame != self.memory.total_frame:
                     print("SOMETHING REALLY WRONG")
                 self.memory.lock = False
-            amount_update_time += (time.time() - tt)
+            
 
             norm += info['p_norm']
             mean_value += info['mean_value']
@@ -259,11 +265,13 @@ class Learner:
             if step % 2500 == 0:
                 self.target_model.updateParameter(self.model, 1)
 
-            state_dict = pickle.dumps(self.state_dict())
-            step_bin = pickle.dumps(step)
-            self.connect.set("state_dict", state_dict)
-            self.connect.set("count", step_bin)
-            mm = 1000
+            if step % 100 == 0:
+                state_dict = pickle.dumps(self.state_dict())
+                step_bin = pickle.dumps(step)
+                self.connect.set("state_dict", state_dict)
+                self.connect.set("count", step_bin)
+            amount_update_time += (time.time() - tt)
+            
             if step % mm == 0:
                 pipe = self.connect.pipeline()
                 pipe.lrange("reward", 0, -1)
