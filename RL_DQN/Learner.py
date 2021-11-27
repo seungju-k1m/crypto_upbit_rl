@@ -213,8 +213,6 @@ class Learner:
         step, norm, mean_value = 0, 0, 0
 
         for t in count():
-            if USE_PER:
-                self.memory.lock = True
             experience = self.memory.sample()
             if experience is False:
                 time.sleep(0.2)
@@ -224,6 +222,7 @@ class Learner:
             step += 1
             info, priority = self.train(experience)
             if USE_PER:
+                self.memory.lock = True
                 self.memory.memory.update(
                     list(idx), priority
                 )
