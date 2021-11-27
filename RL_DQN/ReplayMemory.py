@@ -69,6 +69,10 @@ class Replay(threading.Thread):
                 pipe = self.connect.pipeline()
                 pipe.lrange("experience", 0, -1)
                 pipe.ltrim("experience", -1, 0)
+                if self.lock:
+                    while True:
+                        if not self.lock:
+                            break
                 data += pipe.execute()[0]
                 self.connect.delete("experience")
                 # for i in range(len(data)):
