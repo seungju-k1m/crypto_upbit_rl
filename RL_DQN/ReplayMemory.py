@@ -62,7 +62,7 @@ class Replay(threading.Thread):
         data = []
         while True:
             if len(self.memory) > REPLAY_MEMORY_LEN * 0.05:
-            # if len(self.memory) > 300:
+            # if len(self.memory) > 1000:
                 self.cond = True
             t += 1
             if not self.lock:
