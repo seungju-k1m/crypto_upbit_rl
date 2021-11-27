@@ -213,7 +213,7 @@ class Learner:
         step, norm, mean_value = 0, 0, 0
 
         for t in count():
-    
+            zx = time.time()
             self.memory.lock = True
             time.sleep(0.0025)
             experience = self.memory.sample()
@@ -255,6 +255,7 @@ class Learner:
             self.connect.set("state_dict", state_dict)
             self.connect.set("count", step_bin)
             if step % 1000 == 0:
+                kk = time.time() - zx
                 pipe = self.connect.pipeline()
                 pipe.lrange("reward", 0, -1)
                 pipe.ltrim("reward", -1, 0)
@@ -269,8 +270,8 @@ class Learner:
                     cumulative_reward = -21
 
                 print(
-                    "step:{} // mean_value:{:.3f} // norm: {:.3f} // REWARD:{:.3f} // NUM_MEMORY:{}".format(
-                        step, mean_value / 1000, norm / 1000, cumulative_reward, len(self.memory.memory))
+                    "step:{} // mean_value:{:.3f} // norm: {:.3f} // REWARD:{:.3f} // NUM_MEMORY:{} // TIME:{:.3f}".format(
+                        step, mean_value / 1000, norm / 1000, cumulative_reward, len(self.memory.memory), kk / 1000.)
                 )
 
                 if len(data) > 0:
