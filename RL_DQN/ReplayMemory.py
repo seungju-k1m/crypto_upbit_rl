@@ -39,26 +39,24 @@ class Replay(threading.Thread):
         self.total_frame = 0
     
     def buffer(self):
-        z = time.time()
         if self.use_PER:
             experiences, prob, idx = self.memory.sample(32)
             n = len(self.memory)
             weight = (1 / (n * prob)) ** BETA / self.memory.max_weight
         else:
             experiences = deepcopy(self.memory.sample(32))
-        print(time.time() - z)
+
         experiences = np.array([pickle.loads(bin) for bin in experiences])
         # S, A, R, S_
         # experiences = np.array([list(map(pickle.loads, experiences))])
         # BATCH, 4
         state = np.stack(experiences[:, 0], 0)
-        print(time.time() - z)
+
         action = list(experiences[:, 1])
         reward = list(experiences[:, 2])
         next_state = np.stack(experiences[:, 3], 0)
         done = list(experiences[:, -1])
-        print(time.time() - z)
-        print("-----------------------")
+
         if self.use_PER:
             return (state, action, reward, next_state, done, weight, idx)
         else:
@@ -68,7 +66,7 @@ class Replay(threading.Thread):
         t = 0
         data = []
         while True:
-            # if len(self.memory) > REPLAY_MEMORY_LEN * 0.05:
+            
             t += 1
             if not self.lock:
                 pipe = self.connect.pipeline()
@@ -94,7 +92,8 @@ class Replay(threading.Thread):
                     self.memory.push(data)
                     self.total_frame += len(data)
                     data.clear()
-                    if len(self.memory) > 1000:
+                    # if len(self.memory) > 1000:
+                    if len(self.memory) > REPLAY_MEMORY_LEN * 0.05:
                         self.cond = True
                         if len(self.deque) < 5:
                             self.deque.append(self.buffer())
