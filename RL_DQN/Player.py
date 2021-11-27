@@ -264,8 +264,8 @@ class Player():
         mean_cumulative_reward = 0
         per_episode = 2
         step = 0
-        key = "ale.lives"
-        # key = "lives"
+        # key = "ale.lives"
+        key = "lives"
         def rgb_to_gray(img, W=84, H=84):
             grayImage = im.fromarray(img, mode="RGB").convert("L")
 
@@ -306,7 +306,10 @@ class Player():
                     reward += r
                 next_obs, r, done, info = self.sim.step(action)
                 reward += r
+                reward_ = reward
+                reward = max(-1.0, min(reward, 1.0))
                 step += 1
+                # print(step)
                 # self.sim.render()
 
                 if live == -1:
@@ -320,7 +323,7 @@ class Player():
                     _done = reward != 0
                 
                 next_state = stack_obs(next_obs)
-                cumulative_reward += reward
+                cumulative_reward += reward_
 
                 experience += deepcopy([state, action, reward, next_state])
 

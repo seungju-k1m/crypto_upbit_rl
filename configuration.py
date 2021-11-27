@@ -15,7 +15,9 @@ _data_ = _parser_.loadParser()
 _key_ = list(_data_.keys())
 DATA = _data_
 
-USE_PER = False
+USE_PER = True
+ALPHA = 0.6
+BETA = 0.4
 
 FEE = _data_['FEE']
 ACCESS_KEY = _data_['ACCESS_KEY']

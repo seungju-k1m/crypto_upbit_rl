@@ -8,4 +8,5 @@ name = c.scan()
 
 if len(name[-1]) > 0:
     c.delete(*name[-1])
+    print(name[-1])
     print("DELETE")

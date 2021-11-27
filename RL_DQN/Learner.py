@@ -52,11 +52,16 @@ class Learner:
         
     def train(self, transition, t=0) -> dict:
         new_priority = None
-        state, action, reward, next_state, done = transition
+        if USE_PER:
+            state, action, reward, next_state, done, weight = transition
+            weight = torch.tensor(weight).float().to(self.device)
+        else:
+            state, action, reward, next_state, done = transition
 
         state = torch.tensor(state).float()
         state = state / 255.
         state = state.to(self.device)
+
 
         next_state = torch.tensor(next_state).float()
         next_state = next_state / 255.
@@ -65,6 +70,7 @@ class Learner:
         # action = torch.tensor(action).long().to(self.device)
         action = [6 * i + a for i, a in enumerate(action)]
         reward = torch.tensor(reward).float().to(self.device)
+        # reward = torch.clamp(reward, -1, 1)
 
         done = [float(not d) for d in done]
         done = torch.tensor(done).float().to(self.device)
@@ -85,7 +91,6 @@ class Learner:
             # next_max_value, _ = next_action_value.max(dim=-1) 
             # next_max_value = next_max_value * done
             
-    
         action_value = action_value.view(-1)
         selected_action_value = action_value[action]
 
@@ -94,7 +99,16 @@ class Learner:
         td_error = target - selected_action_value
         td_error = torch.clamp(td_error, -1, 1)
 
-        loss = torch.sum(td_error ** 2)
+        td_error_for_prior = td_error.detach().cpu().numpy()
+        td_error_for_prior = (np.abs(td_error_for_prior) + 1e-3) ** ALPHA
+        new_priority = td_error_for_prior
+
+        if USE_PER:
+            loss = torch.sum(
+                weight * td_error ** 2
+            )
+        else:
+            loss = torch.sum(td_error ** 2)
         loss.backward()
 
         info = self.step()
@@ -206,7 +220,7 @@ class Learner:
                 time.sleep(0.2)
                 continue
             if USE_PER:
-                experience, priority, idx = experience
+                experience, idx = experience
             step += 1
             info, priority = self.train(experience)
             if USE_PER:
@@ -214,7 +228,6 @@ class Learner:
                     list(idx), priority
                 )
                 self.memory.lock = False
-                time.sleep(0.025)
 
             norm += info['p_norm']
             mean_value += info['mean_value']
