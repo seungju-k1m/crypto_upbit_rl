@@ -103,7 +103,7 @@ class Replay(threading.Thread):
             self.connect.delete("experience")
             if len(data) > 0 and not self.lock:
                 check_time = time.time()
-                self.memory.push(data, self.total_frame)
+                self.memory.push(data)
                 # print("Push Time:{:.3f}".format(time.time() - check_time))
                 self.total_frame += len(data)
                 data.clear()
