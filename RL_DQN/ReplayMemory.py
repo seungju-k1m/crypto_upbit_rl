@@ -108,6 +108,9 @@ class Replay(threading.Thread):
                             self.deque.append(self.buffer())
                             self.deque.append(self.buffer())
                             self.deque.append(self.buffer())
+                            self.deque.append(self.buffer())
+                            self.deque.append(self.buffer())
+                            
             gc.collect()
         
     def sample(self):
