@@ -1,3 +1,4 @@
+from threading import local
 from numpy.core.fromnumeric import mean
 from numpy.core.shape_base import stack
 from configuration import *
@@ -21,6 +22,34 @@ import random
 from PIL import Image as im
 
 
+class LocalBuffer:
+
+    def __init__(self):
+        self.storage = []
+    
+    def push(self, s, a, r):
+        self.storage += [s, a, r]
+        if len(self.storage) > 3 * (UNROLL_STEP + 1):
+            self.storage.pop(0)
+            self.storage.pop(0)
+            self.storage.pop(0)
+    
+    def get_traj(self, done=False):
+        traj = [self.storage[0]]
+        traj.append(self.storage[1])
+        r = 0
+        for i in range(UNROLL_STEP):
+            r += (GAMMA ** i) * self.storage[i*3 + 2]
+        traj.append(r)
+        traj.append(self.storage[-3])
+        traj += [done]
+        # s, a, r, s', d
+        return traj
+    
+    def clear(self):
+        self.storage.clear()
+
+
 class Player():
 
     def __init__(self, train_mode: bool=True, end_time: str=None):
@@ -42,7 +71,7 @@ class Player():
         self.connect = redis.StrictRedis(host=REDIS_SERVER, port=6379)
         self.prev_embedding = [None, None, None, None]
         self.count = 0
-        
+        self.target_model_version = -1
         if USE_GYM:
             self.forward = self.gym_forward
             self.run = self.gym_run
@@ -53,9 +82,11 @@ class Player():
     def build_model(self):
         info = DATA["model"]
         self.model = baseAgent(info)
+        self.target_model = baseAgent(info)
 
     def to(self):
         self.model.to(self.device)
+        self.target_model.to(self.device)
     
     def bit_forward(self, state:List[np.ndarray], step=0):
         # 4 * [time, midpoint, delta, acc_volume, coin]
@@ -142,12 +173,19 @@ class Player():
         return (state, action, reward, done)
 
     def pull_param(self):
-        param = self.connect.get("state_dict")
+       
         count = self.connect.get("count")
         if count is not None:
             count = pickle.loads(count)
+            target_version = int(count / TARGET_FREQUENCY)
+            if target_version > self.target_model_version:
+                t_param = self.connect.get("target_state_dict")
+                t_param = pickle.loads(t_param)
+                self.target_model_version = target_version
+                self.target_model.load_state_dict(t_param)
+                
             if count > self.count:
-                # print(count)
+                param = self.connect.get("state_dict")
                 param = pickle.loads(param)
                 self.count = count
 
@@ -259,11 +297,30 @@ class Player():
                 file.close()
                 break
 
+    def calculate_priority(self, traj):
+        with torch.no_grad():
+            s, a, r, s_, d = traj
+            s = torch.tensor([s]).float().to(self.device)
+            s = s/255.
+            s_ = torch.tensor([s_]).float().to(self.device)
+            s_ = s_/255.
+
+            state_value = self.model.forward([s])[0][0]
+            current_state_value = float(state_value.detach().cpu().numpy()[a])
+            next_state_value = self.target_model.forward([s_])[0][0]
+
+            action = int(state_value.argmax().cpu().detach().numpy())
+            max_next_state_value = float(next_state_value[action].cpu().detach().numpy())
+            td_error = r + (GAMMA)**UNROLL_STEP * max_next_state_value - current_state_value
+            return (abs(td_error) + 1e-3) ** ALPHA
+        
     def gym_run(self):
         obsDeque = deque(maxlen=4)
         mean_cumulative_reward = 0
         per_episode = 2
         step = 0
+        local_buffer = LocalBuffer()
+        keys = ['ale.lives', 'lives']
         key = "ale.lives"
         # key = "lives"
         def rgb_to_gray(img, W=84, H=84):
@@ -284,12 +341,16 @@ class Player():
                 return state
             else:
                 return None
+        
+        total_step = 0
 
         for t in count():
             cumulative_reward = 0   
             done = False
             live = -1
             experience = []
+            local_buffer.clear()
+            step = 0
 
             obs = self.sim.reset()
             self.obsDeque.clear()
@@ -297,6 +358,7 @@ class Player():
                 stack_obs(obs)
             
             state = stack_obs(obs)
+
             action, _ = self.forward(state)
             
             while done is False:
@@ -309,11 +371,16 @@ class Player():
                 reward_ = reward
                 reward = max(-1.0, min(reward, 1.0))
                 step += 1
+                total_step += 1
                 # print(step)
                 # self.sim.render()
 
                 if live == -1:
-                    live = info[key]
+                    try:
+                        live = info[key]
+                    except:
+                        key = keys[1 - keys.index(key)]
+                        live = info[key]
                 
                 if info[key] != 0:
                     _done = live != info[key]
@@ -325,19 +392,24 @@ class Player():
                 next_state = stack_obs(next_obs)
                 cumulative_reward += reward_
 
-                experience += deepcopy([state, action, reward, next_state])
+                # experience += deepcopy([state, action, reward, next_state])
 
-                action, epsilon = self.forward(next_state, step)
+                local_buffer.push(state, action, reward)
+                action, epsilon = self.forward(next_state, total_step)
                 state = next_state
 
-                if step % UNROLL_STEP == 0 or _done:
-                    experience += [_done]
+                if step > UNROLL_STEP:
+                    experience = local_buffer.get_traj(_done)
+
+                    priority = self.calculate_priority(experience)
+                    experience.append(priority)
+
                     self.connect.rpush(
                         "experience",
                         pickle.dumps(experience)
                     )
-                    experience.clear()
-                if step % 5 == 0:
+
+                if step % 20 == 0:
                     self.pull_param()
             mean_cumulative_reward += cumulative_reward
 

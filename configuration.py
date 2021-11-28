@@ -18,6 +18,8 @@ DATA = _data_
 USE_PER = True
 ALPHA = 0.6
 BETA = 0.4
+GAMMA = .99
+TARGET_FREQUENCY = 2500
 
 FEE = _data_['FEE']
 ACCESS_KEY = _data_['ACCESS_KEY']

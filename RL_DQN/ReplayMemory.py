@@ -72,7 +72,7 @@ class Replay(threading.Thread):
         action = list(experiences[:, 1])
         reward = list(experiences[:, 2])
         next_state = np.stack(experiences[:, 3], 0)
-        done = list(experiences[:, -1])
+        done = list(experiences[:, 4])
         # print("-----PP_03:{:.3f}".format(preprocess_time - time.time()))
 
         if self.use_PER:

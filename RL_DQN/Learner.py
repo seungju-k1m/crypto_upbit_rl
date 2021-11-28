@@ -133,11 +133,17 @@ class Learner:
         info = {}
         info['p_norm'] = p_norm.cpu().numpy()
         return info
-    
+
+    @property
     def state_dict(self):
         state_dict = {k:v.cpu() for k, v in self.model.state_dict().items()}
         return state_dict
-
+    
+    @property
+    def target_state_dict(self):
+        target_state_dict = {k:v.cpu() for k, v in self.model.state_dict().items()}
+        return target_state_dict
+    
     def bit_run(self):
         def wait_memory():
             while True:
@@ -214,7 +220,7 @@ class Learner:
         step, norm, mean_value = 0, 0, 0
         amount_sample_time, amount_train_tim, amount_update_time = 0, 0, 0
         init_time = time.time()
-        mm = 2500
+        mm = 500
         for t in count():
             
             # ------sample--------
@@ -255,11 +261,21 @@ class Learner:
             # soft
             # self.target_model.updateParameter(self.model, 0.005)
             # hard
-            if step % 2500 == 0:
+            if step == 1:
+                state_dict = pickle.dumps(self.state_dict)
+                step_bin = pickle.dumps(step)
+                target_state_dict = pickle.dumps(self.target_state_dict)
+                self.connect.set("state_dict", state_dict)
+                self.connect.set("count", step_bin)
+                self.connect.set("target_state_dict", target_state_dict)
+
+            if step % TARGET_FREQUENCY == 0:
                 self.target_model.updateParameter(self.model, 1)
+                target_state_dict = pickle.dumps(self.target_state_dict)
+                self.connect.set("target_state_dict", target_state_dict)
 
             if step % 10 == 0:
-                state_dict = pickle.dumps(self.state_dict())
+                state_dict = pickle.dumps(self.state_dict)
                 step_bin = pickle.dumps(step)
                 self.connect.set("state_dict", state_dict)
                 self.connect.set("count", step_bin)
@@ -285,8 +301,8 @@ class Learner:
                 init_time = time.time()
                 print(
                     """step:{} // mean_value:{:.3f} // norm: {:.3f} // REWARD:{:.3f} // NUM_MEMORY:{} 
-            TIME:{:.3f} // TRAIN_TIME:{:.3f} // SAMPLE_TIME:{:.3f} // UPDATE_TIME:{:.3f}""".format(
-                        step, mean_value / mm, norm / mm, cumulative_reward, len(self.memory.memory), tt / mm, amount_train_tim, amount_sample_time, amount_update_time)
+        MAX_WEIGHT:{:.3f}  // TIME:{:.3f} // TRAIN_TIME:{:.3f} // SAMPLE_TIME:{:.3f} // UPDATE_TIME:{:.3f}""".format(
+                        step, mean_value / mm, norm / mm, cumulative_reward, len(self.memory.memory), self.memory.memory.max_weight,tt / mm, amount_train_tim, amount_sample_time, amount_update_time)
                 )
                 amount_sample_time, amount_train_tim, amount_update_time = 0, 0, 0
                 if len(data) > 0:
@@ -300,6 +316,6 @@ class Learner:
                     "norm", norm/ mm, step
                 )
                 mean_value, norm = 0, 0
-                torch.save(self.state_dict(), './weight/dqn/weight.pth')
+                torch.save(self.state_dict, './weight/dqn/weight.pth')
 
                 
