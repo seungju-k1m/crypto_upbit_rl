@@ -141,7 +141,7 @@ class Player():
         if epsilon < 0:
             epsilon = 0.01
         
-        epsilon = 0.4 **(1 + self.idx)
+        epsilon = 0.4 **(1 + 7 * self.idx / (N-1))
         if no_epsilon:
             epsilon = 0
         if random_action:
