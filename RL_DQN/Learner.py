@@ -216,6 +216,7 @@ class Learner:
                     print(len(self.memory.memory))
                 time.sleep(1)
         wait_memory()
+        self.connect.set("Start", pickle.dumps(True))
         print("Learning is Started !!")
 
         step, norm, mean_value = 0, 0, 0

@@ -119,7 +119,7 @@ class Player():
             action = sampler.sample()
         return action.numpy()[0], cell_state, action_prob.numpy()
 
-    def gym_forward(self, state:np.ndarray, step=0, no_epsilon=False) -> int:
+    def gym_forward(self, state:np.ndarray, step=0, no_epsilon=False, random=False) -> int:
         
         phase_01_random_step = 1e6
         phase_02_random_step = 1e7
@@ -137,6 +137,8 @@ class Player():
         epsilon = 0.4 **(1 + self.idx)
         if no_epsilon:
             epsilon = 0
+        if random:
+            epsilon = 1
         
         if random.random() < epsilon:
             action = random.choice([0, 1, 2, 3, 4, 5])
@@ -328,6 +330,7 @@ class Player():
         local_buffer = LocalBuffer()
         keys = ['ale.lives', 'lives']
         key = "ale.lives"
+        random_action=True
         # key = "lives"
         def rgb_to_gray(img, W=84, H=84):
             grayImage = im.fromarray(img, mode="RGB").convert("L")
@@ -365,7 +368,7 @@ class Player():
             
             state = stack_obs(obs)
 
-            action, _ = self.forward(state)
+            action, _ = self.forward(state, random=random_action)
             
             while done is False:
                 reward = 0
@@ -403,6 +406,12 @@ class Player():
                 local_buffer.push(state, action, reward)
                 action, epsilon = self.forward(next_state, total_step)
                 state = next_state
+
+                check_learning_start = self.connect.get("Start")
+                if check_learning_start is not None:
+                    aa = pickle.loads(check_learning_start)
+                    random_action = aa
+                    self.connect.delete("Start")
 
                 if len(local_buffer) ==  2 * UNROLL_STEP or done:
                     experience = local_buffer.get_traj(done)
