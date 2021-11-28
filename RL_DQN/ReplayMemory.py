@@ -15,6 +15,8 @@ from baseline.PER import PER
 
 from configuration import *
 
+import base64
+
 # class Replay:
 class Replay(threading.Thread):
 
@@ -51,11 +53,11 @@ class Replay(threading.Thread):
     def buffer(self):
         sample_time = time.time()
         if self.use_PER:
-            experiences, prob, idx = self.memory.sample(32)
+            experiences, prob, idx = self.memory.sample(BATCHSIZE)
             n = len(self.memory)
             weight = (1 / (n * prob)) ** BETA / self.memory.max_weight
         else:
-            experiences = deepcopy(self.memory.sample(32))
+            experiences = deepcopy(self.memory.sample(BATCHSIZE))
         
         # print("---Sample Time:{:.3f}".format(time.time() - sample_time))
 
@@ -63,17 +65,23 @@ class Replay(threading.Thread):
 
         experiences = np.array([pickle.loads(bin) for bin in experiences])
 
+        state = np.stack([pickle.loads(base64.b64decode(bin)) for bin in experiences[:, 0]], 0)
+
         # print("-----PP_01:{:.3f}".format(preprocess_time - time.time()))
         # S, A, R, S_
         # experiences = np.array([list(map(pickle.loads, experiences))])
         # BATCH, 4
-        state = np.stack(experiences[:, 0], 0)
+        # state = np.stack(experiences[:, 0], 0)
         # print("-----PP_02:{:.3f}".format(preprocess_time - time.time()))
 
-        action = list(experiences[:, 1])
-        reward = list(experiences[:, 2])
-        next_state = np.stack(experiences[:, 3], 0)
-        done = list(experiences[:, 4])
+        # action = list(experiences[:, 1])
+        action = [int(i) for i in experiences[:, 1]]
+        # reward = list(experiences[:, 2])
+        reward = [float(i) for i in experiences[:, 2]]
+        # next_state = np.stack(experiences[:, 3], 0)
+        next_state = np.stack([pickle.loads(base64.b64decode(bin)) for bin in experiences[:, 3]], 0)
+        # done = list(experiences[:, 4])
+        done = [bool(i) for i in experiences[:, 4]]
         # print("-----PP_03:{:.3f}".format(preprocess_time - time.time()))
 
         if self.use_PER:
@@ -110,7 +118,7 @@ class Replay(threading.Thread):
                             self.deque.append(self.buffer())
                             self.deque.append(self.buffer())
                             self.deque.append(self.buffer())
-                            
+
             gc.collect()
         
     def sample(self):
