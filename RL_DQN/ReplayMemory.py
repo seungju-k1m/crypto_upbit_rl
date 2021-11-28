@@ -96,7 +96,7 @@ class Replay(threading.Thread):
             if len(data) > 0:
                 check_time = time.time()
                 self.memory.push(data, self.total_frame)
-                print("Push Time:{:.3f}".format(time.time() - check_time))
+                # print("Push Time:{:.3f}".format(time.time() - check_time))
                 self._update()
                 self.total_frame += len(data)
                 data.clear()
