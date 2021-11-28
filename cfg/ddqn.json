@@ -1,8 +1,8 @@
 {
     "ACCESS_KEY":"jy66T1dXlJCxxj824XhSgLawFx66QKX7bDulB9sM",
     "SECRETE_KEY":"hN4d0SQMjNY7259kUp8HRf4C8Hj6DQxAXOqrlYox",
-    "redis_server":"10.173.159.188",
-    "redis_server_":"localhost",
+    "redis_server_":"10.173.159.188",
+    "redis_server":"localhost",
     "MARKET":"KRW-BTC",
     "LOG_MODE":false,
     "BACKTEST":true,
@@ -17,7 +17,7 @@
 
     "optim":{
         "name":"rmsprop",
-        "lr":0.00025,
+        "lr":0.0000625,
         "eps":1.5e-7,
         "alpha":0.95,
         "momentum":0
@@ -42,45 +42,35 @@
             "netCat":"MLP",
             "iSize":3136,
             "nLayer":1,
-            "fSize":[512],
-            "act":["relu"],
+            "fSize":[1],
+            "act":["linear"],
             "BN":[false],
             "prior":1,
             "prevNodeNames":["module00"]
         },
-        "module02_1":{
-            "netCat":"MLP",
-            "iSize":512,
-            "nLayer":2,
-            "fSize":[512, 1],
-            "act":["relu", "linear"],
-            "BN":[false, false],
-            "prior":2,
-            "prevNodeNames":["module01"]
-        },
         "module02":{
             "netCat":"MLP",
-            "iSize":512,
-            "nLayer":2,
-            "fSize":[512, 6],
-            "act":["relu", "linear"],
+            "iSize":3136,
+            "nLayer":1,
+            "fSize":[6],
+            "act":["linear"],
             "BN":[false, false],
-            "prior":2,
-            "prevNodeNames":["module01"]
+            "prior":1,
+            "prevNodeNames":["module00"]
         },
         "module03":{
             "netCat":"Add",
-            "prior":3,
-            "prevNodeNames":["module02", "module02_1"]
+            "prior":2,
+            "prevNodeNames":["module01", "module02"]
         },
         "module04":{
             "netCat":"Mean",
-            "prior":3,
+            "prior":2,
             "prevNodeNames":["module02"]
         },
         "module05":{
             "netCat":"Substract",
-            "prior":4,
+            "prior":3,
             "prevNodeNames":["module03", "module04"],
             "output":true
         }
