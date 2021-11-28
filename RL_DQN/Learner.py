@@ -224,7 +224,6 @@ class Learner:
         self.connect.set("target_state_dict", target_state_dict)
         self.connect.set("Start", pickle.dumps(True))
         print("Learning is Started !!")
-
         step, norm, mean_value = 0, 0, 0
         amount_sample_time, amount_train_tim, amount_update_time = 0, 0, 0
         init_time = time.time()

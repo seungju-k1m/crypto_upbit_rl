@@ -411,7 +411,8 @@ class Player():
                 check_learning_start = self.connect.get("Start")
                 if check_learning_start is not None:
                     aa = pickle.loads(check_learning_start)
-                    random_action = aa
+                    if aa:
+                        random_action = False
                     self.connect.delete("Start")
 
                 if len(local_buffer) ==  2 * UNROLL_STEP or done:
