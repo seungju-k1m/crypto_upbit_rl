@@ -409,12 +409,13 @@ class Player():
                 action, epsilon = self.forward(next_state, total_step, random_action=random_action)
                 state = next_state
 
-                check_learning_start = self.connect.get("Start")
-                if check_learning_start is not None:
-                    aa = pickle.loads(check_learning_start)
-                    if aa:
-                        random_action = False
-                    self.connect.delete("Start")
+                if random_action:
+                    check_learning_start = self.connect.get("Start")
+                    if check_learning_start is not None:
+                        aa = pickle.loads(check_learning_start)
+                        if aa:
+                            random_action = False
+                    # self.connect.delete("Start")
 
                 if len(local_buffer) ==  2 * UNROLL_STEP or done:
                     experience = local_buffer.get_traj(done)
