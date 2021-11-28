@@ -26,7 +26,8 @@ class Replay(threading.Thread):
         if self.use_PER:
             self.memory = PER(
                 maxlen=REPLAY_MEMORY_LEN,
-                max_value=1.0)
+                max_value=1.0,
+                beta=BETA)
         else:
             self.memory = ReplayMemory(REPLAY_MEMORY_LEN)
         # PER 구현해보자

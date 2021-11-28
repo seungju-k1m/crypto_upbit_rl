@@ -432,7 +432,7 @@ class Player():
     def eval(self):
         obsDeque = deque(maxlen=4)
         mean_cumulative_reward = 0
-        per_episode = 50
+        per_episode = 10
         step = 0
         keys = ['ale.lives', 'lives']
         key = "ale.lives"
