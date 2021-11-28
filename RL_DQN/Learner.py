@@ -262,7 +262,7 @@ class Learner:
                     list(idx), priority
                 )
             
-            if (step % 100) == 0:
+            if (step % 500) == 0:
                 self.memory.lock = True
                 time.sleep(1)
                 self.memory.memory.remove_to_fit()
