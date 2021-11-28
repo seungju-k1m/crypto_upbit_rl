@@ -15,7 +15,6 @@ from baseline.PER import PER
 
 from configuration import *
 
-import base64
 
 # class Replay:
 class Replay(threading.Thread):
@@ -65,8 +64,8 @@ class Replay(threading.Thread):
 
         experiences = np.array([pickle.loads(bin) for bin in experiences])
 
-        state = np.stack([np.frombuffer(base64.b64decode(bin), dtype=np.uint8) for bin in experiences[:, 0]], 0)
-
+        # state = np.stack([(bin), dtype=np.uint8) for bin in experiences[:, 0]], 0)
+        state = np.stack(experiences[:, 0], 0)
         # print("-----PP_01:{:.3f}".format(preprocess_time - time.time()))
         # S, A, R, S_
         # experiences = np.array([list(map(pickle.loads, experiences))])
@@ -74,14 +73,14 @@ class Replay(threading.Thread):
         # state = np.stack(experiences[:, 0], 0)
         # print("-----PP_02:{:.3f}".format(preprocess_time - time.time()))
 
-        # action = list(experiences[:, 1])
-        action = [int(i) for i in experiences[:, 1]]
-        # reward = list(experiences[:, 2])
-        reward = [float(i) for i in experiences[:, 2]]
-        # next_state = np.stack(experiences[:, 3], 0)
-        next_state = np.stack([np.frombuffer(base64.b64decode(bin), dtype=np.uint8) for bin in experiences[:, 3]], 0)
-        # done = list(experiences[:, 4])
-        done = [bool(i) for i in experiences[:, 4]]
+        action = list(experiences[:, 1])
+        # action = [int(i) for i in experiences[:, 1]]
+        reward = list(experiences[:, 2])
+        # reward = [float(i) for i in experiences[:, 2]]
+        next_state = np.stack(experiences[:, 3], 0)
+        # next_state = np.stack([np.frombuffer(base64.b64decode(bin), dtype=np.uint8) for bin in experiences[:, 3]], 0)
+        done = list(experiences[:, 4])
+        # done = [bool(i) for i in experiences[:, 4]]
         # print("-----PP_03:{:.3f}".format(preprocess_time - time.time()))
 
         if self.use_PER:

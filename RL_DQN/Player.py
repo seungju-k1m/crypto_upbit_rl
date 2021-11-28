@@ -22,7 +22,6 @@ import gym
 import random
 from PIL import Image as im
 
-import base64
 
 
 class LocalBuffer:
@@ -46,8 +45,6 @@ class LocalBuffer:
         traj.append(self.storage[-3])
         traj += [done]
         traj_ = deepcopy(traj)
-        traj_[0] = base64.b64encode(pickle.dumps(traj_[0]))
-        traj_[-2] = base64.b64encode(pickle.dumps(traj_[-2]))
         kk = np.random.choice([i+1 for i in range(UNROLL_STEP)], 1)[0]
         del self.storage[:3*kk]
         return traj_
@@ -319,9 +316,9 @@ class Player():
     def calculate_priority(self, traj):
         with torch.no_grad():
             s, a, r, s_, d = traj
-            s = torch.tensor([pickle.loads(base64.b64decode(s))]).float().to(self.device)
+            s = torch.tensor([s]).float().to(self.device)
             s = s/255.
-            s_ = torch.tensor([pickle.loads(base64.b64decode(s_))]).float().to(self.device)
+            s_ = torch.tensor([s_]).float().to(self.device)
             s_ = s_/255.
 
             state_value = self.model.forward([s])[0][0]
