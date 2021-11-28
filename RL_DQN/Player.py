@@ -43,7 +43,8 @@ class LocalBuffer:
         traj.append(self.storage[-3])
         traj += [done]
         traj_ = deepcopy(traj)
-        del self.storage[:3*UNROLL_STEP]
+        kk = np.random.choice([i+1 for i in range(UNROLL_STEP)], 1)
+        del self.storage[:3*kk]
         return traj_
     
     def clear(self):
