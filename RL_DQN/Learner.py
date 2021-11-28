@@ -214,7 +214,7 @@ class Learner:
         step, norm, mean_value = 0, 0, 0
         amount_sample_time, amount_train_tim, amount_update_time = 0, 0, 0
         init_time = time.time()
-        mm = 5000
+        mm = 20
         for t in count():
             
             # ------sample--------
@@ -243,16 +243,9 @@ class Learner:
             # ------Update------
             tt = time.time()
             if USE_PER:
-                self.memory.lock = True
-                time.sleep(0.00025)
-                frame = self.memory.total_frame
-                delta_frame = frame - prev_frame
-                self.memory.memory.update(
-                    list(idx), priority, delta_frame
+                self.memory.update(
+                    list(idx), priority
                 )
-                if frame != self.memory.total_frame:
-                    print("SOMETHING REALLY WRONG")
-                self.memory.lock = False
             
 
             norm += info['p_norm']
@@ -265,7 +258,7 @@ class Learner:
             if step % 2500 == 0:
                 self.target_model.updateParameter(self.model, 1)
 
-            if step % 100 == 0:
+            if step % 10 == 0:
                 state_dict = pickle.dumps(self.state_dict())
                 step_bin = pickle.dumps(step)
                 self.connect.set("state_dict", state_dict)
