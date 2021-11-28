@@ -52,8 +52,9 @@ class LocalBuffer:
 
 class Player():
 
-    def __init__(self, train_mode: bool=True, end_time: str=None):
+    def __init__(self, idx=0, train_mode: bool=True, end_time: str=None):
         # super(Player, self).__init__()
+        self.idx = idx
         if end_time is None:
             end_time = STARTDAY
         if USE_GYM:
@@ -132,6 +133,7 @@ class Player():
         if epsilon < 0:
             epsilon = 0.01
         
+        epsilon = 0.4 **(1 + self.idx)
         if no_epsilon:
             epsilon = 0
         

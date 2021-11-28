@@ -20,6 +20,7 @@ ALPHA = 0.6
 BETA = 0.4
 GAMMA = .99
 TARGET_FREQUENCY = 2500
+N = 8
 
 FEE = _data_['FEE']
 ACCESS_KEY = _data_['ACCESS_KEY']

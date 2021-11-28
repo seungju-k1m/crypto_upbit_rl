@@ -14,12 +14,19 @@ parser.add_argument(
     default=2
 )
 
+parser.add_argument(
+    "--start-idx",
+    type=int,
+    default=0
+)
+
 
 if __name__ == "__main__":
 
     # -------------- Player ----------------
     args = parser.parse_args()
     num_worker = args.num_worker
+    start_idx = args.start_idx
     # num_worker = 2
     # p = Player()
     # p.run()
@@ -30,7 +37,7 @@ if __name__ == "__main__":
     players = []
     for i in range(num_worker):
         players.append(
-            Player.remote()
+            Player.remote(idx=start_idx+i)
         )
 
     ray.get([p.gym_run.remote() for p in players])
