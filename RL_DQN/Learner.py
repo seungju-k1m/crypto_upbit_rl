@@ -115,8 +115,8 @@ class Learner:
         info = self.step()
 
         info['mean_value'] = float(target.mean().detach().cpu().numpy())           
-        
-        return info, new_priority, idx
+        weight = weight.detach().cpu().numpy().mean()
+        return info, new_priority, idx, weight
 
     def step(self):
         p_norm = 0
@@ -228,6 +228,7 @@ class Learner:
         amount_sample_time, amount_train_tim, amount_update_time = 0, 0, 0
         init_time = time.time()
         mm = 500
+        mean_weight = 0
         for t in count():
             
             # ------sample--------
@@ -249,8 +250,9 @@ class Learner:
             # ------train---------
             tt = time.time()
             step += 1
-            info, priority, idx = self.train(experience)
+            info, priority, idx, weight = self.train(experience)
             amount_train_tim += (time.time() - tt)
+            mean_weight += weight
             # -----------------
 
             # ------Update------
@@ -301,8 +303,8 @@ class Learner:
                 init_time = time.time()
                 print(
                     """step:{} // mean_value:{:.3f} // norm: {:.3f} // REWARD:{:.3f} // NUM_MEMORY:{} 
-        MAX_WEIGHT:{:.3f}  // TIME:{:.3f} // TRAIN_TIME:{:.3f} // SAMPLE_TIME:{:.3f} // UPDATE_TIME:{:.3f}""".format(
-                        step, mean_value / mm, norm / mm, cumulative_reward, len(self.memory.memory), self.memory.memory.max_weight,tt / mm, amount_train_tim, amount_sample_time, amount_update_time)
+     Mean_Weight:{:.3f}  // MAX_WEIGHT:{:.3f}  // TIME:{:.3f} // TRAIN_TIME:{:.3f} // SAMPLE_TIME:{:.3f} // UPDATE_TIME:{:.3f}""".format(
+                        step, mean_value / mm, norm / mm, cumulative_reward, len(self.memory.memory), mean_weight / mm, self.memory.memory.max_weight,tt / mm, amount_train_tim, amount_sample_time, amount_update_time)
                 )
                 amount_sample_time, amount_train_tim, amount_update_time = 0, 0, 0
                 if len(data) > 0:
@@ -316,6 +318,7 @@ class Learner:
                     "norm", norm/ mm, step
                 )
                 mean_value, norm = 0, 0
+                mean_weight = 0
                 torch.save(self.state_dict, './weight/dqn/weight.pth')
 
                 

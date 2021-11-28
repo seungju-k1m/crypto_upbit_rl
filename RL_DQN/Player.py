@@ -61,6 +61,7 @@ class Player():
             end_time = STARTDAY
         if USE_GYM:
             self.sim = gym.make("PongNoFrameskip-v4")
+            self.sim.seed(idx * 21 + 13)
             # self.sim = gym.make('SpaceInvadersNoFrameskip-v4')
         else:
             self.sim = Simulator(to=end_time, duration=DURATION)
