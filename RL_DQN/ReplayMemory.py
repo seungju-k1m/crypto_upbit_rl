@@ -125,7 +125,7 @@ class Replay(threading.Thread):
                             mm = time.time() - zx
                             t += 1
                 
-                if (t+1) % 100 == 0:
+                if (t+1) % 20 == 0:
                     print("Buffering_time:{:.3f}".format(mm / t))
                     self.deque.append(self.buffer(print_f=True))
                 
