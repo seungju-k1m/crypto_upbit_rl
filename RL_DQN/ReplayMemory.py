@@ -121,7 +121,7 @@ class Replay(threading.Thread):
                             t += 1
                 
                 if (t+1) % 20 == 0:
-                    print("Buffering_time:{:.3f}".format(mm / t))
+                    # print("Buffering_time:{:.3f}".format(mm / t))
                     self.deque.append(self.buffer(print_f=False))
                 
             gc.collect()
