@@ -101,7 +101,7 @@ class Replay(threading.Thread):
             data += pipe.execute()[0]
             data: list
             self.connect.delete("experience")
-            if len(data) > 0 and not self.lock:
+            if len(data) > 0:
                 check_time = time.time()
                 self.memory.push(data)
                 # print("Push Time:{:.3f}".format(time.time() - check_time))
@@ -119,7 +119,9 @@ class Replay(threading.Thread):
                             self.deque.append(self.buffer())
                             mm = time.time() - zx
                             t += 1
-                
+                if self.lock:
+                    self.memory.remove_to_fit()
+                    self.lock = False
                 if (t+1) % 20 == 0:
                     # print("Buffering_time:{:.3f}".format(mm / t))
                     self.deque.append(self.buffer(print_f=False))

@@ -264,9 +264,8 @@ class Learner:
             
             if (step % 500) == 0:
                 self.memory.lock = True
-                time.sleep(1)
-                self.memory.memory.remove_to_fit()
-                self.memory.lock = False
+                while self.memory.lock:
+                    a = 1
 
 
             norm += info['p_norm']
