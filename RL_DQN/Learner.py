@@ -214,7 +214,7 @@ class Learner:
         step, norm, mean_value = 0, 0, 0
         amount_sample_time, amount_train_tim, amount_update_time = 0, 0, 0
         init_time = time.time()
-        mm = 20
+        mm = 2500
         for t in count():
             
             # ------sample--------
