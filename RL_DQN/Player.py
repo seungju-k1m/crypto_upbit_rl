@@ -34,17 +34,21 @@ class LocalBuffer:
             self.storage.pop(0)
             self.storage.pop(0)
     
+    def __len__(self):
+        return int(len(self.storage) / 3)
+    
     def get_traj(self, done=False):
-        traj = [self.storage[0]]
-        traj.append(self.storage[1])
+        traj = [self.storage[-3*UNROLL_STEP]]
+        traj.append(self.storage[-3*UNROLL_STEP+1])
         r = 0
         for i in range(UNROLL_STEP):
-            r += (GAMMA ** i) * self.storage[i*3 + 2]
+            r += (GAMMA ** i) * self.storage[-3*UNROLL_STEP + i*3 + 2]
         traj.append(r)
         traj.append(self.storage[-3])
         traj += [done]
-        # s, a, r, s', d
-        return traj
+        traj_ = deepcopy(traj)
+        del self.storage[:3*UNROLL_STEP]
+        return traj_
     
     def clear(self):
         self.storage.clear()
@@ -403,8 +407,8 @@ class Player():
                 action, epsilon = self.forward(next_state, total_step)
                 state = next_state
 
-                if step > UNROLL_STEP:
-                    experience = local_buffer.get_traj(_done)
+                if len(local_buffer) ==  2 * UNROLL_STEP or done:
+                    experience = local_buffer.get_traj(done)
 
                     priority = self.calculate_priority(experience)
                     experience.append(priority)
