@@ -29,10 +29,6 @@ class LocalBuffer:
     
     def push(self, s, a, r):
         self.storage += [s, a, r]
-        if len(self.storage) > 3 * (UNROLL_STEP + 1):
-            self.storage.pop(0)
-            self.storage.pop(0)
-            self.storage.pop(0)
     
     def __len__(self):
         return int(len(self.storage) / 3)
