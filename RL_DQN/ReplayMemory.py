@@ -49,7 +49,7 @@ class Replay(threading.Thread):
                 d = self.update_list.pop(0)
                 self.memory.update(d[0], d[1])
 
-    def buffer(self):
+    def buffer(self, print_f=False):
         sample_time = time.time()
         if self.use_PER:
             experiences, prob, idx = self.memory.sample(BATCHSIZE)
@@ -58,7 +58,8 @@ class Replay(threading.Thread):
         else:
             experiences = deepcopy(self.memory.sample(BATCHSIZE))
         
-        # print("---Sample Time:{:.3f}".format(time.time() - sample_time))
+        if print_f:
+            print("---Sample Time:{:.3f}".format(time.time() - sample_time))
 
         preprocess_time = time.time()
 
@@ -66,12 +67,14 @@ class Replay(threading.Thread):
 
         # state = np.stack([(bin), dtype=np.uint8) for bin in experiences[:, 0]], 0)
         state = np.stack(experiences[:, 0], 0)
-        # print("-----PP_01:{:.3f}".format(preprocess_time - time.time()))
+        if print_f:
+            print("-----PP_01:{:.3f}".format(preprocess_time - time.time()))
         # S, A, R, S_
         # experiences = np.array([list(map(pickle.loads, experiences))])
         # BATCH, 4
         # state = np.stack(experiences[:, 0], 0)
-        # print("-----PP_02:{:.3f}".format(preprocess_time - time.time()))
+        if print_f:
+            print("-----PP_02:{:.3f}".format(preprocess_time - time.time()))
 
         action = list(experiences[:, 1])
         # action = [int(i) for i in experiences[:, 1]]
@@ -81,7 +84,8 @@ class Replay(threading.Thread):
         # next_state = np.stack([np.frombuffer(base64.b64decode(bin), dtype=np.uint8) for bin in experiences[:, 3]], 0)
         done = list(experiences[:, 4])
         # done = [bool(i) for i in experiences[:, 4]]
-        # print("-----PP_03:{:.3f}".format(preprocess_time - time.time()))
+        if print_f:
+            print("-----PP_03:{:.3f}".format(preprocess_time - time.time()))
 
         if self.use_PER:
             return (state, action, reward, next_state, done, weight, idx)
@@ -94,7 +98,7 @@ class Replay(threading.Thread):
         while True:
             if len(self.memory.priority) >  50000:
                 self.cond = True
-            t += 1
+            
             pipe = self.connect.pipeline()
             pipe.lrange("experience", 0, -1)
             pipe.ltrim("experience", -1, 0)
@@ -112,12 +116,19 @@ class Replay(threading.Thread):
                 if len(self.memory) > 50000:
                     with self._lock:
                         if len(self.deque) < 5:
+                            zx = time.time()
                             self.deque.append(self.buffer())
                             self.deque.append(self.buffer())
                             self.deque.append(self.buffer())
                             self.deque.append(self.buffer())
                             self.deque.append(self.buffer())
-
+                            mm = time.time() - zx
+                            t += 1
+                
+                if (t+1) % 100 == 0:
+                    print("Buffering_time:{:.3f}".format(mm / t))
+                    self.deque.append(self.buffer(print_f=True))
+                
             gc.collect()
         
     def sample(self):
