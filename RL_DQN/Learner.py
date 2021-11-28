@@ -107,9 +107,9 @@ class Learner:
         if USE_PER:
             loss = torch.sum(
                 weight * td_error ** 2
-            )
+            ) * 0.5
         else:
-            loss = torch.sum(td_error ** 2)
+            loss = torch.sum(td_error ** 2) * 0.5
         loss.backward()
 
         info = self.step()
