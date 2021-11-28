@@ -61,7 +61,8 @@ class Player():
             end_time = STARTDAY
         if USE_GYM:
             self.sim = gym.make("PongNoFrameskip-v4")
-            self.sim.seed(idx * 21 + 13)
+            zz = np.random.choice([i for i in range(idx*21+13)], 0)[0]
+            self.sim.seed(zz)
             # self.sim = gym.make('SpaceInvadersNoFrameskip-v4')
         else:
             self.sim = Simulator(to=end_time, duration=DURATION)
