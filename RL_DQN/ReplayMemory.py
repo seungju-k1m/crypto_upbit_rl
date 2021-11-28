@@ -65,7 +65,7 @@ class Replay(threading.Thread):
 
         experiences = np.array([pickle.loads(bin) for bin in experiences])
 
-        state = np.stack([pickle.loads(base64.b64decode(bin)) for bin in experiences[:, 0]], 0)
+        state = np.stack([pickle.loads(base64.b16decode(bin)) for bin in experiences[:, 0]], 0)
 
         # print("-----PP_01:{:.3f}".format(preprocess_time - time.time()))
         # S, A, R, S_
@@ -79,7 +79,7 @@ class Replay(threading.Thread):
         # reward = list(experiences[:, 2])
         reward = [float(i) for i in experiences[:, 2]]
         # next_state = np.stack(experiences[:, 3], 0)
-        next_state = np.stack([pickle.loads(base64.b64decode(bin)) for bin in experiences[:, 3]], 0)
+        next_state = np.stack([pickle.loads(base64.b16decode(bin)) for bin in experiences[:, 3]], 0)
         # done = list(experiences[:, 4])
         done = [bool(i) for i in experiences[:, 4]]
         # print("-----PP_03:{:.3f}".format(preprocess_time - time.time()))
