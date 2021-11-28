@@ -39,15 +39,11 @@ class Replay(threading.Thread):
         self.update_list = []
         self.device = torch.device(LEARNER_DEVICE)
         self.total_frame = 0
+        self.lock = False
     
     def update(self, idx:list, vals:np.ndarray):
-        self.update_list.append((idx, vals))
-    
-    def _update(self):
-        if len(self.update_list) > 0:
-            for _ in range(len(self.update_list)):
-                d = self.update_list.pop(0)
-                self.memory.update(d[0], d[1])
+        # self.update_list.append((idx, vals))
+        self.memory.update(idx, vals)
 
     def buffer(self, print_f=False):
         sample_time = time.time()
@@ -105,11 +101,10 @@ class Replay(threading.Thread):
             data += pipe.execute()[0]
             data: list
             self.connect.delete("experience")
-            if len(data) > 0:
+            if len(data) > 0 and not self.lock:
                 check_time = time.time()
                 self.memory.push(data, self.total_frame)
                 # print("Push Time:{:.3f}".format(time.time() - check_time))
-                self._update()
                 self.total_frame += len(data)
                 data.clear()
                 assert len(self.memory.memory) == len(self.memory.priority)

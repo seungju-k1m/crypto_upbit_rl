@@ -262,6 +262,12 @@ class Learner:
                     list(idx), priority
                 )
             
+            if (step % 100) == 0:
+                self.memory.lock = True
+                time.sleep(1)
+                self.memory.memory.remove_to_fit()
+                self.memory.lock = False
+
 
             norm += info['p_norm']
             mean_value += info['mean_value']
