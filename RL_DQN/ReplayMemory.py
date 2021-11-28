@@ -85,7 +85,7 @@ class Replay(threading.Thread):
         t = 0
         data = []
         while True:
-            if len(self.memory.priority) >  REPLAY_MEMORY_LEN * 0.05:
+            if len(self.memory.priority) >  50000:
                 self.cond = True
             t += 1
             pipe = self.connect.pipeline()
@@ -102,9 +102,11 @@ class Replay(threading.Thread):
                 self.total_frame += len(data)
                 data.clear()
                 assert len(self.memory.memory) == len(self.memory.priority)
-                if len(self.memory) > REPLAY_MEMORY_LEN * 0.05:
+                if len(self.memory) > 50000:
                     with self._lock:
                         if len(self.deque) < 5:
+                            self.deque.append(self.buffer())
+                            self.deque.append(self.buffer())
                             self.deque.append(self.buffer())
             gc.collect()
         
