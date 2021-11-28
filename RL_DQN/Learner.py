@@ -216,6 +216,12 @@ class Learner:
                     print(len(self.memory.memory))
                 time.sleep(1)
         wait_memory()
+        state_dict = pickle.dumps(self.state_dict)
+        step_bin = pickle.dumps(1)
+        target_state_dict = pickle.dumps(self.target_state_dict)
+        self.connect.set("state_dict", state_dict)
+        self.connect.set("count", step_bin)
+        self.connect.set("target_state_dict", target_state_dict)
         self.connect.set("Start", pickle.dumps(True))
         print("Learning is Started !!")
 
@@ -263,13 +269,6 @@ class Learner:
             # soft
             # self.target_model.updateParameter(self.model, 0.005)
             # hard
-            if step == 1:
-                state_dict = pickle.dumps(self.state_dict)
-                step_bin = pickle.dumps(step)
-                target_state_dict = pickle.dumps(self.target_state_dict)
-                self.connect.set("state_dict", state_dict)
-                self.connect.set("count", step_bin)
-                self.connect.set("target_state_dict", target_state_dict)
 
             if step % TARGET_FREQUENCY == 0:
                 self.target_model.updateParameter(self.model, 1)
