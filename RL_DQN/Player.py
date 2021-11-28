@@ -324,7 +324,7 @@ class Player():
             max_next_state_value = float(next_state_value[action].cpu().detach().numpy())
             td_error = r + (GAMMA)**UNROLL_STEP * max_next_state_value - current_state_value
             td_error = min(1, max(td_error, -1))
-            return (abs(td_error) + 1e-7) ** ALPHA
+            return (abs(td_error) + 1e-4) ** ALPHA
         
     def gym_run(self):
         obsDeque = deque(maxlen=4)
