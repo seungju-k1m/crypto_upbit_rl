@@ -94,7 +94,9 @@ class Replay(threading.Thread):
             data: list
             self.connect.delete("experience")
             if len(data) > 0:
+                check_time = time.time()
                 self.memory.push(data, self.total_frame)
+                print("Push Time:{:.3f}".format(time.time() - check_time))
                 self._update()
                 self.total_frame += len(data)
                 data.clear()
@@ -103,7 +105,6 @@ class Replay(threading.Thread):
                     with self._lock:
                         if len(self.deque) < 5:
                             self.deque.append(self.buffer())
-            # time.sleep(0.01)
             gc.collect()
         
     def sample(self):
