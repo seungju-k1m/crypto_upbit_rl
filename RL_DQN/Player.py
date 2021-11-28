@@ -1,6 +1,7 @@
 from threading import local
 from numpy.core.fromnumeric import mean
 from numpy.core.shape_base import stack
+from numpy.random.mtrand import rand
 from configuration import *
 from baseline.baseAgent import baseAgent
 from multiprocessing import Process
@@ -119,7 +120,7 @@ class Player():
             action = sampler.sample()
         return action.numpy()[0], cell_state, action_prob.numpy()
 
-    def gym_forward(self, state:np.ndarray, step=0, no_epsilon=False, random=False) -> int:
+    def gym_forward(self, state:np.ndarray, step=0, no_epsilon=False, random_action=False) -> int:
         
         phase_01_random_step = 1e6
         phase_02_random_step = 1e7
@@ -137,7 +138,7 @@ class Player():
         epsilon = 0.4 **(1 + self.idx)
         if no_epsilon:
             epsilon = 0
-        if random:
+        if random_action:
             epsilon = 1
         
         if random.random() < epsilon:
@@ -368,7 +369,7 @@ class Player():
             
             state = stack_obs(obs)
 
-            action, _ = self.forward(state, random=random_action)
+            action, _ = self.forward(state, random_action=random_action)
             
             while done is False:
                 reward = 0
@@ -404,7 +405,7 @@ class Player():
                 # experience += deepcopy([state, action, reward, next_state])
 
                 local_buffer.push(state, action, reward)
-                action, epsilon = self.forward(next_state, total_step)
+                action, epsilon = self.forward(next_state, total_step, random_action=random_action)
                 state = next_state
 
                 check_learning_start = self.connect.get("Start")
