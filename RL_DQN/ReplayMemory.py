@@ -114,12 +114,10 @@ class Replay(threading.Thread):
                             zx = time.time()
                             self.deque.append(self.buffer())
                             self.deque.append(self.buffer())
-                            self.deque.append(self.buffer())
-                            self.deque.append(self.buffer())
-                            self.deque.append(self.buffer())
                             mm = time.time() - zx
                             t += 1
                 if self.lock:
+                    self.deque.clear()
                     self.memory.remove_to_fit()
                     self.lock = False
                 if (t+1) % 20 == 0:
