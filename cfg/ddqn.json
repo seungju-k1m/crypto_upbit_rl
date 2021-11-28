@@ -20,7 +20,7 @@
         "lr":0.0000625,
         "eps":1.5e-7,
         "decay":0.95,
-        "alpha":0,
+        "alpha":0.95,
         "momentum":0,
         "centered":true
     },
