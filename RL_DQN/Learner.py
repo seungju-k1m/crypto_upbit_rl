@@ -141,7 +141,7 @@ class Learner:
     
     @property
     def target_state_dict(self):
-        target_state_dict = {k:v.cpu() for k, v in self.model.state_dict().items()}
+        target_state_dict = {k:v.cpu() for k, v in self.target_model.state_dict().items()}
         return target_state_dict
     
     def bit_run(self):
