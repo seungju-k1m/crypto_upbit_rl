@@ -144,7 +144,7 @@ class Replay(threading.Thread):
                     # profile.runctx('self.buffer()', globals(), locals())
                     # profile.print_stats()
                     a = 1
-            self._update()
+            # self._update()
             gc.collect()
         
     def sample(self):
