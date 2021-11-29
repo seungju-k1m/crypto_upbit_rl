@@ -125,7 +125,10 @@ class Replay(threading.Thread):
         data = []
         while True:
             if len(self.memory.priority) > 50000:
+                if t == 1:
+                    print("Cond is True")
                 self.cond = True
+                print(self.cond)
             
             pipe = self.connect.pipeline()
             pipe.lrange("experience", 0, -1)

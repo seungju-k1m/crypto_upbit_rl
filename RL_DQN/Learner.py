@@ -220,7 +220,7 @@ class Learner:
     def gym_run(self):
         def wait_memory():
             while True:
-                if self.memory.cond:
+                if len(self.memory.memory) > 50000:
                     break
                 else:
                     print(len(self.memory.memory))
