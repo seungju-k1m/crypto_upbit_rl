@@ -49,7 +49,7 @@
             "BN":[false, false],
             "prior":1,
             "prevNodeNames":["module00"],
-            "output":true,
+            "output":true
         },
         "module02":{
             "netCat":"MLP",
