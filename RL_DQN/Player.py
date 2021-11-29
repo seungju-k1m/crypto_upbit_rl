@@ -333,7 +333,7 @@ class Player():
             # next_state_value = t_val + t_adv - torch.mean(t_adv, dim=-1, keepdim=True)
 
             action = int(state_value.argmax().cpu().detach().numpy())
-            max_next_state_value = float(next_state_value[0][action].cpu().detach().numpy())
+            max_next_state_value = float(next_state_value[action].cpu().detach().numpy())
             td_error = r + (GAMMA)**UNROLL_STEP * max_next_state_value - current_state_value
             td_error = min(1, max(td_error, -1))
             x = (abs(td_error) + 1e-4) ** ALPHA
