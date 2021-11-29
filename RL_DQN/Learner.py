@@ -76,9 +76,9 @@ class Learner:
 
         done = [float(not d) for d in done]
         done = torch.tensor(done).float().to(self.device)
-        # action_value = self.model.forward([state])[0]
-        val, adv = self.model.forward([state])
-        action_value = val + adv - torch.mean(adv, dim=-1, keepdim=True)
+        action_value = self.model.forward([state])[0]
+        # val, adv = self.model.forward([state])
+        # action_value = val + adv - torch.mean(adv, dim=-1, keepdim=True)
         
 
         with torch.no_grad():
