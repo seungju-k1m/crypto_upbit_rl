@@ -12,8 +12,8 @@
     "device":"cpu",
     "learner_device":"cuda:0",
 
-    "REPLAY_MEMORY_LEN":750000,
-    "unroll_step":3,
+    "REPLAY_MEMORY_LEN":400000,
+    "unroll_step":5,
 
     "optim_":{
         "name":"rmsprop",
