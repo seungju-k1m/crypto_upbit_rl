@@ -45,13 +45,16 @@ class Replay(threading.Thread):
         self.lock = False
     
     def update(self, idx:list, vals:np.ndarray):
-        # self.update_list.append((idx, vals))
-        self.memory.update(idx, vals)
+        self.update_list.append((idx, vals))
+    
+    def _update(self):
+        for i in self.update_list:
+            self.memory.update(i[0], i[1])
 
     def buffer(self, print_f=False):
         sample_time = time.time()
         if self.use_PER:
-            experiences, prob, idx = self.memory.sample(BATCHSIZE)
+            experiences, prob, idx = self.memory.sample(BATCHSIZE * 16)
             n = len(self.memory)
             weight = (1 / (n * prob)) ** BETA
             weight /= weight.max()
@@ -76,21 +79,36 @@ class Replay(threading.Thread):
         if print_f:
             print("-----PP_02:{:.3f}".format(preprocess_time - time.time()))
 
-        action = list(experiences[:, 1])
+        action = experiences[:, 1]
         # action = [int(i) for i in experiences[:, 1]]
-        reward = list(experiences[:, 2])
+        reward = experiences[:, 2]
         # reward = [float(i) for i in experiences[:, 2]]
         next_state = np.stack(experiences[:, 3], 0)
         # next_state = np.stack([np.frombuffer(base64.b64decode(bin), dtype=np.uint8) for bin in experiences[:, 3]], 0)
-        done = list(experiences[:, 4])
+        done = experiences[:, 4]
+
+        states = np.vsplit(state, 16)
+
+        actions = np.split(action, 16)
+
+        rewards = np.split(reward, 16)
+
+        next_states = np.vsplit(next_state, 16)
+
+        dones = np.split(done, 16)
+
+        weights = torch.split(weight, 16)
+        idices = torch.split(idx, 16)
+
+        for s, a, r, n_s, d, w, i in zip(
+            states, actions, rewards, next_states, dones, weights, idices
+        ):
+            self.deque.append(
+                [s, a, r, n_s, d, w, i]
+            )
         # done = [bool(i) for i in experiences[:, 4]]
         if print_f:
             print("-----PP_03:{:.3f}".format(preprocess_time - time.time()))
-
-        if self.use_PER:
-            return (state, action, reward, next_state, done, weight, idx)
-        else:
-            return (state, action, reward, next_state, done)
     
     def run(self):
         t = 0
@@ -115,11 +133,7 @@ class Replay(threading.Thread):
                 if len(self.memory) > 50000:
                     with self._lock:
                         if len(self.deque) < 5:
-                            zx = time.time()
-
-                            self.deque.append(self.buffer())
-                            self.deque.append(self.buffer())
-                            mm = time.time() - zx
+                            self.buffer()
                             t += 1
                 if self.lock:
                     self.deque.clear()
@@ -130,7 +144,7 @@ class Replay(threading.Thread):
                     # profile.runctx('self.buffer()', globals(), locals())
                     # profile.print_stats()
                     a = 1
-                
+            self._update()
             gc.collect()
         
     def sample(self):

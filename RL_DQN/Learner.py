@@ -71,6 +71,8 @@ class Learner:
 
         # action = torch.tensor(action).long().to(self.device)
         action = [6 * i + a for i, a in enumerate(action)]
+        reward= reward.astype(np.float32)
+        done = done.astype(np.bool)
         reward = torch.tensor(reward).float().to(self.device)
         # reward = torch.clamp(reward, -1, 1)
 
