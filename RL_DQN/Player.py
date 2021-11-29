@@ -129,14 +129,15 @@ class Player():
         phase_01_random_step = TOTAL_TRAINING_STEP
         phase_02_random_step = 1e7
         step = step
-        if step < TOTAL_TRAINING_STEP:
-            epsilon = 1 - step * (1 - self.target_epsilon) / phase_01_random_step
+        # if step < TOTAL_TRAINING_STEP:
+        #     epsilon = 1 - step * (1 - self.target_epsilon) / phase_01_random_step
         
         # elif step < phase_02_random_step:
         #     epsilon = 0.1 - (step - phase_01_random_step) / phase_02_random_step
-        else:
-            epsilon = self.target_epsilon
+        # else:
+        #     epsilon = self.target_epsilon
         
+        epsilon = self.target_epsilon
         if random_action:
             epsilon = 1
         
@@ -440,7 +441,7 @@ class Player():
                         pickle.dumps(experience)
                     )
 
-                if step % 100 == 0:
+                if step %  25 == 0:
                     self.pull_param()
             mean_cumulative_reward += cumulative_reward
 
