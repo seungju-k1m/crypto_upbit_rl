@@ -126,7 +126,7 @@ class Player():
 
     def gym_forward(self, state:np.ndarray, step=0, no_epsilon=False, random_action=False) -> int:
         
-        phase_01_random_step = 1e6
+        phase_01_random_step = TOTAL_TRAINING_STEP
         phase_02_random_step = 1e7
         step = step
         if step < TOTAL_TRAINING_STEP:
