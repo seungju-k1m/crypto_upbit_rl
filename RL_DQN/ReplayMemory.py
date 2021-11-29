@@ -14,6 +14,7 @@ from copy import deepcopy
 from collections import deque
 from baseline.utils import loads, ReplayMemory
 from baseline.PER import PER
+from random import choices
 
 from configuration import *
 
@@ -53,7 +54,7 @@ class Replay(threading.Thread):
             experiences, prob, idx = self.memory.sample(BATCHSIZE)
             n = len(self.memory)
             weight = (1 / (n * prob)) ** BETA
-            weight /= max(weight)
+            weight /= weight.max()
         else:
             experiences = deepcopy(self.memory.sample(BATCHSIZE))
         

@@ -15,6 +15,8 @@ import gc
 import redis
 import _pickle as pickle
 
+import cProfile
+
 
 class Learner:
     def __init__(self):
@@ -243,6 +245,10 @@ class Learner:
             # ------train---------
             tt = time.time()
             step += 1
+            if step == 1:
+                profile = cProfile.Profile()
+                profile.runctx('self.train(experience)', globals(), locals())
+                profile.print_stats()
             info, priority, idx, weight = self.train(experience)
             amount_train_tim += (time.time() - tt)
             mean_weight += weight
@@ -256,6 +262,7 @@ class Learner:
                 )
             
             if (step % 500) == 0:
+                
                 self.memory.lock = True
                 while self.memory.lock:
                     a = 1
