@@ -58,7 +58,7 @@
         "module02_1":{
             "netCat":"MLP",
             "iSize":3136,
-            "nLayer":2,
+            "nLayer":3,
             "fSize":[128, 128, 1],
             "act":["relu", "relu", "linear"],
             "BN":[false, false, false],
