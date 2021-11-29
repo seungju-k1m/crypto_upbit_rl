@@ -97,8 +97,8 @@ class Replay(threading.Thread):
 
         dones = np.split(done, 16)
 
-        weights = weight.split(16)
-        idices = idx.split(16)
+        weights = weight.split(BATCHSIZE)
+        idices = idx.split(BATCHSIZE)
 
         for s, a, r, n_s, d, w, i in zip(
             states, actions, rewards, next_states, dones, weights, idices
