@@ -444,8 +444,8 @@ class Player():
                             random_action = False
                     # self.connect.delete("Start")
 
-                if len(local_buffer) == 2 * UNROLL_STEP or _done:
-                    experience = local_buffer.get_traj(_done)
+                if len(local_buffer) == 2 * UNROLL_STEP or done:
+                    experience = local_buffer.get_traj(done)
 
                     priority = self.calculate_priority(experience)
                     experience.append(priority)
