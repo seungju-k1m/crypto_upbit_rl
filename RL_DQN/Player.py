@@ -326,13 +326,13 @@ class Player():
             val, adv = self.model.forward([s])
             state_value = val + adv - torch.mean(adv, dim=-1, keepdim=True)
             
-            current_state_value = float(state_value.detach().cpu().numpy()[a])
+            current_state_value = float(state_value[0].detach().cpu().numpy()[a])
             # next_state_value = self.target_model.forward([s_])[0][0]
             t_val, t_adv = self.target_model.forward([s_])
             next_state_value = t_val + t_adv - torch.mean(t_adv, dim=-1, keepdim=True)
 
             action = int(state_value.argmax().cpu().detach().numpy())
-            max_next_state_value = float(next_state_value[action].cpu().detach().numpy())
+            max_next_state_value = float(next_state_value[0][action].cpu().detach().numpy())
             td_error = r + (GAMMA)**UNROLL_STEP * max_next_state_value - current_state_value
             td_error = min(1, max(td_error, -1))
             x = (abs(td_error) + 1e-4) ** ALPHA
