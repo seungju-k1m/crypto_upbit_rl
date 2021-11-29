@@ -126,9 +126,10 @@ class Replay(threading.Thread):
                     self.memory.remove_to_fit()
                     self.lock = False
                 if (t+1) % 500 == 0:
-                    profile = cProfile.Profile()
-                    profile.runctx('self.buffer()', globals(), locals())
-                    profile.print_stats()
+                    # profile = cProfile.Profile()
+                    # profile.runctx('self.buffer()', globals(), locals())
+                    # profile.print_stats()
+                    a = 1
                 
             gc.collect()
         

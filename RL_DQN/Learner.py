@@ -107,7 +107,7 @@ class Learner:
 
         if USE_PER:
             loss = torch.mean(
-                weight * td_error ** 2
+                td_error ** 2
             ) * 0.5
         else:
             loss = torch.mean(td_error ** 2) * 0.5
@@ -261,7 +261,7 @@ class Learner:
                     list(idx), priority
                 )
             
-            if (step % 500) == 0:
+            if (step % 1000) == 0:
                 
                 self.memory.lock = True
                 while self.memory.lock:
