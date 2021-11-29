@@ -104,8 +104,8 @@ class Learner:
 
         target = reward + 0.99 ** (UNROLL_STEP) * next_max_value
 
-        td_error = target - selected_action_value
-        td_error = torch.clamp(td_error, -1, 1)
+        td_error_ = target - selected_action_value
+        td_error = torch.clamp(td_error_, -1, 1)
 
         td_error_for_prior = td_error.detach().cpu().numpy()
         td_error_for_prior = (np.abs(td_error_for_prior) + 1e-4) ** ALPHA
@@ -113,7 +113,7 @@ class Learner:
 
         if USE_PER:
             loss = torch.sum(
-                weight * td_error ** 2
+                weight * td_error_ ** 2
             ) * 0.5
         else:
             loss = torch.mean(td_error ** 2) * 0.5
