@@ -326,7 +326,7 @@ class Player():
             state_value = self.model.forward([s])[0][0]
             # val, adv = self.model.forward([s])
             # state_value = val + adv - torch.mean(adv, dim=-1, keepdim=True)
-            
+            print(state_value)
             current_state_value = float(state_value[a].detach().cpu().numpy())
             next_state_value = self.target_model.forward([s_])[0][0]
             # t_val, t_adv = self.target_model.forward([s_])
