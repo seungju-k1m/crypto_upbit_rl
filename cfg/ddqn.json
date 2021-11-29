@@ -69,7 +69,7 @@
         "module03":{
             "netCat":"Add",
             "prior":2,
-            "prevNodeNames":["module02", "module02_2"]
+            "prevNodeNames":["module02", "module02_1"]
         },
         "module03_1":{
             "netCat":"Mean",
