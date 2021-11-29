@@ -204,24 +204,21 @@ class Player():
         if count is not None:
             count = pickle.loads(count)
             target_version = int(count / TARGET_FREQUENCY)
-            if target_version > self.target_model_version:
-                t_param = self.connect.get("target_state_dict")
-                if t_param is None:
-                    return
-                t_param = pickle.loads(t_param)
-                self.target_model_version = target_version
-                self.target_model.load_state_dict(t_param)
-                
-            if count > self.count:
-                param = self.connect.get("state_dict")
-                if param is None:
-                    return
-                param = pickle.loads(param)
-                self.count = count
+            t_param = self.connect.get("target_state_dict")
+            if t_param is None:
+                return
+            t_param = pickle.loads(t_param)
+            self.target_model_version = target_version
+            self.target_model.load_state_dict(t_param)
+            param = self.connect.get("state_dict")
+            if param is None:
+                return
+            param = pickle.loads(param)
+            self.count = count
 
-                self.model.load_state_dict(
-                    param
-                )
+            self.model.load_state_dict(
+                param
+            )
 
     def bit_run(self):
 

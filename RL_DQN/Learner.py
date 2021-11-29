@@ -287,7 +287,7 @@ class Learner:
                 target_state_dict = pickle.dumps(self.target_state_dict)
                 self.connect.set("target_state_dict", target_state_dict)
 
-            if step % 50 == 0:
+            if step % 10 == 0:
                 state_dict = pickle.dumps(self.state_dict)
                 step_bin = pickle.dumps(step-50)
                 self.connect.set("state_dict", state_dict)
