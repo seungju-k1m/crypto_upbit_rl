@@ -36,17 +36,29 @@ class LocalBuffer:
         return int(len(self.storage) / 3)
     
     def get_traj(self, done=False):
-        traj = [self.storage[-3*UNROLL_STEP]]
-        traj.append(self.storage[-3*UNROLL_STEP+1])
-        r = 0
-        for i in range(UNROLL_STEP):
-            r += (GAMMA ** i) * self.storage[-3*UNROLL_STEP + i*3 + 2]
-        traj.append(r)
-        traj.append(self.storage[-3])
-        traj += [done]
-        traj_ = deepcopy(traj)
-        kk = np.random.choice([i+1 for i in range(UNROLL_STEP)], 1)[0]
-        del self.storage[:3*kk]
+        if done:
+            traj = [self.storage[-3*UNROLL_STEP]]
+            traj.append(self.storage[-3*UNROLL_STEP + 1])
+            r = 0
+            for i in range(UNROLL_STEP):
+                r += (GAMMA ** i) * self.storage[-3*UNROLL_STEP + i*3 + 2]
+            traj.append(r)
+            traj.append(self.storage[-3])
+            traj += [done]
+            traj_ = deepcopy(traj)
+            self.storage.clear()
+        else:
+            traj = [self.storage[0]]
+            traj.append(self.storage[1])
+            r = 0
+            for i in range(UNROLL_STEP):
+                r += (GAMMA ** i) * self.storage[i*3 + 2]
+            traj.append(r)
+            traj.append(self.storage[3*UNROLL_STEP])
+            traj += [done]
+            traj_ = deepcopy(traj)
+            # kk = np.random.choice([i+1 for i in range(UNROLL_STEP)], 1)[0]
+            del self.storage[:3*UNROLL_STEP]
         return traj_
     
     def clear(self):
@@ -432,7 +444,7 @@ class Player():
                             random_action = False
                     # self.connect.delete("Start")
 
-                if len(local_buffer) ==  2 * UNROLL_STEP or _done:
+                if len(local_buffer) == 2 * UNROLL_STEP or _done:
                     experience = local_buffer.get_traj(_done)
 
                     priority = self.calculate_priority(experience)
