@@ -70,6 +70,7 @@ class Player():
 
         self.device = torch.device(DEVICE)
         self.build_model()
+        self.target_epsilon =  0.4 **(1 + 7 * self.idx / (N-1))
 
         self.to()
         self.train_mode = train_mode
@@ -128,19 +129,14 @@ class Player():
         phase_01_random_step = 1e6
         phase_02_random_step = 1e7
         step = step
-        if step < phase_01_random_step:
-            epsilon = 1 - step * (1 - 0.1) / phase_01_random_step
+        if step < TOTAL_TRAINING_STEP:
+            epsilon = 1 - step * (1 - self.target_epsilon) / phase_01_random_step
         
         # elif step < phase_02_random_step:
         #     epsilon = 0.1 - (step - phase_01_random_step) / phase_02_random_step
         else:
-            epsilon = 0.1
-        if epsilon < 0:
-            epsilon = 0.01
+            epsilon = self.target_epsilon
         
-        epsilon = 0.4 **(1 + 7 * self.idx / (N-1))
-        if no_epsilon:
-            epsilon = 0
         if random_action:
             epsilon = 1
         
@@ -155,6 +151,7 @@ class Player():
                 val, adv = self.model.forward([state])
                 action_value = val + adv - torch.mean(adv, dim=-1, keepdim=True)
                 action = int(action_value.argmax(dim=-1).numpy())
+                # print(action)
         return action, epsilon
 
     def process_traj(self, traj=None):
@@ -347,7 +344,7 @@ class Player():
         local_buffer = LocalBuffer()
         keys = ['ale.lives', 'lives']
         key = "ale.lives"
-        random_action=True
+        random_action=False
         # key = "lives"
         def rgb_to_gray(img, W=84, H=84):
             grayImage = im.fromarray(img, mode="RGB").convert("L")
