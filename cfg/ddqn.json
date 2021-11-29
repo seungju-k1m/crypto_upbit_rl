@@ -2,7 +2,7 @@
     "ACCESS_KEY":"jy66T1dXlJCxxj824XhSgLawFx66QKX7bDulB9sM",
     "SECRETE_KEY":"hN4d0SQMjNY7259kUp8HRf4C8Hj6DQxAXOqrlYox",
     "redis_server":"10.239.241.180",
-    "redis_server_":"localhost",
+    "redis_server _":"localhost",
     "MARKET":"KRW-BTC",
     "LOG_MODE":false,
     "BACKTEST":true,
@@ -12,7 +12,7 @@
     "device":"cpu",
     "learner_device":"cuda:0",
 
-    "REPLAY_MEMORY_LEN":500000,
+    "REPLAY_MEMORY_LEN":1000000,
     "unroll_step":3,
 
     "optim":{
@@ -48,7 +48,8 @@
             "act":["relu", "linear"],
             "BN":[false, false],
             "prior":1,
-            "prevNodeNames":["module00"]
+            "prevNodeNames":["module00"],
+            "output":true,
         },
         "module02":{
             "netCat":"MLP",
@@ -58,23 +59,9 @@
             "act":["relu", "linear"],
             "BN":[false, false],
             "prior":1,
-            "prevNodeNames":["module00"]
-        },
-        "module03":{
-            "netCat":"Add",
-            "prior":2,
-            "prevNodeNames":["module01", "module02"]
-        },
-        "module04":{
-            "netCat":"Mean",
-            "prior":2,
-            "prevNodeNames":["module02"]
-        },
-        "module05":{
-            "netCat":"Substract",
-            "prior":3,
-            "prevNodeNames":["module03", "module04"],
+            "prevNodeNames":["module00"],
             "output":true
+        }
         }
         
     }

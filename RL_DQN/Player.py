@@ -152,7 +152,8 @@ class Player():
                 state = torch.tensor(state).float()
                 state = state * (1/255.)
                 
-                action_value = self.model.forward([state])[0][0]
+                val, adv = self.model.forward([state])
+                action_value = val + adv - torch.mean(adv, dim=-1, keepdim=True)
                 action = int(action_value.argmax().numpy())
         return action, epsilon
 

@@ -76,14 +76,20 @@ class Learner:
 
         done = [float(not d) for d in done]
         done = torch.tensor(done).float().to(self.device)
-        action_value = self.model.forward([state])[0]
+        # action_value = self.model.forward([state])[0]
+        val, adv = self.model.forward([state])
+        action_value = val + adv - torch.mean(adv, dim=-1, keepdim=True)
         
 
         with torch.no_grad():
             
-            next_action_value = self.target_model.forward([next_state])[0]
+            # next_action_value = self.target_model.forward([next_state])[0]
+            n_val, n_adv = self.model.forward([state])
+            next_action_value = n_val + n_adv - torch.mean(n_adv, dim=-1, keepdim=True)
 
-            n_action_value = self.model.forward([next_state])[0]
+            # n_action_value = self.model.forward([next_state])[0]
+            val_n, adv_n = self.model.forward([next_state])
+            n_action_value = val_n + adv_n - torch.mean(adv_n, dim=-1, keepdim=True)
             action_ddqn =  n_action_value.argmax(dim=-1).detach().cpu().numpy()
             action_ddqn = [6*i + a for i, a in enumerate(action_ddqn)]
             next_action_value = next_action_value.view(-1)
