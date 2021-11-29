@@ -52,8 +52,7 @@
             "act":["relu", "relu","linear"],
             "BN":[false, false, false],
             "prior":1,
-            "prevNodeNames":["module00"],
-            "output":true
+            "prevNodeNames":["module00"]
         },
         "module02_1":{
             "netCat":"MLP",
@@ -63,8 +62,7 @@
             "act":["relu", "relu", "linear"],
             "BN":[false, false, false],
             "prior":1,
-            "prevNodeNames":["module00"],
-            "output":true
+            "prevNodeNames":["module00"]
         },
         "module03":{
             "netCat":"Add",
