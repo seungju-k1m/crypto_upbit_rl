@@ -67,7 +67,7 @@
             "output":true
         },
         "module03":{
-            "neCat":"Add",
+            "netCat":"Add",
             "prior":2,
             "prevNodeNames":["module02", "module02_2"]
         },
