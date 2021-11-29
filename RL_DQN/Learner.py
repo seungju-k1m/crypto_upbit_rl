@@ -84,7 +84,7 @@ class Learner:
         with torch.no_grad():
             
             # next_action_value = self.target_model.forward([next_state])[0]
-            n_val, n_adv = self.model.forward([state])
+            n_val, n_adv = self.target_model.forward([state])
             next_action_value = n_val + n_adv - torch.mean(n_adv, dim=-1, keepdim=True)
 
             # n_action_value = self.model.forward([next_state])[0]
