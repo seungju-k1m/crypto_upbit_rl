@@ -53,8 +53,8 @@ class Replay(threading.Thread):
         self.vals.append(vals)
     
     def _update(self):
-        self.vals = np.concatenate(self.vals, axis=0)
-        self.memory.update(self.idx, self.vals)
+        vals = np.concatenate(self.vals, axis=0)
+        self.memory.update(self.idx, vals)
         self.vals.clear()
         self.idx.clear()
 
