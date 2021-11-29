@@ -83,13 +83,13 @@ class Learner:
 
         with torch.no_grad():
             
-            # next_action_value = self.target_model.forward([next_state])[0]
-            n_val, n_adv = self.target_model.forward([state])
-            next_action_value = n_val + n_adv - torch.mean(n_adv, dim=-1, keepdim=True)
+            next_action_value = self.target_model.forward([next_state])[0]
+            # n_val, n_adv = self.target_model.forward([state])
+            # next_action_value = n_val + n_adv - torch.mean(n_adv, dim=-1, keepdim=True)
 
-            # n_action_value = self.model.forward([next_state])[0]
-            val_n, adv_n = self.model.forward([next_state])
-            n_action_value = val_n + adv_n - torch.mean(adv_n, dim=-1, keepdim=True)
+            n_action_value = self.model.forward([next_state])[0]
+            # val_n, adv_n = self.model.forward([next_state])
+            # n_action_value = val_n + adv_n - torch.mean(adv_n, dim=-1, keepdim=True)
             action_ddqn =  n_action_value.argmax(dim=-1).detach().cpu().numpy()
             action_ddqn = [6*i + a for i, a in enumerate(action_ddqn)]
             next_action_value = next_action_value.view(-1)
