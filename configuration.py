@@ -7,7 +7,7 @@ import os
 import torch
 
 
-_path_ = './cfg/dqn.json'
+_path_ = './cfg/ddqn.json'
 
 
 _parser_ = jsonParser(_path_)
