@@ -139,7 +139,7 @@ class Replay(threading.Thread):
                 # print("Push Time:{:.3f}".format(time.time() - check_time))
                 self.total_frame += len(data)
                 data.clear()
-                assert len(self.memory.memory) == len(self.memory.priority_torch)
+                # assert len(self.memory.memory) == len(self.memory.priority_torch)
                 if len(self.memory) > 50000:
                     with self._lock:
                         if len(self.deque) < 5:
