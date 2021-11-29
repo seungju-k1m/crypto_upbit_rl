@@ -63,7 +63,6 @@ class Learner:
         state = state / 255.
         state = state.to(self.device)
 
-
         next_state = torch.tensor(next_state).float()
         next_state = next_state / 255.
         next_state = next_state.to(self.device)
@@ -105,11 +104,11 @@ class Learner:
         new_priority = td_error_for_prior
 
         if USE_PER:
-            loss = torch.sum(
+            loss = torch.mean(
                 weight * td_error ** 2
             ) * 0.5
         else:
-            loss = torch.sum(td_error ** 2) * 0.5
+            loss = torch.mean(td_error ** 2) * 0.5
         loss.backward()
 
         info = self.step()
@@ -230,15 +229,9 @@ class Learner:
         mm = 500
         mean_weight = 0
         for t in count():
-            
-            # ------sample--------
-            self.memory.lock = True
-            time.sleep(0.0000025)
 
             time_sample = time.time()
             experience = self.memory.sample()
-            prev_frame = self.memory.total_frame
-            self.memory.lock = False
 
             if experience is False:
                 time.sleep(0.002)
@@ -266,7 +259,6 @@ class Learner:
                 self.memory.lock = True
                 while self.memory.lock:
                     a = 1
-
 
             norm += info['p_norm']
             mean_value += info['mean_value']

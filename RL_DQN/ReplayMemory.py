@@ -4,6 +4,8 @@ import torch
 import _pickle as pickle
 import threading
 import redis
+import cProfile
+from pstats import Stats
 
 import itertools
 import numpy as np
@@ -50,7 +52,8 @@ class Replay(threading.Thread):
         if self.use_PER:
             experiences, prob, idx = self.memory.sample(BATCHSIZE)
             n = len(self.memory)
-            weight = (1 / (n * prob)) ** BETA / self.memory.max_weight
+            weight = (1 / (n * prob)) ** BETA
+            weight /= max(weight)
         else:
             experiences = deepcopy(self.memory.sample(BATCHSIZE))
         
@@ -112,6 +115,7 @@ class Replay(threading.Thread):
                     with self._lock:
                         if len(self.deque) < 5:
                             zx = time.time()
+
                             self.deque.append(self.buffer())
                             self.deque.append(self.buffer())
                             mm = time.time() - zx
@@ -120,9 +124,10 @@ class Replay(threading.Thread):
                     self.deque.clear()
                     self.memory.remove_to_fit()
                     self.lock = False
-                if (t+1) % 20 == 0:
-                    # print("Buffering_time:{:.3f}".format(mm / t))
-                    self.deque.append(self.buffer(print_f=False))
+                if (t+1) % 500 == 0:
+                    profile = cProfile.Profile()
+                    profile.runctx('self.buffer()', globals(), locals())
+                    profile.print_stats()
                 
             gc.collect()
         
