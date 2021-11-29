@@ -55,6 +55,7 @@ class Replay(threading.Thread):
     def _update(self):
         vals = np.concatenate(self.vals, axis=0)
         if len(vals) != len(self.idx):
+            print("!!")
             return
         self.memory.update(self.idx, vals)
         self.vals.clear()
