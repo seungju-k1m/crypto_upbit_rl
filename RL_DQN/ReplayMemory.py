@@ -124,7 +124,7 @@ class Replay(threading.Thread):
         t = 0
         data = []
         while True:
-            if len(self.memory.priority) >  50000:
+            if len(self.memory.priority) > 50000:
                 self.cond = True
             
             pipe = self.connect.pipeline()
@@ -145,6 +145,8 @@ class Replay(threading.Thread):
                         if len(self.deque) < 5:
                             self.buffer()
                             t += 1
+                            if t == 1:
+                                print("Data Batch Start!!!")
                 if self.lock:
                     self.deque.clear()
                     self.memory.remove_to_fit()
@@ -154,7 +156,7 @@ class Replay(threading.Thread):
                     # profile.runctx('self.buffer()', globals(), locals())
                     # profile.print_stats()
                     a = 1
-            if len(self.idx) > 1000:
+            if len(self.idx) > 10000:
                 self._update()
             gc.collect()
         
