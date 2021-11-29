@@ -154,7 +154,7 @@ class Player():
                 
                 val, adv = self.model.forward([state])
                 action_value = val + adv - torch.mean(adv, dim=-1, keepdim=True)
-                action = int(action_value.argmax().numpy())
+                action = int(action_value.argmax(dim=-1).numpy())
         return action, epsilon
 
     def process_traj(self, traj=None):
