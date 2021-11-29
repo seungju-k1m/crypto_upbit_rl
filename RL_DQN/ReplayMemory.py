@@ -43,13 +43,20 @@ class Replay(threading.Thread):
         self.device = torch.device(LEARNER_DEVICE)
         self.total_frame = 0
         self.lock = False
+
+        self.idx = []
+        self.vals = []
     
     def update(self, idx:list, vals:np.ndarray):
-        self.update_list.append((idx, vals))
+        # self.update_list.append((idx, vals))
+        self.idx += idx
+        self.vals.append(vals)
     
     def _update(self):
-        for i in self.update_list:
-            self.memory.update(i[0], i[1])
+        self.vals = np.concatenate(self.vals, axis=0)
+        self.memory.update(self.idx, self.vals)
+        self.vals.clear()
+        self.idx.clear()
 
     def buffer(self, print_f=False):
         sample_time = time.time()
@@ -144,7 +151,8 @@ class Replay(threading.Thread):
                     # profile.runctx('self.buffer()', globals(), locals())
                     # profile.print_stats()
                     a = 1
-            # self._update()
+            if len(self.idx) > 1000:
+                self._update()
             gc.collect()
         
     def sample(self):
