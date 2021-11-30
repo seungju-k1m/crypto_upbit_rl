@@ -10,6 +10,7 @@ from RL.ReplayMemory import Replay
 from RL.Learner import Learner
 from argparse import ArgumentParser
 
+from PIL import Image
 import ray
 
 parser = ArgumentParser()
@@ -72,16 +73,18 @@ if __name__ == "__main__":
     # --------------Simulator----------------
 
     sim = Simulator(to='2021-09-13 00:00:00', duration=15)
-    sim.reset()
+    k = sim.reset()
+    sim.render(k)
     # sim.renderer.set_ylim(
     #     55000000, 80000000
     # )
+    # a = [1, 0, 0, 1, 0, 0, 1, 0, 0, 1]
     while 1:
-        s, reward, done, info = sim.step()
-        # s, reward, done, info = sim.step(unit=1)
+        # s, reward, done, info = sim.step(a.pop(0))
+        s, reward, done, info = sim.step(0)
         if done:
             break
-        sim.render(s)
+        obs = sim.render(s)
     # sim.reset()
 
     # ---------------------------------------

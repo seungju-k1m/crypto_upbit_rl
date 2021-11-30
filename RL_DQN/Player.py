@@ -19,6 +19,7 @@ import redis
 import torch.nn as nn
 from torch.distributions import Categorical
 import gym
+import time
 import random
 from PIL import Image as im
 
@@ -76,10 +77,12 @@ class Player():
         if end_time is None:
             end_time = STARTDAY
         if USE_GYM:
-            self.sim = gym.make("PongNoFrameskip-v4")
+            # self.sim = gym.make("Pong-v0")
+            # self.sim = gym.make('SpaceInvadersNoFrameskip-v4')
+            self.sim = gym.make('PongNoFrameskip-v4')
             zz = np.random.choice([i for i in range(idx*21+13)], 1)[0]
             self.sim.seed(int(zz))
-            # self.sim = gym.make('SpaceInvadersNoFrameskip-v4')
+            
         else:
             self.sim = Simulator(to=end_time, duration=DURATION)
 
@@ -100,6 +103,19 @@ class Player():
         else:
             self.forward = self.bit_forward
             self.run = self.bit_run
+
+    def test_gym(self):
+
+        self.sim.reset()
+
+        done = False
+
+        while done is False:
+            _, __, done, ___ = self.sim.step(
+                self.sim.action_space.sample()
+            )
+            self.sim.render()
+            time.sleep(0.1)
 
     def build_model(self):
         info = DATA["model"]
@@ -266,6 +282,27 @@ class Player():
             
             return x
         
+    @staticmethod
+    def rgb_to_gray(img, W=84, H=84):
+        grayImage = im.fromarray(img, mode="RGB")
+        grayImage = grayImage.convert("L")
+
+        # grayImage = np.expand_dims(Avg, -1)
+        grayImage = grayImage.resize((84, 84), im.NEAREST)
+        return np.array(grayImage)
+
+    def stack_obs(self, img, obsDeque):
+        gray_img = self.rgb_to_gray(deepcopy(img))
+        obsDeque.append(gray_img)
+        state = []
+        if len(obsDeque) > 3:
+            for i in range(4):
+                state.append(obsDeque[i])
+            state = np.stack(state, axis=0)
+            return state
+        else:
+            return None
+        
     def gym_run(self):
         obsDeque = deque(maxlen=4)
         mean_cumulative_reward = 0
@@ -276,24 +313,6 @@ class Player():
         key = "ale.lives"
         random_action=USE_RANDOM_START
         # key = "lives"
-        def rgb_to_gray(img, W=84, H=84):
-            grayImage = im.fromarray(img, mode="RGB").convert("L")
-
-            # grayImage = np.expand_dims(Avg, -1)
-            grayImage = grayImage.resize((84, 84), im.NEAREST)
-            return grayImage
-        
-        def stack_obs(img):
-            gray_img = rgb_to_gray(img)
-            obsDeque.append(gray_img)
-            state = []
-            if len(obsDeque) > 3:
-                for i in range(4):
-                    state.append(obsDeque[i])
-                state = np.stack(state, axis=0)
-                return state
-            else:
-                return None
         
         total_step = 0
 
@@ -307,26 +326,24 @@ class Player():
 
             obs = self.sim.reset()
             self.obsDeque.clear()
+
             for i in range(4):
-                stack_obs(obs)
+                self.stack_obs(obs, obsDeque)
             
-            state = stack_obs(obs)
+            state = self.stack_obs(obs, obsDeque)
 
             action, _ = self.forward(state, random_action=random_action)
-            
+
             while done is False:
                 reward = 0
                 for i in range(3):
-                    _, __, r, _ = self.sim.step(action)
+                    _, __, r, ___ =self.sim.step(action)
                     reward += r
                 next_obs, r, done, info = self.sim.step(action)
                 reward += r
-                reward_ = reward
                 # reward = max(-1.0, min(reward, 1.0))
                 step += 1
                 total_step += 1
-                # print(step)
-                # self.sim.render()
 
                 if live == -1:
                     try:
@@ -342,13 +359,11 @@ class Player():
                 else:
                     _done = reward != 0
                 
-                next_state = stack_obs(next_obs)
+                next_state = self.stack_obs(next_obs, obsDeque)
                 cumulative_reward += reward
-
-                # experience += deepcopy([state, action, reward, next_state])
-
                 local_buffer.push(state, action, reward)
                 action, epsilon = self.forward(next_state, total_step, random_action=random_action)
+                action = 0
                 state = next_state
 
                 if random_action:

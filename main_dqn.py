@@ -28,7 +28,8 @@ if __name__ == "__main__":
     num_worker = args.num_worker
     start_idx = args.start_idx
     # num_worker = 2
-    # p = Player()
+    p = Player()
+    # p.test_gym()
     # p.run()
     
     ray.init(num_cpus=num_worker)

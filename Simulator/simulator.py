@@ -1,6 +1,8 @@
 # BITCOIN SIMULATOR FOR BACKTEST
 from datetime import datetime
-from configuration import DURATION, RENDER_TIME, RUN_UNIT_TIME, UNIT_MINUTE, FEE
+
+from pandas.core import base
+from configuration import DURATION, RENDER_MODE, RENDER_TIME, RUN_UNIT_TIME, UNIT_MINUTE, FEE
 from gym import Env
 from typing import Union, List
 
@@ -27,7 +29,8 @@ class Simulator(Env):
         self.init_volume = init_volume
         self.var_mode = False
         self.renderer = []
-        self.offset = 48 * 60
+        run_unit = UNIT_MINUTE[RUN_UNIT_TIME]
+        self.offset = int(48 * 60 / run_unit)
         for unit in UNIT_MINUTE:
             self.renderer.append(Renderer(unit=unit))
         self.num_len = self.renderer[0].screen_size
@@ -56,6 +59,7 @@ class Simulator(Env):
         self.midpoint, self.datetime, self.volume = [], [], []
         self.prev_notional_price = []
         k = [60, 12, 4, 1]
+        k = [int(60/i) for i in UNIT_MINUTE]
         for unit, m in zip(UNIT_MINUTE, k):
             render_time = unit
             self.midpoint.append(self.pipeline.data[render_time]['midpoint'].to_numpy())
@@ -76,7 +80,9 @@ class Simulator(Env):
             i += 1
         for r in self.renderer:
             r.render()
-        self.prev_notional_price = self.midpoint[0][self.offset]
+        run_unit = UNIT_MINUTE[RUN_UNIT_TIME]
+        idx = UNIT_MINUTE.index(run_unit)
+        self.prev_notional_price = self.midpoint[idx][self.offset]
         state = self.pipeline.get(self.offset, unit=1)
         self.coin = True
         # state = [np.append(i, np.array(float(self.coin))) for j, i in enumerate(state)]
@@ -84,27 +90,22 @@ class Simulator(Env):
         return state
 
     def render(self, state):
+        """
+        TIME STEP...
+        """
         mode = state[-1]
         obs_list = []
-        m1_obs = self.renderer[0].render(state[0],mode)
-        obs_list.append(m1_obs)
-        if self.count % 5 == 0:
-            m5_obs = self.renderer[1].render(state[1],mode)
-        else:
-            m5_obs = self.renderer[1].get_current_fig()
-        obs_list.append(m5_obs)
-        if self.count % 15 == 0:
-            m15_obs = self.renderer[2].render(state[2],mode)
-        else:
-            m15_obs = self.renderer[2].get_current_fig()
-        obs_list.append(m15_obs)
-        if self.count % 60 == 0:
-            m60_obs = self.renderer[3].render(state[3],mode)
-        else:
-            m60_obs = self.renderer[3].get_current_fig()
-        obs_list.append(m60_obs)
-
-        obs = np.stack(obs_list, axis=-1)
+        base_unit_minute = [1, 5, 15, 60]
+        base_unit = UNIT_MINUTE[RUN_UNIT_TIME]
+        for i, unit in enumerate(UNIT_MINUTE):
+            z = base_unit_minute.index(unit)
+            plot_k = False
+            if RENDER_MODE and unit == base_unit:
+                plot_k = True
+            obs_list.append(
+                self.renderer[i].render(state[z], mode, plot_k)
+            )
+        obs = np.stack(obs_list, axis=0)
         return obs
         
     def step(self, action=0):

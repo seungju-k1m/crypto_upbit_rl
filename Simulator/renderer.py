@@ -35,36 +35,38 @@ class Renderer:
         self.ylim = [ymin, ymax]
         self.BOOL_SET_YLIM = True
     
-    def render(self, state=None, mode=0):
+    def render(self, state=None, mode=0, render_mode=False):
         
         if state is None:
-            self.line1, obs = self.live_plotting(
+            self.line1 = self.live_plotting(
                 self.x_vec,
                 self.y_vec,
                 self.line1,
                 ticker=MARKET,
                 y2_data=self.y2_vec,
-                mode='2'
+                mode=1,
+                render_mode=render_mode
             )
             return None
-        mode = state[-1]
         tt, midpoint = state[:2]
-        acc_volume = state[-2]
-        self.line1, obs = self.live_plotting(
+        acc_volume = state[-1]
+        self.line1 = self.live_plotting(
             self.x_vec,
             self.y_vec,
             self.line1,
             ticker=MARKET,
             y2_data=self.y2_vec,
-            mode=mode
+            mode=mode,
+            render_mode=render_mode
         )
+        obs = self.get_current_fig()
         self.y_vec = np.append(self.y_vec[1:], midpoint)
         self.x_vec = np.append(self.x_vec[1:], tt)
         if acc_volume is not None:
             self.y2_vec = np.append(self.y2_vec[1:], acc_volume)
         return obs
 
-    def live_plotting(self, x_vec, y1_data, line1, ticker='KRW-BTC', y2_data=None, mode="human"):
+    def live_plotting(self, x_vec, y1_data, line1, ticker='KRW-BTC', y2_data=None, mode="human", render_mode=False):
         
         if mode == "human":
             if not line1:
@@ -117,6 +119,7 @@ class Renderer:
                     # line2.set_xdata(x_vec)
             
             line1.set_ydata(y1_data_)
+            mean_y1 = y1_data_.mean()
             line1.set_xdata(x_vec)
             if y2_data is not None:
                 for l, y in zip(self.line2, y2_data):
@@ -124,28 +127,22 @@ class Renderer:
                     xx = l.get_x()
                     l.set_x(xx + self.k)
             
-            obs = self.figure_to_array(line1.figure)
-            obs = Image.fromarray(obs).convert("L")
-            # obs = obs.resize((96, 72), PIL.Image.BILINEAR)
-            # obs = obs.resize((96, 72), PIL.Image.BICUBIC)
-            # obs = obs.resize((96, 72), PIL.Image.NEAREST)
-            obs = obs.resize((96, 72), PIL.Image.BOX)
-            obs = np.array(obs)
-            if mode == 0:
-                pass
+            if mode == 1:
+                line1.figure.suptitle("COIN")
             else:
-                pass
-            if RENDER_MODE:
+                line1.figure.suptitle("")
+            if render_mode:
+                # line1.figure.show()
                 plt.show(block=False)
                 plt.pause(0.00001)
             
             if np.min(y1_data) <= line1.axes.get_ylim()[0] or \
                 np.max(y1_data) >= line1.axes.get_ylim()[1]:
                 ax = line1.axes
-                ax.set_ylim(np.min(y1_data_) * .9, np.max(y1_data_))
+                ax.set_ylim(mean_y1 * 0.95, mean_y1 * 1.05)
             plt.xlim(np.min(x_vec), np.max(x_vec))
             
-        return line1, obs
+        return line1
     
     def get_current_fig(self):
         a = self.figure_to_array(self.line1.figure)

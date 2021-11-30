@@ -48,7 +48,8 @@ class DataPipeLine:
             file.close()
         print("Load Data")
         self.preprocess_data()
-        self.data_len = [len(self.data[i]) for i in UNIT_MINUTE]
+        base_unit = [1, 5, 15, 60]
+        self.data_len = [len(self.data[i]) for i in base_unit]
         # midpoint
 
     @staticmethod
@@ -85,10 +86,11 @@ class DataPipeLine:
     
     def preprocess_data(self):
         to = self.path + ' process.bin'
+        base_unit = [1,5, 15, 60]
         if not os.path.isfile(to):
             output = {}
             # UNIT_MINUTE=[1, 5, 15, 60]
-            for d, u_m in zip(self._data, UNIT_MINUTE):
+            for d, u_m in zip(self._data, base_unit):
                 output[u_m] = None
                 for i, dict_d in enumerate(d):
                     t = dict_d['candle_date_time_utc']
@@ -116,12 +118,13 @@ class DataPipeLine:
         self.data = output
 
     def get(self, ind, unit=1):
-        idx = UNIT_MINUTE.index(unit)
+        base_unit = [1, 5, 15, 60]
+        idx = base_unit.index(unit)
         if ind > (self.data_len[idx] - 1):
             return None
         
         output = []
-        for i in UNIT_MINUTE:
+        for i in base_unit:
             ii = int(ind / i * unit)
             tmp = self.data[i].iloc[ii].to_numpy()
             tmp[0] = np.datetime64(tmp[0])
