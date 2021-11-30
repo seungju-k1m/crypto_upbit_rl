@@ -149,7 +149,7 @@ class Replay(threading.Thread):
                 # assert len(self.memory.memory) == len(self.memory.priority_torch)
                 if len(self.memory) > 50000:
                     with self._lock:
-                        if len(self.deque) < 5:
+                        if len(self.deque) < 2:
                             self.buffer()
                             t += 1
                             if t == 1:
@@ -158,6 +158,7 @@ class Replay(threading.Thread):
                 if self.lock:
                     self.deque.clear()
                     self.memory.remove_to_fit()
+                    self.buffer()
                     self.lock = False
                 if (t+1) % 500 == 0:
                     # profile = cProfile.Profile()
