@@ -289,7 +289,7 @@ class Player():
 
         # grayImage = np.expand_dims(Avg, -1)
         grayImage = grayImage.resize((84, 84), im.NEAREST)
-        return np.array(grayImage)
+        return grayImage
 
     def stack_obs(self, img, obsDeque):
         gray_img = self.rgb_to_gray(deepcopy(img))
@@ -332,13 +332,15 @@ class Player():
             
             state = self.stack_obs(obs, obsDeque)
 
-            action, _ = self.forward(state, random_action=random_action)
+            action, _ = self.gym_forward(state, random_action=random_action)
 
             while done is False:
                 reward = 0
                 for i in range(3):
                     _, __, r, ___ =self.sim.step(action)
+
                     reward += r
+                
                 next_obs, r, done, info = self.sim.step(action)
                 reward += r
                 # reward = max(-1.0, min(reward, 1.0))
@@ -362,8 +364,7 @@ class Player():
                 next_state = self.stack_obs(next_obs, obsDeque)
                 cumulative_reward += reward
                 local_buffer.push(state, action, reward)
-                action, epsilon = self.forward(next_state, total_step, random_action=random_action)
-                action = 0
+                action, epsilon = self.gym_forward(next_state, total_step, random_action=random_action)
                 state = next_state
 
                 if random_action:
