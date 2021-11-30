@@ -271,7 +271,6 @@ class Learner:
                 )
             
             if (step % 100) == 0:
-                
                 self.memory.lock = True
                 while self.memory.lock:
                     a = 1
