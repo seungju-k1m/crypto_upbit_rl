@@ -49,8 +49,9 @@ class Replay(threading.Thread):
     
     def update(self, idx:list, vals:np.ndarray):
         # self.update_list.append((idx, vals))
-        self.idx += idx
-        self.vals.append(vals)
+        with self._lock:
+            self.idx += idx
+            self.vals.append(vals)
     
     def _update(self):
         with self._lock:
