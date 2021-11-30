@@ -16,6 +16,7 @@ _key_ = list(_data_.keys())
 DATA = _data_
 
 USE_PER = True
+USE_RANDOM_START = False
 ALPHA = 0.6
 BETA = 0.4
 GAMMA = .99

@@ -272,8 +272,6 @@ class Learner:
             
             if (step % 500) == 0:
                 self.memory.lock = True
-                while self.memory.lock:
-                    a = 1
 
             norm += info['p_norm']
             mean_value += info['mean_value']

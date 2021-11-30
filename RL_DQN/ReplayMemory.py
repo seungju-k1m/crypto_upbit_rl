@@ -149,14 +149,15 @@ class Replay(threading.Thread):
                 # assert len(self.memory.memory) == len(self.memory.priority_torch)
                 if len(self.memory) > 50000:
                     with self._lock:
-                        if len(self.deque) < 2:
+                        if len(self.deque) < 8:
                             self.buffer()
                             t += 1
                             if t == 1:
                                 print("Data Batch Start!!!")
                 self._update()
                 if self.lock:
-                    self.deque.clear()
+                    while len(self.deque) < 1:
+                        time.sleep(0.001)
                     self.memory.remove_to_fit()
                     self.buffer()
                     self.lock = False

@@ -247,7 +247,7 @@ class Player():
         local_buffer = LocalBuffer()
         keys = ['ale.lives', 'lives']
         key = "ale.lives"
-        random_action=False
+        random_action=USE_RANDOM_START
         # key = "lives"
         def rgb_to_gray(img, W=84, H=84):
             grayImage = im.fromarray(img, mode="RGB").convert("L")
