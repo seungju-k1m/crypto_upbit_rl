@@ -325,7 +325,7 @@ class Player():
             step = 0
 
             obs = self.sim.reset()
-            self.obsDeque.clear()
+            obsDeque.clear()
 
             for i in range(4):
                 self.stack_obs(obs, obsDeque)
