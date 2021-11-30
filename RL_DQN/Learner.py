@@ -270,7 +270,7 @@ class Learner:
                     list(idx), priority
                 )
             
-            if (step % 100) == 0:
+            if (step % 500) == 0:
                 self.memory.lock = True
                 while self.memory.lock:
                     a = 1
