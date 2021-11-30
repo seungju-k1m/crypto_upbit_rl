@@ -152,8 +152,8 @@ class Replay(threading.Thread):
                             t += 1
                             if t == 1:
                                 print("Data Batch Start!!!")
+                self._update()
                 if self.lock:
-                    self._update()
                     self.memory.remove_to_fit()
                     self.lock = False
                 if (t+1) % 500 == 0:
