@@ -265,14 +265,15 @@ class Learner:
 
             # ------Update------
             tt = time.time()
+            
+            if (step % 500) == 0:
+                self.memory.lock = True
+            
             if USE_PER:
                 if self.memory.lock is False:
                     self.memory.update(
                         list(idx), priority
                     )
-            
-            if (step % 500) == 0:
-                self.memory.lock = True
 
             norm += info['p_norm']
             mean_value += info['mean_value']
