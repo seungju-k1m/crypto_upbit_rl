@@ -49,7 +49,6 @@ class Simulator(Env):
         self.to = k
         self.duration = DURATION
         self.init_pipeline()
-        self.coin = False
 
     def reset(self, mode='x'):
         self.init_random()
@@ -80,30 +79,27 @@ class Simulator(Env):
         self.prev_notional_price = self.midpoint[0][self.offset]
         state = self.pipeline.get(self.offset, unit=1)
         self.coin = True
-        state = [np.append(j, np.array(float(self.coin))) for j, i in enumerate(state)]
-        self.krw_account = self.init_volume * state[0][1]
-        self.coin_account = 0
-        self.bid_price = state[0][1]
-        self.total_account = self.krw_account
-        self.init_krw_account =  self.init_volume * state[0][1]
-        return self.render(state)
+        # state = [np.append(i, np.array(float(self.coin))) for j, i in enumerate(state)]
+        state.append(float(self.coin))
+        return state
 
     def render(self, state):
+        mode = state[-1]
         obs_list = []
-        m1_obs = self.renderer[0].render(state[0])
+        m1_obs = self.renderer[0].render(state[0],mode)
         obs_list.append(m1_obs)
         if self.count % 5 == 0:
-            m5_obs = self.renderer[1].render(state[1])
+            m5_obs = self.renderer[1].render(state[1],mode)
         else:
             m5_obs = self.renderer[1].get_current_fig()
         obs_list.append(m5_obs)
         if self.count % 15 == 0:
-            m15_obs = self.renderer[2].render(state[2])
+            m15_obs = self.renderer[2].render(state[2],mode)
         else:
             m15_obs = self.renderer[2].get_current_fig()
         obs_list.append(m15_obs)
         if self.count % 60 == 0:
-            m60_obs = self.renderer[3].render(state[3])
+            m60_obs = self.renderer[3].render(state[3],mode)
         else:
             m60_obs = self.renderer[3].get_current_fig()
         obs_list.append(m60_obs)
@@ -146,7 +142,7 @@ class Simulator(Env):
                     self.coin = True
                     
             self.prev_notional_price = current_price
-        obs = self.render(state)
-        return obs, reward, done, None
+        state.append(float(self.coin))
+        return state, reward, done, None
 
     

@@ -266,9 +266,10 @@ class Learner:
             # ------Update------
             tt = time.time()
             if USE_PER:
-                self.memory.update(
-                    list(idx), priority
-                )
+                if self.memory.lock is False:
+                    self.memory.update(
+                        list(idx), priority
+                    )
             
             if (step % 500) == 0:
                 self.memory.lock = True

@@ -160,10 +160,9 @@ class Replay(threading.Thread):
                     else:
                         while len(self.deque) > 0:
                             time.sleep(0.001)
-                        
+                        self.memory.remove_to_fit()
                         self.idx.clear()
                         self.vals.clear()
-                        self.memory.remove_to_fit()
                         self.buffer()
                     self.lock = False
                 if (t+1) % 500 == 0:

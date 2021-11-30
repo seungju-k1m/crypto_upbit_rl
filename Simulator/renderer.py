@@ -35,7 +35,8 @@ class Renderer:
         self.ylim = [ymin, ymax]
         self.BOOL_SET_YLIM = True
     
-    def render(self, state=None):
+    def render(self, state=None, mode=0):
+        
         if state is None:
             self.line1, obs = self.live_plotting(
                 self.x_vec,
@@ -46,6 +47,7 @@ class Renderer:
                 mode='2'
             )
             return None
+        mode = state[-1]
         tt, midpoint = state[:2]
         acc_volume = state[-2]
         self.line1, obs = self.live_plotting(
@@ -54,7 +56,7 @@ class Renderer:
             self.line1,
             ticker=MARKET,
             y2_data=self.y2_vec,
-            mode='2'
+            mode=mode
         )
         self.y_vec = np.append(self.y_vec[1:], midpoint)
         self.x_vec = np.append(self.x_vec[1:], tt)
@@ -87,6 +89,7 @@ class Renderer:
                 
             plt.xlim(np.min(x_vec), np.max(x_vec))
             plt.pause(0.00001)
+            return line1
         else:
             y1_data_ =  y1_data / 1e7
             # y1_data = (y1_data - y1_data.mean()) / y1_data.var()
@@ -128,6 +131,10 @@ class Renderer:
             # obs = obs.resize((96, 72), PIL.Image.NEAREST)
             obs = obs.resize((96, 72), PIL.Image.BOX)
             obs = np.array(obs)
+            if mode == 0:
+                pass
+            else:
+                pass
             if RENDER_MODE:
                 plt.show(block=False)
                 plt.pause(0.00001)

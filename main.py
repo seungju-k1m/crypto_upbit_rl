@@ -72,7 +72,6 @@ if __name__ == "__main__":
     # --------------Simulator----------------
 
     sim = Simulator(to='2021-09-13 00:00:00', duration=15)
-    sim.init_random()
     sim.reset()
     # sim.renderer.set_ylim(
     #     55000000, 80000000
