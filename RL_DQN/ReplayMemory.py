@@ -66,9 +66,10 @@ class Replay(threading.Thread):
             self.idx.clear()
 
     def buffer(self, print_f=False):
+        m = 32
         sample_time = time.time()
         if self.use_PER:
-            experiences, prob, idx = self.memory.sample(BATCHSIZE * 16)
+            experiences, prob, idx = self.memory.sample(BATCHSIZE * m)
             n = len(self.memory)
             weight = (1 / (n * prob)) ** BETA
             weight /= weight.max()
@@ -101,15 +102,15 @@ class Replay(threading.Thread):
         # next_state = np.stack([np.frombuffer(base64.b64decode(bin), dtype=np.uint8) for bin in experiences[:, 3]], 0)
         done = experiences[:, 4]
 
-        states = np.vsplit(state, 16)
+        states = np.vsplit(state, m)
 
-        actions = np.split(action, 16)
+        actions = np.split(action, m)
 
-        rewards = np.split(reward, 16)
+        rewards = np.split(reward, m)
 
-        next_states = np.vsplit(next_state, 16)
+        next_states = np.vsplit(next_state, m)
 
-        dones = np.split(done, 16)
+        dones = np.split(done, m)
 
         weights = weight.split(BATCHSIZE)
         idices = idx.split(BATCHSIZE)
