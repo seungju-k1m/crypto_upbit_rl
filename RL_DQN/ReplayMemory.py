@@ -53,6 +53,8 @@ class Replay(threading.Thread):
         self.vals.append(vals)
     
     def _update(self):
+        if len(self.idx) == 0:
+            return 
         vals = np.concatenate(self.vals, axis=0)
         if len(vals) != len(self.idx):
             print("!!")
@@ -159,8 +161,6 @@ class Replay(threading.Thread):
                     # profile.runctx('self.buffer()', globals(), locals())
                     # profile.print_stats()
                     a = 1
-            if len(self.idx) > 10000:
-                self._update()
             gc.collect()
         
     def sample(self):
