@@ -1,6 +1,6 @@
 # BITCOIN SIMULATOR FOR BACKTEST
 from datetime import datetime
-from configuration import DURATION, RENDER_TIME, UNIT_MINUTE, FEE
+from configuration import DURATION, RENDER_TIME, RUN_UNIT_TIME, UNIT_MINUTE, FEE
 from gym import Env
 from typing import Union, List
 
@@ -10,6 +10,7 @@ import pandas as pd
 import numpy as np
 
 import random
+import math
 import os
 
 
@@ -51,21 +52,7 @@ class Simulator(Env):
         self.coin = False
 
     def reset(self, mode='x'):
-        def normalize(x, i):
-            if i == 0:
-                x[2] /= 100000
-                x[3] /= 100
-            if i == 1:
-                x[2] /= 100000
-                
-                x[3] /= 500
-            if i == 2:
-                x[2] /= 100000
-                x[3] /= 1500
-            if i == 3:
-                x[2] /= 500000
-                x[3] /= 6000
-            return x
+        self.init_random()
         i = 0
         self.midpoint, self.datetime, self.volume = [], [], []
         self.prev_notional_price = []
@@ -91,17 +78,15 @@ class Simulator(Env):
         for r in self.renderer:
             r.render()
         self.prev_notional_price = self.midpoint[0][self.offset]
-
-        
         state = self.pipeline.get(self.offset, unit=1)
         self.coin = False
-        state = [np.append(normalize(i, j), np.array(float(self.coin))) for j, i in enumerate(state)]
+        state = [np.append(j, np.array(float(self.coin))) for j, i in enumerate(state)]
         self.krw_account = self.init_volume * state[0][1]
         self.coin_account = 0
         self.bid_price = state[0][1]
         self.total_account = self.krw_account
         self.init_krw_account =  self.init_volume * state[0][1]
-        return state
+        return self.render(state)
 
     def render(self, state):
         obs_list = []
@@ -127,9 +112,9 @@ class Simulator(Env):
         return obs
         
     def step(self, action=0):
-        unit=1
+        unit = UNIT_MINUTE[RUN_UNIT_TIME]
         self.count += 1
-        state = self.pipeline.get(self.offset + self.count, unit=1)
+        state = self.pipeline.get(self.offset + self.count, unit=unit)
         if state is None:
             done = True
             reward = 0
@@ -138,32 +123,20 @@ class Simulator(Env):
             # self.count += 1
             idx = UNIT_MINUTE.index(unit)
             current_price = state[idx][1]
-            delta = (state[idx][1] - self.prev_notional_price)
             fee = FEE
+
+            temp = 100 * math.log(current_price / self.prev_notional_price)
+
             if self.coin:
+                # Hold or Sell
                 if action == 0:
-                    action = "HOLD"
-                    reward = 0
-                    # reward = 0.01
+                    reward = temp
                 elif action == 1:
-                    action = "ASK"
-                    self.coin = False
-                    reward = (current_price - self.bid_price) / self.bid_price
-                    reward -= fee
-                    self.krw_account = current_price * self.coin_account * (1 - fee)
-                    self.coin_account = 0
+                    reward 
+
             else:
-                if action == 0:
-                    action = "HOLD"
-                    # reward = -delta
-                    reward = 0
-                else:
-                    action = "BID"
-                    self.coin = True
-                    reward = -fee
-                    self.bid_price = current_price
-                    self.coin_account = self.krw_account * (1-fee) / current_price
-                    self.krw_account = 0
+                # Hold and Buy
+                pass
                     
             self.prev_notional_price = state[idx][1]
             state = [np.append(i, np.array(float(self.coin))) for j, i in enumerate(state)]

@@ -30,7 +30,10 @@ class LocalBuffer:
         self.storage = []
     
     def push(self, s, a, r):
-        self.storage += [s, a, r]
+        s_ = deepcopy(s)
+        a_ = deepcopy(a)
+        r_ = deepcopy(r)
+        self.storage += [s_, a_, r_]
     
     def __len__(self):
         return int(len(self.storage) / 3)
@@ -164,30 +167,40 @@ class Player():
             )
 
     def bit_run(self):
+        obsDeque = deque(maxlen=4)
+        mean_cumulative_reward = 0
+        per_episode = 2
+        step = 0
+        local_buffer = LocalBuffer()
 
-        while 1:
-            self.sim.init_random()
-            print(self.sim.to)
-            prev_state = self.sim.reset()
-            self.reset_cell_state()
-            done = False
-            step = 0
+        random_action=USE_RANDOM_START
+        
+        total_step = 0
+
+        for t in count():
             cumulative_reward = 0
-            traj = []
+            done = False
+            local_buffer.clear()
+            experience = []
+            step = 0
+
+            state = self.sim.reset()
+
+            action, _ = self.forward(state)
             while not done:
-                self.pull_param()
-                action, cell_state, policy = self.forward(prev_state, step)
-                state, reward, done, info = self.sim.step(action, unit=RUN_UNIT_TIME)
-                prev_state = deepcopy(state)
-                cumulative_reward += reward
+                next_state, reward, done, info = self.sim.step(action, unit=RUN_UNIT_TIME)
+                step += 1
+                total_step += 1
+
                 if self.sim.coin_account < 0.1:
                     if self.sim.krw_account < 1000000:
                         done = True
-                if not done:
-                    state += [policy[0]]
-                    state += cell_state
-                    step += 1
-                    self.obsDeque += [state, action, reward]
+                
+                cumulative_reward += reward
+
+                local_buffer.push(state, action, reward)
+                action, epsilon = self.forward(next_state, total_step)
+                state = next_state
                 
                 if step % 100 == 0:
                     self.pull_param()

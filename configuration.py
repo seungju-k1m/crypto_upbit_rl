@@ -123,8 +123,8 @@ if LOG_MODE:
 
 # ------------------------------------------------
 
-RENDER_TIME = 3
+RENDER_TIME = 0
 RUN_UNIT_TIME = 1
 # 0:1, 1:5, 2:15, 3:60
-UNIT_MINUTE = [5, 15, 60]
+UNIT_MINUTE = [1, 5, 15, 60]
 RENDER_MODE = False
