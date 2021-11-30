@@ -126,27 +126,7 @@ class Simulator(Env):
         obs = np.stack(obs_list, axis=-1)
         return obs
         
-
     def step(self, action=0):
-        # action -> 0, 1, 2
-        def normalize(x, i):
-            x[2] = x[2] / 100000
-            # x[3] = x[3] / 100
-            zz = 100
-            if i == 0:
-                # x[2] = x[2] / 100000
-                x[3] = x[3] / zz
-            if i == 1:
-                # x[2] /= 100000
-                
-                x[3] = x[3] / (5*zz)
-            if i == 2:
-                # x[2] /= 100000
-                x[3] = x[3] / (15 * zz)
-            if i == 3:
-                # x[2] /= 500000
-                x[3] = x[3] / (60 * zz)
-            return x
         unit=1
         self.count += 1
         state = self.pipeline.get(self.offset + self.count, unit=1)
