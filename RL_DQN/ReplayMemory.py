@@ -156,13 +156,16 @@ class Replay(threading.Thread):
                                 print("Data Batch Start!!!")
                 self._update()
                 if self.lock:
-                    while len(self.deque) < 1:
-                        time.sleep(0.001)
-                    
-                    self.idx.clear()
-                    self.vals.clear()
-                    self.memory.remove_to_fit()
-                    self.buffer()
+                    if len(self.memory) < REPLAY_MEMORY_LEN:
+                        self.memory.remove_to_fit()
+                    else:
+                        while len(self.deque) < 1:
+                            time.sleep(0.001)
+                        
+                        self.idx.clear()
+                        self.vals.clear()
+                        self.memory.remove_to_fit()
+                        self.buffer()
                     self.lock = False
                 if (t+1) % 500 == 0:
                     # profile = cProfile.Profile()
