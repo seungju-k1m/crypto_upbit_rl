@@ -167,8 +167,7 @@ class Replay(threading.Thread):
             gc.collect()
         
     def sample(self):
-        with self._lock:
-            if len(self.deque) > 0:
-                return self.deque.pop(0)
-            else:
-                return False
+        if len(self.deque) > 0:
+            return self.deque.pop(0)
+        else:
+            return False
