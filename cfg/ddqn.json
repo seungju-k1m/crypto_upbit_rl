@@ -47,9 +47,9 @@
         "module02":{
             "netCat":"MLP",
             "iSize":3136,
-            "nLayer":3,
-            "fSize":[512,512,6],
-            "act":["relu", "relu","linear"],
+            "nLayer":2,
+            "fSize":[512, 6],
+            "act":["relu", "linear"],
             "BN":[false, false, false],
             "prior":1,
             "prevNodeNames":["module00"]
@@ -57,9 +57,9 @@
         "module02_1":{
             "netCat":"MLP",
             "iSize":3136,
-            "nLayer":3,
-            "fSize":[512, 512, 1],
-            "act":["relu", "relu", "linear"],
+            "nLayer":2,
+            "fSize":[512,  1],
+            "act":["relu",  "linear"],
             "BN":[false, false, false],
             "prior":1,
             "prevNodeNames":["module00"]

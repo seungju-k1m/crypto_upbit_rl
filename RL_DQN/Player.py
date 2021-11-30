@@ -80,7 +80,7 @@ class Player():
             # self.sim = gym.make("Pong-v0")
             # self.sim = gym.make('SpaceInvadersNoFrameskip-v4')
             # self.sim = gym.make('PongNoFrameskip-v4')
-            self.sim = gym.make('BreakoutNoFrameskip-v4')
+            self.sim = gym.make('PongNoFrameskip-v4')
             zz = np.random.choice([i for i in range(idx*21+13)], 1)[0]
             self.sim.seed(int(zz))
             
