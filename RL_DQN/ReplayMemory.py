@@ -156,6 +156,7 @@ class Replay(threading.Thread):
                                 print("Data Batch Start!!!")
                 self._update()
                 if self.lock:
+                    self.deque.clear()
                     self.memory.remove_to_fit()
                     self.lock = False
                 if (t+1) % 500 == 0:
@@ -166,7 +167,8 @@ class Replay(threading.Thread):
             gc.collect()
         
     def sample(self):
-        if len(self.deque) > 0:
-            return self.deque.pop(0)
-        else:
-            return False
+        with self._lock:
+            if len(self.deque) > 0:
+                return self.deque.pop(0)
+            else:
+                return False
