@@ -144,6 +144,26 @@ class Player():
                 # print(action)
         return action, epsilon
 
+    def bit_forward(self, state):
+        epsilon = self.target_epsilon
+        
+        if random.random() < epsilon:
+            action = random.choice([0, 1])
+        else:
+            with torch.no_grad():
+                state = np.expand_dims(state, axis=0)
+                state = torch.tensor(state).float()
+                state = state * (1/255.)
+                
+                # val, adv = self.model.forward([state])
+                # action_value = val + adv - torch.mean(adv, dim=-1, keepdim=True)
+                
+                action_value = self.model.forward([state])[0]
+
+                action = int(action_value.argmax(dim=-1).numpy())
+                # print(action)
+        return action, epsilon
+
     def pull_param(self):
        
         count = self.connect.get("count")
@@ -167,14 +187,10 @@ class Player():
             )
 
     def bit_run(self):
-        obsDeque = deque(maxlen=4)
         mean_cumulative_reward = 0
         per_episode = 2
         step = 0
         local_buffer = LocalBuffer()
-
-        random_action=USE_RANDOM_START
-        
         total_step = 0
 
         for t in count():
@@ -200,33 +216,31 @@ class Player():
 
                 local_buffer.push(state, action, reward)
                 action, epsilon = self.forward(next_state, total_step)
+
                 state = next_state
                 
+                if len(local_buffer) == 2* UNROLL_STEP or done:
+                    experience = local_buffer.get_traj(done)
+                    priority = self.calculate_priority(experience)
+                    experience.append(priority)
+
+                    self.connect.rpush(
+                        "experience",
+                        pickle.dumps(experience)
+                    )
                 if step % 100 == 0:
                     self.pull_param()
                     # print(cumulative_reward)
-                if step % 1440 == 0:
-                    print(self.sim.coin_account)
-                    print(self.sim.krw_account)
-
-                
-                if done:
-                    number_of_steps = UNROLL_STEP - int(len(self.obsDeque) / 3) + 1
-                    prev_traj = self.prevDeque[-3*number_of_steps:]
-                    traj = prev_traj + self.obsDeque
-                    traj += [False]
-                    traj = self.process_traj(traj)
-                    self.connect.rpush("trajectory", pickle.dumps(traj))
-                    self.obsDeque.clear()
-                    print(cumulative_reward)
-                    break
-
-                if len(self.obsDeque) == 3 * (UNROLL_STEP + 1):
-                    self.prevDeque = deepcopy(self.obsDeque)
-                    self.obsDeque += [done]
-                    x = self.process_traj()
-                    self.connect.rpush("trajectory", pickle.dumps(x))
-                    self.obsDeque.clear()
+            if (t+1) % per_episode == 0:
+                print("""
+                EPISODE:{} // REWARD:{:.3f} // EPSILON:{:.3f} // COUNT:{} // T_Version:{}
+                """.format(t+1, mean_cumulative_reward / per_episode, epsilon, self.count, self.target_model_version))
+                self.connect.rpush(
+                    "reward", pickle.dumps(
+                        mean_cumulative_reward / per_episode
+                    )
+                )
+                mean_cumulative_reward = 0
     
     def calculate_priority(self, traj):
         with torch.no_grad():

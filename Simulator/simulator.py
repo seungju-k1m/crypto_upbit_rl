@@ -79,7 +79,7 @@ class Simulator(Env):
             r.render()
         self.prev_notional_price = self.midpoint[0][self.offset]
         state = self.pipeline.get(self.offset, unit=1)
-        self.coin = False
+        self.coin = True
         state = [np.append(j, np.array(float(self.coin))) for j, i in enumerate(state)]
         self.krw_account = self.init_volume * state[0][1]
         self.coin_account = 0
@@ -123,23 +123,30 @@ class Simulator(Env):
             # self.count += 1
             idx = UNIT_MINUTE.index(unit)
             current_price = state[idx][1]
-            fee = FEE
 
             temp = 100 * math.log(current_price / self.prev_notional_price)
+            fee = 100 * math.log(1-FEE)
 
             if self.coin:
                 # Hold or Sell
                 if action == 0:
+                    # Hold
                     reward = temp
-                elif action == 1:
-                    reward 
-
+                    self.coin = True
+                else:
+                    # Sell
+                    reward = fee
+                    self.coin = False
             else:
-                # Hold and Buy
-                pass
+                if action == 0:
+                    reward = 0
+                    self.coin = False
+                else:
+                    reward = fee
+                    self.coin = True
                     
-            self.prev_notional_price = state[idx][1]
-            state = [np.append(i, np.array(float(self.coin))) for j, i in enumerate(state)]
-        return state, reward, done, None
+            self.prev_notional_price = current_price
+        obs = self.render(state)
+        return obs, reward, done, None
 
     
