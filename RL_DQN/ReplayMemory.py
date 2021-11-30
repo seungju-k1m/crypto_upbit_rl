@@ -53,15 +53,16 @@ class Replay(threading.Thread):
         self.vals.append(vals)
     
     def _update(self):
-        if len(self.idx) == 0:
-            return 
-        vals = np.concatenate(self.vals, axis=0)
-        if len(vals) != len(self.idx):
-            print("!!")
-            return
-        self.memory.update(self.idx, vals)
-        self.vals.clear()
-        self.idx.clear()
+        with self._lock:
+            if len(self.idx) == 0:
+                return 
+            vals = np.concatenate(self.vals, axis=0)
+            if len(vals) != len(self.idx):
+                print("!!")
+                return
+            self.memory.update(self.idx, vals)
+            self.vals.clear()
+            self.idx.clear()
 
     def buffer(self, print_f=False):
         sample_time = time.time()
