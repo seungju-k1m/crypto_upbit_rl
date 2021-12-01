@@ -336,14 +336,12 @@ class Player():
             action, _ = self.gym_forward(state, random_action=random_action)
 
             while done is False:
-                reward = 0
+                next_obs, reward, done, info = self.sim.step(action)
                 for i in range(3):
                     _, __, r, ___ =self.sim.step(action)
 
                     reward += r
                 
-                next_obs, r, done, info = self.sim.step(action)
-                reward += r
                 # reward = max(-1.0, min(reward, 1.0))
                 step += 1
                 total_step += 1
