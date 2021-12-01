@@ -337,10 +337,12 @@ class Player():
 
             while done is False:
 
-                next_obs, reward, done, info = self.sim.step(action)
+                reward = 0
                 for i in range(3):
                     _, r, __, ___ = self.sim.step(action)
                     reward += r
+                next_obs, r, done, info = self.sim.step(action)
+                reward += r
                 # self.sim.render()
                 # reward = max(-1.0, min(reward, 1.0))
                 step += 1
