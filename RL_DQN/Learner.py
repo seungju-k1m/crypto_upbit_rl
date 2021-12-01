@@ -111,7 +111,7 @@ class Learner:
         td_error = torch.clamp(td_error_, -1, 1)
 
         td_error_for_prior = td_error.detach().cpu().numpy()
-        td_error_for_prior = (np.abs(td_error_for_prior) + 1e-4) ** ALPHA
+        td_error_for_prior = (np.abs(td_error_for_prior) + 1e-7) ** ALPHA
         new_priority = td_error_for_prior
 
         if USE_PER:
