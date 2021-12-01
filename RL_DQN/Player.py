@@ -368,6 +368,9 @@ class Player():
                 action, epsilon = self.gym_forward(next_state, total_step, random_action=random_action)
                 state = next_state
 
+                if done:
+                    local_buffer.push(state, 0, 0)
+
                 if random_action:
                     check_learning_start = self.connect.get("Start")
                     if check_learning_start is not None:
