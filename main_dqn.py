@@ -30,7 +30,7 @@ if __name__ == "__main__":
     # num_worker = 2
     p = Player()
     # p.test_gym()
-    p.gym_run()
+    # p.gym_run()
     
     ray.init(num_cpus=num_worker)
     Player = ray.remote(
