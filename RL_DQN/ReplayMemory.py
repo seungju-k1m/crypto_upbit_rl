@@ -72,7 +72,7 @@ class Replay(threading.Thread):
             experiences, prob, idx = self.memory.sample(BATCHSIZE * m)
             n = len(self.memory)
             weight = (1 / (n * prob)) ** BETA
-            weight /= weight.max()
+            weight /= self.memory.max_weight
         else:
             experiences = deepcopy(self.memory.sample(BATCHSIZE))
         
