@@ -114,7 +114,7 @@ class Learner:
 
         if USE_PER:
             loss = torch.sum(
-                weight * (td_error_ ** 2)
+                weight * (td_error ** 2)
             ) * 0.5
         else:
             loss = torch.mean(td_error ** 2) * 0.5
@@ -134,7 +134,7 @@ class Learner:
             for p in pp:
                 p_norm += p.grad.data.norm(2)
             p_norm = p_norm ** .5
-        torch.nn.utils.clip_grad_norm_(pp, 40)
+        # torch.nn.utils.clip_grad_norm_(pp, 40)
         # for optim in self.optim:
         #     optim.step()
         self.optim.step()
