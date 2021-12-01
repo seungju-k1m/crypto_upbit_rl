@@ -66,7 +66,7 @@ class Replay(threading.Thread):
             self.idx.clear()
 
     def buffer(self, print_f=False):
-        m = 32
+        m = 16
         sample_time = time.time()
         if self.use_PER:
             experiences, prob, idx = self.memory.sample(BATCHSIZE * m)
