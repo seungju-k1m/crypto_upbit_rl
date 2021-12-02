@@ -118,7 +118,7 @@ class ReplayServer:
         for i in range(4):
             processes.append(
                 multiprocessing.Process(
-                    self.buffer
+                    target=self.buffer
                 )
             )
         [x.start() for x in processes]
