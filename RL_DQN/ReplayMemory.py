@@ -194,12 +194,34 @@ class Replay_Server(threading.Thread):
         # UPDATE !!
 
         self.deque = []
+        self.deque_tmp = []
         self.idx = []
         self.vals = []
     
     def update(self, idx:list, vals:np.ndarray):
         self.idx += idx
         self.vals.append(vals)
+    
+    def process(self, d):
+        state, action, reward, next_state, done, weight, idx = pickle.loads(d)
+        states = np.vsplit(state, m)
+
+        actions = np.split(action, m)
+
+        rewards = np.split(reward, m)
+
+        next_states = np.vsplit(next_state, m)
+
+        dones = np.split(done, m)
+
+        weights = weight.split(BATCHSIZE)
+        idices = idx.split(BATCHSIZE)
+        for s, a, r, n_s, d, w, i in zip(
+            states, actions, rewards, next_states, dones, weights, idices
+        ):
+            self.deque.append(
+                [s, a, r, n_s, d, w, i]
+            )
 
     def run(self):
         data = []
@@ -211,12 +233,10 @@ class Replay_Server(threading.Thread):
             self.connect.delete("BATCH")
             if len(data) > 0:
                 with self._lock:
-                    # for d in data:
-                    #     self.deque.append(
-                    #         d
-                    #     )
-                    self.deque += deepcopy(data)
+                    for d in data:
+                        self.process(d)
                     data.clear()
+            
             if len(self.deque) > 32:
                 self.connect.set(
                     "FLAG_ENOUGH", pickle.dumps(True)
