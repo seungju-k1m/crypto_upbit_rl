@@ -14,7 +14,8 @@ import gc
 
 
 def call_method(x):
-    return ReplayServer().buffer()
+    ReplayServer().buffer()
+    return x**2
 
 
 class ReplayServer:
