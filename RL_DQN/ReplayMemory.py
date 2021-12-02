@@ -203,6 +203,7 @@ class Replay_Server(threading.Thread):
         self.vals.append(vals)
     
     def process(self, d):
+        m = 16
         state, action, reward, next_state, done, weight, idx = pickle.loads(d)
         states = np.vsplit(state, m)
 
@@ -257,6 +258,6 @@ class Replay_Server(threading.Thread):
 
     def sample(self):
         if len(self.deque) > 0:
-            return pickle.loads(self.deque.pop(0))
+            return self.deque.pop(0)
         else:
             return False
