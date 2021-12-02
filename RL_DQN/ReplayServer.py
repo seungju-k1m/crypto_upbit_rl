@@ -22,6 +22,7 @@ def call(x, mz):
     zz.rpush(
             "BATCH", mz
         )
+    print("check")
 
 
 class ReplayServer:
@@ -174,4 +175,4 @@ class ReplayServer:
                     )
                     self.FLAG_REMOVE = False
                     # 요청을 수행하고 다시
-            gc.collect()
+            # gc.collect()
