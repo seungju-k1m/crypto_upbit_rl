@@ -14,19 +14,13 @@ import time
 import gc
 import ray
 
-
-@ray.remote
-def call(x, mz):
-    import dill
-    zz = dill.loads(x)
-    zz.rpush(
-            "BATCH", mz
-        )
-    print("check")
+import threading
 
 
-class ReplayServer:
+class ReplayServer(threading.Thread):
     def __init__(self):
+        super(ReplayServer, self).__init__()
+        self.setDaemon(True)
         self.memory = PER(
             maxlen=REPLAY_MEMORY_LEN,
             max_value=1.0,
@@ -38,12 +32,13 @@ class ReplayServer:
         self.FLAG_ENOUGH = False
 
         self.connect = redis.StrictRedis(host=REDIS_SERVER, port=6379)
-        self.connect_push = redis.StrictRedis(host=REDIS_SERVER_PUSH, port=6379)
+        # self.connect_push = redis.StrictRedis(host=REDIS_SERVER_PUSH, port=6379)
 
         self.device = torch.device("cpu")
         self.total_transition = 0
 
         self.connect.set("FLAG_BATCH", pickle.dumps(False))
+        self.deque = []
     
     def update(self):
         pipe = self.connect.pipeline()
@@ -70,7 +65,7 @@ class ReplayServer:
                 print("Update fails, if it happens")
 
     def buffer(self):
-        m = 8
+        m = 16
         experiences, prob, idx = self.memory.sample(
             BATCHSIZE * m
         )
@@ -90,11 +85,11 @@ class ReplayServer:
         mz = pickle.dumps(
                 [state, action, reward, next_state, done, weight, idx]
             )
-        return mz
+        self.deque.append(mz)
         # print(time.time() - k)
-        # # self.connect.rpush(
-        # #     "BATCH", mz
-        # # )
+        # # # self.connect.rpush(
+        # # #     "BATCH", mz
+        # # # )
         # self.connect_push.rpush(
         #     "BATCH", mz
         # )
@@ -122,12 +117,6 @@ class ReplayServer:
         #         )
         #     )
 
-    def buffer_mp(self):
-        c_dill = dill.dumps(self.connect_push)
-        mm = [self.buffer() for i in range(2)]
-        for i in mm:
-            call.remote(c_dill, i)
-        
     def run(self):
         data = []
         k = 50000
@@ -156,8 +145,8 @@ class ReplayServer:
                         # Learner에서 정해준다.
 
                     if not self.FLAG_ENOUGH:
-                        # self.buffer()
-                        self.buffer_mp()
+                        self.buffer()
+                        # self.buffer_mp()
             
             self.update()
             if len(self.memory) > REPLAY_MEMORY_LEN:
@@ -175,4 +164,7 @@ class ReplayServer:
                     )
                     self.FLAG_REMOVE = False
                     # 요청을 수행하고 다시
-            # gc.collect()
+            gc.collect()
+    
+    def sample(self):
+        pass
