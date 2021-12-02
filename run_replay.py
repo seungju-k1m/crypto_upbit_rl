@@ -31,3 +31,4 @@ if __name__ == "__main__":
             for r, m in zip(redis_server, mm):
                 rr = dill.dumps(r)
                 call.remote(rr, m)
+            mm.clear()
