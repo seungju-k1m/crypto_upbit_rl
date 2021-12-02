@@ -7,6 +7,7 @@ import numpy as np
 
 import torch
 import redis
+import time
 import gc
 
 
@@ -54,7 +55,7 @@ class ReplayServer:
                 print("Update fails, if it happens")
 
     def buffer(self):
-        m = 16
+        m = 8
         experiences, prob, idx = self.memory.sample(
             BATCHSIZE * m
         )
@@ -89,6 +90,7 @@ class ReplayServer:
                     [s, a, r, n_s, d, w, i]
                 )
             )
+        time.sleep(0.1)
 
     def run(self):
         data = []
