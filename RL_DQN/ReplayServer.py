@@ -10,11 +10,13 @@ import multiprocessing
 import torch
 import redis
 import time
+import ray
 import gc
 
 
-def call_method(x):
-    x.buffer()
+@ray.remote
+def call_method(self):
+    self.buffer()
 
 
 class ReplayServer:
@@ -114,17 +116,8 @@ class ReplayServer:
         #     )
 
     def buffer_mp(self):
-        processes = []
-        for i in range(4):
-            processes.append(
-                multiprocessing.Process(
-                    target=self.buffer
-                )
-            )
-        print("START")
-        [x.start() for x in processes]
-        print("JOIN")
-        [x.join() for x in processes]
+        call_method.remote(self)
+        
 
     def run(self):
         data = []
