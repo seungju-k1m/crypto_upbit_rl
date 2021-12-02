@@ -14,8 +14,7 @@ import gc
 
 
 def call_method(x):
-    ReplayServer().buffer()
-    return x**2
+    x.buffer()
 
 
 class ReplayServer:
@@ -116,7 +115,7 @@ class ReplayServer:
 
     def buffer_mp(self):
         pool = multiprocessing.Pool(processes=4)
-        pool.map(call_method, range(4))
+        pool.map(call_method, [self, self, self, self])
 
     def run(self):
         data = []
