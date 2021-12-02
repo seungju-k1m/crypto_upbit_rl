@@ -162,7 +162,7 @@ class ReplayServer():
             pipe.ltrim("experience", -1, 0)
             data += pipe.execute()[0]
             data: list
-            self.connect.delete("experience")
+            # self.connect.delete("experience")
 
             if len(data) > 0:
                 self.memory.push(data)
