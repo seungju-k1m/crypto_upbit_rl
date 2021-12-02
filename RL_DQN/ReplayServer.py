@@ -6,17 +6,20 @@ import _pickle as pickle
 import numpy as np
 
 import multiprocessing
-
+import dill
+# import multiprocessing_on_dill as multiprocessing
 import torch
 import redis
 import time
-import ray
 import gc
+import ray
 
 
 @ray.remote
-def call_method(self):
-    self.buffer()
+def call(x, mz):
+    x.rpush(
+            "BATCH", mz
+        )
 
 
 class ReplayServer:
@@ -84,14 +87,15 @@ class ReplayServer:
         mz = pickle.dumps(
                 [state, action, reward, next_state, done, weight, idx]
             )
-        print(time.time() - k)
-        # self.connect.rpush(
+        return mz
+        # print(time.time() - k)
+        # # self.connect.rpush(
+        # #     "BATCH", mz
+        # # )
+        # self.connect_push.rpush(
         #     "BATCH", mz
         # )
-        self.connect_push.rpush(
-            "BATCH", mz
-        )
-        print(time.time() - k)
+        # print(time.time() - k)
 
         # states = np.vsplit(state, m)
 
@@ -116,9 +120,11 @@ class ReplayServer:
         #     )
 
     def buffer_mp(self):
-        for i in range(2):
-            call_method.remote(self)
-
+        c_dill = dill.dumps(self.connect_push)
+        mm = [self.buffer() for i in range(2)]
+        for i in mm:
+            call.remote(c_dill, i)
+        
     def run(self):
         data = []
         k = 50000
@@ -147,8 +153,8 @@ class ReplayServer:
                         # Learner에서 정해준다.
 
                     if not self.FLAG_ENOUGH:
-                        # self.buffer()
-                        self.buffer_mp()
+                        self.buffer()
+                        # self.buffer_mp()
             
             self.update()
             if len(self.memory) > REPLAY_MEMORY_LEN:
