@@ -167,6 +167,7 @@ class ReplayServer():
 
             if len(data) > 0:
                 self.memory.push(data)
+                print(len(self.memory.memory))
                 self.total_transition += len(data)
                 data.clear()
                 if len(self.memory) > k:
@@ -178,8 +179,7 @@ class ReplayServer():
                         # Learner에서 정해준다.
 
                     if not self.FLAG_ENOUGH:
-                        for i in range(4):
-                            self.pusher.push(self.buffer())
+                        self.pusher.push(self.buffer())
                         # self.buffer_mp()
             
             self.update()
