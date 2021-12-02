@@ -5,10 +5,16 @@ from baseline.PER import PER
 import _pickle as pickle
 import numpy as np
 
+import multiprocessing
+
 import torch
 import redis
 import time
 import gc
+
+
+def call_method():
+    return ReplayServer().buffer()
 
 
 class ReplayServer:
@@ -107,6 +113,10 @@ class ReplayServer:
         #         )
         #     )
 
+    def buffer_mp(self):
+        pool = multiprocessing.Pool(processes=4)
+        pool.map(call_method)
+
     def run(self):
         data = []
         k = 50000
@@ -135,7 +145,8 @@ class ReplayServer:
                         # Learner에서 정해준다.
 
                     if not self.FLAG_ENOUGH:
-                        self.buffer()
+                        # self.buffer()
+                        self.buffer_mp()
             
             self.update()
             if len(self.memory) > REPLAY_MEMORY_LEN:
