@@ -3,7 +3,7 @@ import redis
 
 
 c = redis.StrictRedis(host=REDIS_SERVER, port=6379)
-k = redis.SSLConnection(host=REDIS_SERVER_PUSH, port=6379)
+k = redis.StrictRedis(host=REDIS_SERVER_PUSH, port=6379)
 
 name = c.scan()
 
