@@ -109,7 +109,7 @@ class ReplayServer:
                 self.memory.push(data)
                 self.total_transition += len(data)
                 data.clear()
-                if len(self.memory) > 1000:
+                if len(self.memory) > k:
                     cond = self.connect.get(
                         "FLAG_ENOUGH"
                     )
