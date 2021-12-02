@@ -212,7 +212,7 @@ class Replay_Server(threading.Thread):
             if len(data) > 0:
                 for d in data:
                     self.deque.append(
-                        pickle.loads(d)
+                        deepcopy(pickle.loads(d))
                     )
             if len(self.deque) > 4:
                 self.connect.set(
@@ -231,6 +231,7 @@ class Replay_Server(threading.Thread):
                 )
                 self.idx.clear()
                 self.vals.clear()
+            data.clear()
 
     def sample(self):
         if len(self.deque) > 0:
