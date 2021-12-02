@@ -117,7 +117,6 @@ class ReplayServer:
                     )
                     if cond is not None:
                         self.FLAG_ENOUGH = pickle.loads(cond)
-                        print(self.FLAG_ENOUGH)
                         # Learner에서 정해준다.
 
                     if not self.FLAG_ENOUGH:
