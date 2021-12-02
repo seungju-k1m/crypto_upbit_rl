@@ -214,7 +214,7 @@ class Replay_Server(threading.Thread):
                     self.deque.append(
                         deepcopy(pickle.loads(d))
                     )
-            if len(self.deque) > 4:
+            if len(self.deque) > 32:
                 self.connect.set(
                     "FLAG_ENOUGH", pickle.dumps(True)
                 )
@@ -235,7 +235,6 @@ class Replay_Server(threading.Thread):
 
     def sample(self):
         if len(self.deque) > 0:
-            print(len(self.deque))
             return self.deque.pop(0)
         else:
             return False
