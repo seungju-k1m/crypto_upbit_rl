@@ -33,7 +33,7 @@ class ReplayServer(threading.Thread):
         self.FLAG_ENOUGH = False
 
         self.connect = redis.StrictRedis(host=REDIS_SERVER, port=6379)
-        # self.connect_push = redis.StrictRedis(host=REDIS_SERVER_PUSH, port=6379)
+        self.connect_push = redis.StrictRedis(host=REDIS_SERVER_PUSH, port=6379)
 
         self.device = torch.device("cpu")
         self.total_transition = 0
