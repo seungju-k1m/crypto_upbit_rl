@@ -17,9 +17,7 @@ def call(x, m):
 
 if __name__ == "__main__":
     server = ReplayServer()
-    server.start()
-    while 1:
-        z = 1
+    server.run()
 
     # redis_server = [redis.StrictRedis(host=REDIS_SERVER_PUSH, port=6379) for i in range(4)]
     # mm = []

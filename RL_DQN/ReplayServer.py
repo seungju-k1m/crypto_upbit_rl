@@ -18,10 +18,41 @@ import ray
 import threading
 
 
-class ReplayServer(threading.Thread):
+@ray.remote
+def call(x, m):
+    import dill
+    xx = dill.loads(x)
+    xx.rpush(
+        "BATCH", m
+    )
+    print("check")
+
+
+class pusher(threading.Thread):
     def __init__(self):
-        super(ReplayServer, self).__init__()
+        super(pusher, self).__init__()
         self.setDaemon(True)
+        self.server = [redis.StrictRedis(host=REDIS_SERVER_PUSH, port=6379) for i in range(4)]
+
+        self.deque = []
+    
+    def push(self, k):
+        self.deque.append(k)
+    
+    def run(self):
+        while 1:
+            if len(self.deque) == 4:
+                for r, m in zip(self.server, self.deque):
+                    rr = dill.dumps(r)
+                    call.remote(rr, m)
+                self.deque.clear()
+
+
+class ReplayServer():
+    def __init__(self):
+        # super(ReplayServer, self).__init__()
+        self.pusher = pusher()
+        self.pusher.start()
         self.memory = PER(
             maxlen=REPLAY_MEMORY_LEN,
             max_value=1.0,
@@ -86,15 +117,16 @@ class ReplayServer(threading.Thread):
         mz = pickle.dumps(
                 [state, action, reward, next_state, done, weight, idx]
             )
+        return mz
         # self.deque.append(mz)
-        print(time.time() - k)
-        # # # self.connect.rpush(
-        # # #     "BATCH", mz
-        # # # )
-        self.connect_push.rpush(
-            "BATCH", mz
-        )
-        print(time.time() - k)
+        # print(time.time() - k)
+        # # # # self.connect.rpush(
+        # # # #     "BATCH", mz
+        # # # # )
+        # self.connect_push.rpush(
+        #     "BATCH", mz
+        # )
+        # print(time.time() - k)
 
         # states = np.vsplit(state, m)
 
@@ -146,7 +178,8 @@ class ReplayServer(threading.Thread):
                         # Learner에서 정해준다.
 
                     if not self.FLAG_ENOUGH:
-                        self.buffer()
+                        for i in range(4):
+                            self.pusher.push(self.buffer())
                         # self.buffer_mp()
             
             self.update()
