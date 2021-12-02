@@ -116,8 +116,8 @@ class ReplayServer:
         #     )
 
     def buffer_mp(self):
-        call_method.remote(self)
-        
+        for i in range(2):
+            call_method.remote(self)
 
     def run(self):
         data = []
