@@ -52,6 +52,11 @@ try:
 except:
     REDIS_SERVER = "localhost"
 
+try:
+    REDIS_SERVER_PUSH = _data_["redis_server_push"]
+except:
+    REDIS_SERVER_PUSH = "localhost"
+
 STARTDAY = '2021-09-13 00:00:00'
 DURATION = 15
 

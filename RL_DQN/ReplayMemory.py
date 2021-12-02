@@ -188,7 +188,7 @@ class Replay_Server(threading.Thread):
         self.setDaemon(True)
         self._lock = threading.Lock()
         self.connect = redis.StrictRedis(host=REDIS_SERVER, port=6379)
-
+        self.connect_push = redis.StrictRedis(host=REDIS_SERVER_PUSH, port=6379)
         # FLAG_BATCH
         # FLAG_ENOUGH
         # UPDATE !!
@@ -227,11 +227,11 @@ class Replay_Server(threading.Thread):
     def run(self):
         data = []
         while 1:
-            pipe = self.connect.pipeline()
+            pipe = self.connect_push.pipeline()
             pipe.lrange("BATCH", 0, -1)
             pipe.ltrim("BATCH", -1, 0)
             data += pipe.execute()[0]
-            self.connect.delete("BATCH")
+            self.connect_push.delete("BATCH")
             if len(data) > 0:
                 # zxzxzz = time.time()
                 self.process(data.pop(0))

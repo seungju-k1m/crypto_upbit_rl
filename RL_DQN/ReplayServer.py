@@ -24,6 +24,7 @@ class ReplayServer:
         self.FLAG_ENOUGH = False
 
         self.connect = redis.StrictRedis(host=REDIS_SERVER, port=6379)
+        self.connect_push = redis.StrictRedis(host=REDIS_SERVER_PUSH, port=6379)
 
         self.device = torch.device("cpu")
         self.total_transition = 0
@@ -76,7 +77,10 @@ class ReplayServer:
                 [state, action, reward, next_state, done, weight, idx]
             )
         print(time.time() - k)
-        self.connect.rpush(
+        # self.connect.rpush(
+        #     "BATCH", mz
+        # )
+        self.connect_push.rpush(
             "BATCH", mz
         )
         print(time.time() - k)
