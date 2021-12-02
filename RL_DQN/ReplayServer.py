@@ -17,7 +17,9 @@ import ray
 
 @ray.remote
 def call(x, mz):
-    x.rpush(
+    import dill
+    zz = dill.loads(x)
+    zz.rpush(
             "BATCH", mz
         )
 
