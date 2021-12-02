@@ -233,9 +233,9 @@ class Replay_Server(threading.Thread):
             data += pipe.execute()[0]
             self.connect.delete("BATCH")
             if len(data) > 0:
-                zxzxzz = time.time()
-                self.process(data.pop(0))
-                print(time.time() - zxzxzz)
+                # zxzxzz = time.time()
+                # self.process(data.pop(0))
+                self.deque += data
             
             if len(self.deque) > 32:
                 self.connect.set(
@@ -257,6 +257,7 @@ class Replay_Server(threading.Thread):
 
     def sample(self):
         if len(self.deque) > 0:
-            return self.deque.pop(0)
+            print(len(self.deque))
+            return pickle.loads(self.deque.pop(0))
         else:
             return False
