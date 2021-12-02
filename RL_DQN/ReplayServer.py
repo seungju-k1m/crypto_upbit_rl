@@ -1,3 +1,4 @@
+from collections import deque
 from configuration import *
 
 from baseline.PER import PER
@@ -167,4 +168,7 @@ class ReplayServer(threading.Thread):
             gc.collect()
     
     def sample(self):
-        pass
+        if len(self.deque) > 0:
+            return self.deque.pop(0)
+        else:
+            return False
