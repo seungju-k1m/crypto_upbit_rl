@@ -13,7 +13,7 @@ import time
 import gc
 
 
-def call_method():
+def call_method(x):
     return ReplayServer().buffer()
 
 
@@ -115,7 +115,7 @@ class ReplayServer:
 
     def buffer_mp(self):
         pool = multiprocessing.Pool(processes=4)
-        pool.map(call_method)
+        pool.map(call_method, range(4))
 
     def run(self):
         data = []
