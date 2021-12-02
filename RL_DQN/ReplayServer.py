@@ -121,7 +121,10 @@ class ReplayServer:
                     target=self.buffer
                 )
             )
+        print("START")
         [x.start() for x in processes]
+        print("JOIN")
+        [x.join() for x in processes]
 
     def run(self):
         data = []
