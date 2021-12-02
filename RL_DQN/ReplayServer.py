@@ -86,15 +86,15 @@ class ReplayServer(threading.Thread):
         mz = pickle.dumps(
                 [state, action, reward, next_state, done, weight, idx]
             )
-        self.deque.append(mz)
-        # print(time.time() - k)
+        # self.deque.append(mz)
+        print(time.time() - k)
         # # # self.connect.rpush(
         # # #     "BATCH", mz
         # # # )
-        # self.connect_push.rpush(
-        #     "BATCH", mz
-        # )
-        # print(time.time() - k)
+        self.connect_push.rpush(
+            "BATCH", mz
+        )
+        print(time.time() - k)
 
         # states = np.vsplit(state, m)
 
