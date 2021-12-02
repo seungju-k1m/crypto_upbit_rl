@@ -234,6 +234,7 @@ class Replay_Server(threading.Thread):
 
     def sample(self):
         if len(self.deque) > 0:
+            print(len(self.deque))
             return self.deque.pop(0)
         else:
             return False
