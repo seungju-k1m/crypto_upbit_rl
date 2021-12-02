@@ -90,7 +90,6 @@ class ReplayServer:
                     [s, a, r, n_s, d, w, i]
                 )
             )
-        time.sleep(0.1)
 
     def run(self):
         data = []
