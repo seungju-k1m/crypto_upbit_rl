@@ -178,3 +178,62 @@ class Replay(threading.Thread):
             return self.deque.pop(0)
         else:
             return False
+
+
+class Replay_Server(threading.Thread):
+
+    def __init__(self):
+        super(Replay_Server, self).__init__()
+
+        self.setDaemon(True)
+        self._lock = threading.Lock()
+        self.connect = redis.StrictRedis(host=REDIS_SERVER, port=6379)
+
+        # FLAG_BATCH
+        # FLAG_ENOUGH
+        # UPDATE !!
+
+        self.deque = []
+        self.idx = []
+        self.vals = []
+    
+    def update(self, idx:list, vals:np.ndarray):
+        self.idx += idx
+        self.vals.append(vals)
+
+    def run(self):
+        data = []
+        while 1:
+            pipe = self.connect.pipeline()
+            pipe.lrange("BATCH", 0, -1)
+            pipe.ltrim("BATCH", -1, 0)
+            data += pipe.execute()[0]
+            self.connect.delete("BATCH")
+            if len(data) > 0:
+                for d in data:
+                    self.deque.append(
+                        pickle.loads(d)
+                    )
+            if len(self.deque) > 100:
+                self.connect.set(
+                    "FLAG_ENOUGH", pickle.dumps(True)
+                )
+            else:
+                self.connect.set(
+                    "FLAG_ENOUGH", pickle.dumps(False)
+                )
+            
+            if len(self.idx) > 1000:
+                vals = np.concatenate(self.vals, 0)
+                update = (self.idx, vals)
+                self.connect.rpush(
+                    "update", pickle.dumps(update)
+                )
+                self.idx.clear()
+                self.vals.clear()
+
+    def sample(self):
+        if len(self.deque) > 0:
+            return self.deque.pop(0)
+        else:
+            return False

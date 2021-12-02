@@ -15,6 +15,7 @@ _data_ = _parser_.loadParser()
 _key_ = list(_data_.keys())
 DATA = _data_
 
+USE_REDIS_SERVER = True
 USE_PER = True
 USE_RANDOM_START = False
 ALPHA = 0.6
@@ -22,7 +23,7 @@ BETA = 0.4
 GAMMA = .99
 TARGET_FREQUENCY = 2500
 N = 16
-BATCHSIZE = 32
+BATCHSIZE = 512
 TOTAL_TRAINING_STEP = int(5e4)
 
 FEE = _data_['FEE']

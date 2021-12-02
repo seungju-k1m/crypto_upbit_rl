@@ -1,7 +1,7 @@
 from configuration import *
 from baseline.baseAgent import baseAgent
 from baseline.utils import getOptim, writeTrainInfo
-from RL_DQN.ReplayMemory import Replay
+from RL_DQN.ReplayMemory import Replay, Replay_Server
 
 from torch.utils.tensorboard import SummaryWriter
 from itertools import count
@@ -24,7 +24,10 @@ class Learner:
         self.build_model()
         self.build_optim()
         self.connect = redis.StrictRedis(host=REDIS_SERVER, port=6379)
-        self.memory = Replay()
+        if USE_REDIS_SERVER:
+            self.memory = Replay_Server()
+        else:
+            self.memory = Replay()
         self.memory.start()
         
         self.writer = SummaryWriter(
@@ -218,10 +221,17 @@ class Learner:
     def gym_run(self):
         def wait_memory():
             while True:
-                if len(self.memory.memory) > 50000:
-                    break
+                if USE_REDIS_SERVER:
+                    cond = self.connect.get("FLAG_BATCH")
+                    if cond is not None:
+                        cond = pickle.loads(cond)
+                        if cond:
+                            break
                 else:
-                    print(len(self.memory.memory))
+                    if len(self.memory.memory) > 50000:
+                        break
+                    else:
+                        print(len(self.memory.memory))
                 time.sleep(1)
         wait_memory()
         state_dict = pickle.dumps(self.state_dict)
@@ -235,11 +245,11 @@ class Learner:
         step, norm, mean_value = 0, 0, 0
         amount_sample_time, amount_train_tim, amount_update_time = 0, 0, 0
         init_time = time.time()
-        mm = 500
+        mm = 10
         mean_weight = 0
         for t in count():
-
             time_sample = time.time()
+
             experience = self.memory.sample()
 
             if experience is False:
@@ -265,13 +275,22 @@ class Learner:
             tt = time.time()
             
             if (step % 500) == 0:
-                self.memory.lock = True
+                
+                if USE_REDIS_SERVER:
+                    self.connect("FLAG_REMOVE", pickle.dumps(True))
+                else:
+                    self.memory.lock = True
             
             if USE_PER:
-                if self.memory.lock is False:
+                if USE_REDIS_SERVER:
                     self.memory.update(
                         list(idx), priority
                     )
+                else:
+                    if self.memory.lock is False:
+                        self.memory.update(
+                            list(idx), priority
+                        )
 
             norm += info['p_norm']
             mean_value += info['mean_value']
@@ -311,11 +330,19 @@ class Learner:
                 amount_update_time /= mm
                 tt = time.time() - init_time
                 init_time = time.time()
-                print(
-                    """step:{} // mean_value:{:.3f} // norm: {:.3f} // REWARD:{:.3f} // NUM_MEMORY:{} 
-     Mean_Weight:{:.3f}  // MAX_WEIGHT:{:.3f}  // TIME:{:.3f} // TRAIN_TIME:{:.3f} // SAMPLE_TIME:{:.3f} // UPDATE_TIME:{:.3f}""".format(
-                        step, mean_value / mm, norm / mm, cumulative_reward, len(self.memory.memory), mean_weight / mm, self.memory.memory.max_weight,tt / mm, amount_train_tim, amount_sample_time, amount_update_time)
-                )
+                if USE_REDIS_SERVER:
+                    print(
+                        """step:{} // mean_value:{:.3f} // norm:{:.3f} // REWARd:{:.3f}
+                        TIME:{:.3f} // TRAIN_TIME:{:.3f} // SAMPLE_TIME:{:.3f} // UPDATE_TIME:{:.3f}""".format(
+                            step, mean_value / mm, norm / mm, cumulative_reward, tt/mm, amount_train_tim, amount_sample_time, amount_update_time
+                        )
+                    )
+                else:
+                    print(
+                        """step:{} // mean_value:{:.3f} // norm: {:.3f} // REWARD:{:.3f} // NUM_MEMORY:{} 
+        Mean_Weight:{:.3f}  // MAX_WEIGHT:{:.3f}  // TIME:{:.3f} // TRAIN_TIME:{:.3f} // SAMPLE_TIME:{:.3f} // UPDATE_TIME:{:.3f}""".format(
+                            step, mean_value / mm, norm / mm, cumulative_reward, len(self.memory.memory), mean_weight / mm, self.memory.memory.max_weight,tt / mm, amount_train_tim, amount_sample_time, amount_update_time)
+                    )
                 amount_sample_time, amount_train_tim, amount_update_time = 0, 0, 0
                 if len(data) > 0:
                     self.writer.add_scalar(
