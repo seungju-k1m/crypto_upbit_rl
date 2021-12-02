@@ -233,10 +233,8 @@ class Replay_Server(threading.Thread):
             data += pipe.execute()[0]
             self.connect.delete("BATCH")
             if len(data) > 0:
-                with self._lock:
-                    for d in data:
-                        self.process(d)
-                    data.clear()
+   
+                self.process(data.pop(0))
             
             if len(self.deque) > 32:
                 self.connect.set(
