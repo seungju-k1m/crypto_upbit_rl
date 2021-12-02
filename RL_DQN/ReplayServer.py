@@ -114,8 +114,14 @@ class ReplayServer:
         #     )
 
     def buffer_mp(self):
-        pool = multiprocessing.Pool(processes=4)
-        pool.map(call_method, [self, self, self, self])
+        processes = []
+        for i in range(4):
+            processes.append(
+                multiprocessing.Process(
+                    self.buffer
+                )
+            )
+        [x.start() for x in processes]
 
     def run(self):
         data = []
