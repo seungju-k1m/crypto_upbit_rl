@@ -15,7 +15,6 @@ import time
 import gc
 import ray
 
-import threading
 
 
 @ray.remote

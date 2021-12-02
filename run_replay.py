@@ -1,18 +1,5 @@
 from configuration import REDIS_SERVER_PUSH
 from RL_DQN.ReplayServer import ReplayServer
-import ray
-import redis
-import dill
-
-
-@ray.remote
-def call(x, m):
-    import dill
-    xx = dill.loads(x)
-    xx.rpush(
-        "BATCH", m
-    )
-    print("check")
 
 
 if __name__ == "__main__":
