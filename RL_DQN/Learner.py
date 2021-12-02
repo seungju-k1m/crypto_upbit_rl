@@ -277,7 +277,7 @@ class Learner:
             if (step % 500) == 0:
                 
                 if USE_REDIS_SERVER:
-                    self.connect("FLAG_REMOVE", pickle.dumps(True))
+                    self.connect.set("FLAG_REMOVE", pickle.dumps(True))
                 else:
                     self.memory.lock = True
             
