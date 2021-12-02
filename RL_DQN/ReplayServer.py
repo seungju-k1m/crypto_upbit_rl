@@ -156,8 +156,8 @@ class ReplayServer:
                         # Learner에서 정해준다.
 
                     if not self.FLAG_ENOUGH:
-                        self.buffer()
-                        # self.buffer_mp()
+                        # self.buffer()
+                        self.buffer_mp()
             
             self.update()
             if len(self.memory) > REPLAY_MEMORY_LEN:
