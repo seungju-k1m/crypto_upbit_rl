@@ -211,10 +211,12 @@ class Replay_Server(threading.Thread):
             self.connect.delete("BATCH")
             if len(data) > 0:
                 with self._lock:
-                    for d in data:
-                        self.deque.append(
-                            d
-                        )
+                    # for d in data:
+                    #     self.deque.append(
+                    #         d
+                    #     )
+                    self.deque += deepcopy(data)
+                    data.clear()
             if len(self.deque) > 32:
                 self.connect.set(
                     "FLAG_ENOUGH", pickle.dumps(True)
@@ -232,7 +234,6 @@ class Replay_Server(threading.Thread):
                 )
                 self.idx.clear()
                 self.vals.clear()
-            data.clear()
 
     def sample(self):
         if len(self.deque) > 0:
