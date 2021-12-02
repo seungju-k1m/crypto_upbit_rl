@@ -70,11 +70,13 @@ class ReplayServer:
         next_state = np.stack(experiences[:, 3], 0)
         done = experiences[:, 4]
 
+        k = time.time()
         self.connect.rpush(
             "BATCH", pickle.dumps(
                 [state, action, reward, next_state, done, weight, idx]
             )
         )
+        print(time.time() - k)
         # states = np.vsplit(state, m)
 
         # actions = np.split(action, m)
