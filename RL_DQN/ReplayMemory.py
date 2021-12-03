@@ -239,7 +239,7 @@ class Replay_Server(threading.Thread):
                     self.process(data.pop(0))
                     # self.deque += data
                     # print(len(self.deque))
-                    data.clear()
+                    # data.clear()
             
             if len(self.deque) > 32:
                 self.connect.set(
