@@ -158,10 +158,12 @@ class ReplayServer():
                 self.FLAG_BATCH = True
                 self.connect.set("FLAG_BATCH", pickle.dumps(True))
             
+            mzmzm = time.time()
             pipe = self.connect.pipeline()
             pipe.lrange("experience", 0, -1)
             pipe.ltrim("experience", -1, 0)
             data += pipe.execute()[0]
+            print(time.time() - mzmzm)
             data: list
             # self.connect.delete("experience")
 
