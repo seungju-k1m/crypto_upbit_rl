@@ -259,7 +259,7 @@ class Replay_Server(threading.Thread):
     def sample(self):
         if len(self.deque) > 0:
             with self._lock:
-                # print(len(self.deque))
+                print(len(self.deque))
                 return pickle.loads(self.deque.pop(0))
                 # return self.deque.pop(0)
         else:
