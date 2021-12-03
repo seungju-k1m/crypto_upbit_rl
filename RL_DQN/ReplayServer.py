@@ -165,7 +165,7 @@ class ReplayServer():
             data += pipe.execute()[0]
             print(time.time() - mzmzm)
             data: list
-            # self.connect.delete("experience")
+            self.connect.delete("experience")
 
             if len(data) > 0:
                 self.memory.push(data)
