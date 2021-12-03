@@ -111,42 +111,27 @@ class ReplayServer():
         next_state = np.stack(experiences[:, 3], 0)
         done = experiences[:, 4]
 
-        # k = time.time()
-        mz = pickle.dumps(
-                [state, action, reward, next_state, done, weight, idx]
+        states = np.vsplit(state, m)
+
+        actions = np.split(action, m)
+
+        rewards = np.split(reward, m)
+
+        next_states = np.vsplit(next_state, m)
+
+        dones = np.split(done, m)
+
+        weights = weight.split(BATCHSIZE)
+        idices = idx.split(BATCHSIZE)
+
+        for s, a, r, n_s, d, w, i in zip(
+            states, actions, rewards, next_states, dones, weights, idices
+        ):
+            self.connect_push.rpush(
+                "BATCH",pickle.dumps(
+                    (s, a, r, n_s, d, w, i)
+                )
             )
-        # return mz
-        # self.deque.append(mz)
-        # print(time.time() - k)
-        # # # self.connect.rpush(
-        # # #     "BATCH", mz
-        # # # )
-        self.connect_push.rpush(
-            "BATCH", mz
-        )
-        # print(time.time() - k)
-
-        # states = np.vsplit(state, m)
-
-        # actions = np.split(action, m)
-
-        # rewards = np.split(reward, m)
-
-        # next_states = np.vsplit(next_state, m)
-
-        # dones = np.split(done, m)
-
-        # weights = weight.split(BATCHSIZE)
-        # idices = idx.split(BATCHSIZE)
-
-        # for s, a, r, n_s, d, w, i in zip(
-        #     states, actions, rewards, next_states, dones, weights, idices
-        # ):
-        #     self.connect_push.rpush(
-        #         "BATCH",pickle.dumps(
-        #             (s, a, r, n_s, d, w, i)
-        #         )
-        #     )
 
     def run(self):
         data = []
