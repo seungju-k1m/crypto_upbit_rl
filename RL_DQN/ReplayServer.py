@@ -17,37 +17,6 @@ import ray
 import threading
 
 
-@ray.remote
-def call(x, m):
-    import dill
-    xx = dill.loads(x)
-    xx.rpush(
-        "BATCH", m
-    )
-    print("check")
-
-
-class pusher(threading.Thread):
-    def __init__(self):
-        super(pusher, self).__init__()
-        self.setDaemon(True)
-        self.server = [redis.StrictRedis(host=REDIS_SERVER_PUSH, port=6379) for i in range(4)]
-        self.lock = threading.Lock()
-        self.deque = []
-    
-    def push(self, k):
-        self.deque.append(k)
-    
-    def run(self):
-        while 1:
-            with self.lock:
-                if len(self.deque) == 4:
-                    for r, m in zip(self.server, self.deque):
-                        rr = dill.dumps(r)
-                        call.remote(rr, m)
-                    self.deque.clear()
-
-
 class ReplayServer():
     def __init__(self):
         # super(ReplayServer, self).__init__()
@@ -68,7 +37,6 @@ class ReplayServer():
         self.total_transition = 0
 
         self.connect.set("FLAG_BATCH", pickle.dumps(False))
-        self.deque = []
     
     def update(self):
         pipe = self.connect.pipeline()
@@ -111,34 +79,39 @@ class ReplayServer():
         next_state = np.stack(experiences[:, 3], 0)
         done = experiences[:, 4]
 
-        self.connect_push.rpush(
-            "BATCH", pickle.dumps(
-                (state, action, reward, next_state, done, weight, idx)
+
+        states = np.vsplit(state, m)
+
+        actions = np.split(action, m)
+
+        rewards = np.split(reward, m)
+
+        next_states = np.vsplit(next_state, m)
+
+        dones = np.split(done, m)
+
+        weights = weight.split(BATCHSIZE)
+        idices = idx.split(BATCHSIZE)
+        xx = time.time()
+        dd = []
+        for s, a, r, n_s, d, w, i in zip(
+            states, actions, rewards, next_states, dones, weights, idices
+        ):
+            # self.connect_push.rpush(
+            #     "BATCH",pickle.dumps(
+            #         (s, a, r, n_s, d, w, i)
+            #     )
+            # )
+            dd.append(
+                pickle.dumps(
+                    [s, a, r, n_s, d, w, i]
+                )
             )
+        num = self.connect_push.rpush(
+            "BATCH", *dd
         )
-
-        # states = np.vsplit(state, m)
-
-        # actions = np.split(action, m)
-
-        # rewards = np.split(reward, m)
-
-        # next_states = np.vsplit(next_state, m)
-
-        # dones = np.split(done, m)
-
-        # weights = weight.split(BATCHSIZE)
-        # idices = idx.split(BATCHSIZE)
-        # xx = time.time()
-        # for s, a, r, n_s, d, w, i in zip(
-        #     states, actions, rewards, next_states, dones, weights, idices
-        # ):
-        #     self.connect_push.rpush(
-        #         "BATCH",pickle.dumps(
-        #             (s, a, r, n_s, d, w, i)
-        #         )
-        #     )
-        # print(time.time() - xx)
+        print(time.time() - xx)
+        return num
 
     def run(self):
         data = []
@@ -163,15 +136,9 @@ class ReplayServer():
                 self.total_transition += len(data)
                 data.clear()
                 if len(self.memory) > k:
-                    cond = self.connect.get(
-                        "FLAG_ENOUGH"
-                    )
-                    if cond is not None:
-                        self.FLAG_ENOUGH = pickle.loads(cond)
-                        # Learner에서 정해준다.
-
-                    if not self.FLAG_ENOUGH:
-                        self.buffer()
+                    num = self.buffer()
+                    if num > 100:
+                        time.sleep(1)
             
             self.update()
             if len(self.memory) > REPLAY_MEMORY_LEN:
@@ -191,8 +158,3 @@ class ReplayServer():
                     # 요청을 수행하고 다시
             gc.collect()
     
-    def sample(self):
-        if len(self.deque) > 0:
-            return pickle.loads(self.deque.pop(0))
-        else:
-            return False
