@@ -203,7 +203,7 @@ class Replay_Server(threading.Thread):
         self.vals.append(vals)
     
     def process(self, d):
-        m = 32
+        m = 16
         state, action, reward, next_state, done, weight, idx = pickle.loads(d)
         states = np.vsplit(state, m)
 
