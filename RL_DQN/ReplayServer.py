@@ -187,6 +187,6 @@ class ReplayServer():
     
     def sample(self):
         if len(self.deque) > 0:
-            return self.deque.pop(0)
+            return pickle.loads(self.deque.pop(0))
         else:
             return False
