@@ -231,7 +231,6 @@ class Replay_Server(threading.Thread):
             pipe.lrange("BATCH", 0, -1)
             pipe.ltrim("BATCH", -1, 0)
             data += pipe.execute()[0]
-            print(len(data))
             self.connect_push.delete("BATCH")
             if len(data) > 0:
                 # zxzxzz = time.time()
