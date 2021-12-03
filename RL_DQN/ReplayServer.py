@@ -32,7 +32,7 @@ class pusher(threading.Thread):
         super(pusher, self).__init__()
         self.setDaemon(True)
         self.server = [redis.StrictRedis(host=REDIS_SERVER_PUSH, port=6379) for i in range(4)]
-
+        self.lock = threading.Lock()
         self.deque = []
     
     def push(self, k):
@@ -40,11 +40,12 @@ class pusher(threading.Thread):
     
     def run(self):
         while 1:
-            if len(self.deque) == 4:
-                for r, m in zip(self.server, self.deque):
-                    rr = dill.dumps(r)
-                    call.remote(rr, m)
-                self.deque.clear()
+            with self.lock:
+                if len(self.deque) == 4:
+                    for r, m in zip(self.server, self.deque):
+                        rr = dill.dumps(r)
+                        call.remote(rr, m)
+                    self.deque.clear()
 
 
 class ReplayServer():
