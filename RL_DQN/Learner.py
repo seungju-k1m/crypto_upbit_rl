@@ -116,7 +116,7 @@ class Learner:
         new_priority = td_error_for_prior
 
         if USE_PER:
-            loss = torch.sum(
+            loss = torch.mean(
                 weight * (td_error ** 2)
             ) * 0.5
         else:
