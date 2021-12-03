@@ -142,7 +142,7 @@ class ReplayServer():
         for s, a, r, n_s, d, w, i in zip(
             states, actions, rewards, next_states, dones, weights, idices
         ):
-            self.connect.rpush(
+            self.connect_push.rpush(
                 "BATCH",pickle.dumps(
                     (s, a, r, n_s, d, w, i)
                 )
