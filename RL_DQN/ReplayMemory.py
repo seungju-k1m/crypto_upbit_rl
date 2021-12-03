@@ -217,12 +217,13 @@ class Replay_Server(threading.Thread):
 
         weights = weight.split(BATCHSIZE)
         idices = idx.split(BATCHSIZE)
-        for s, a, r, n_s, d, w, i in zip(
-            states, actions, rewards, next_states, dones, weights, idices
-        ):
-            self.deque.append(
-                [s, a, r, n_s, d, w, i]
-            )
+        with self._lock:
+            for s, a, r, n_s, d, w, i in zip(
+                states, actions, rewards, next_states, dones, weights, idices
+            ):
+                self.deque.append(
+                    [s, a, r, n_s, d, w, i]
+                )
 
     def run(self):
         data = []
@@ -234,10 +235,11 @@ class Replay_Server(threading.Thread):
             self.connect_push.delete("BATCH")
             if len(data) > 0:
                 # zxzxzz = time.time()
-                # self.process(data.pop(0))
-                self.deque += data
-                print(len(self.deque))
-                data.clear()
+                with self._lock:
+                    self.process(data.pop(0))
+                    # self.deque += data
+                    # print(len(self.deque))
+                    data.clear()
             
             if len(self.deque) > 32:
                 self.connect.set(
@@ -261,7 +263,7 @@ class Replay_Server(threading.Thread):
         if len(self.deque) > 0:
             
             print(len(self.deque))
-            return pickle.loads(self.deque.pop(0))
-                # return self.deque.pop(0)
+            # return pickle.loads(self.deque.pop(0))
+            return self.deque.pop(0)
         else:
             return False
