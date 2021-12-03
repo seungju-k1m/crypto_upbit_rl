@@ -51,8 +51,6 @@ class pusher(threading.Thread):
 class ReplayServer():
     def __init__(self):
         # super(ReplayServer, self).__init__()
-        self.pusher = pusher()
-        self.pusher.start()
         self.memory = PER(
             maxlen=REPLAY_MEMORY_LEN,
             max_value=1.0,
@@ -117,16 +115,16 @@ class ReplayServer():
         mz = pickle.dumps(
                 [state, action, reward, next_state, done, weight, idx]
             )
-        return mz
+        # return mz
         # self.deque.append(mz)
         # print(time.time() - k)
-        # # # # self.connect.rpush(
-        # # # #     "BATCH", mz
-        # # # # )
-        # self.connect_push.rpush(
-        #     "BATCH", mz
-        # )
-        # print(time.time() - k)
+        # # # self.connect.rpush(
+        # # #     "BATCH", mz
+        # # # )
+        self.connect_push.rpush(
+            "BATCH", mz
+        )
+        print(time.time() - k)
 
         # states = np.vsplit(state, m)
 
@@ -152,7 +150,7 @@ class ReplayServer():
 
     def run(self):
         data = []
-        k = 50000
+        k = 5000
         while 1:
             if len(self.memory.priority.prior_torch) > k:
                 self.FLAG_BATCH = True
@@ -181,8 +179,7 @@ class ReplayServer():
                         # Learner에서 정해준다.
 
                     if not self.FLAG_ENOUGH:
-                        self.pusher.push(self.buffer())
-                        # self.buffer_mp()
+                        self.buffer()
             
             self.update()
             if len(self.memory) > REPLAY_MEMORY_LEN:
