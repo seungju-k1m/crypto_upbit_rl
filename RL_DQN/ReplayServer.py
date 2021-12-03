@@ -111,46 +111,46 @@ class ReplayServer():
         next_state = np.stack(experiences[:, 3], 0)
         done = experiences[:, 4]
 
-        k = time.time()
-        mz = pickle.dumps(
-                [state, action, reward, next_state, done, weight, idx]
-            )
+        # k = time.time()
+        # mz = pickle.dumps(
+        #         [state, action, reward, next_state, done, weight, idx]
+        #     )
         # return mz
         # self.deque.append(mz)
         # print(time.time() - k)
         # # # self.connect.rpush(
         # # #     "BATCH", mz
         # # # )
-        self.connect_push.rpush(
-            "BATCH", mz
-        )
-        print(time.time() - k)
+        # self.connect_push.rpush(
+        #     "BATCH", mz
+        # )
+        # print(time.time() - k)
 
-        # states = np.vsplit(state, m)
+        states = np.vsplit(state, m)
 
-        # actions = np.split(action, m)
+        actions = np.split(action, m)
 
-        # rewards = np.split(reward, m)
+        rewards = np.split(reward, m)
 
-        # next_states = np.vsplit(next_state, m)
+        next_states = np.vsplit(next_state, m)
 
-        # dones = np.split(done, m)
+        dones = np.split(done, m)
 
-        # weights = weight.split(BATCHSIZE)
-        # idices = idx.split(BATCHSIZE)
+        weights = weight.split(BATCHSIZE)
+        idices = idx.split(BATCHSIZE)
 
-        # for s, a, r, n_s, d, w, i in zip(
-        #     states, actions, rewards, next_states, dones, weights, idices
-        # ):
-        #     self.connect.rpush(
-        #         "BATCH",pickle.dumps(
-        #             (s, a, r, n_s, d, w, i)
-        #         )
-        #     )
+        for s, a, r, n_s, d, w, i in zip(
+            states, actions, rewards, next_states, dones, weights, idices
+        ):
+            self.connect.rpush(
+                "BATCH",pickle.dumps(
+                    (s, a, r, n_s, d, w, i)
+                )
+            )
 
     def run(self):
         data = []
-        k = 5000
+        k = 50000
         while 1:
             if len(self.memory.priority.prior_torch) > k:
                 self.FLAG_BATCH = True
