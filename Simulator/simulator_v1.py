@@ -22,7 +22,7 @@ def generate_random_start():
 
     start_id = random.randint(1, total_len-9)
 
-    data_list = [data_list[i] for i in range(start_id, start_id+4)]
+    data_list = [data_list[i] for i in range(start_id, start_id+3)]
     pipelines = []
     for d in data_list:
         k_list = d.split(',')
@@ -153,7 +153,7 @@ class Simulator:
     def reset(self):
         self.reset_pipeline()
         obs = self.renderer.reset()
-        current_price = float(self.renderer.y_vec[1][0])
+        current_price = float(self.renderer.y_vec[1][-1])
         self.portfolio = PortFolio(
             0, 1, Average_price=current_price, is_coin=True
         )
