@@ -146,9 +146,10 @@ class Simulator:
     
     def reset_pipeline(self):
         pipelines = generate_random_start()
-        setpipeline = SetDataPipeLine(pipelines)
-        self.pipe = DataPipeLine_Sim(setpipeline)
-        self.renderer = Renderer(self.pipe)
+        # setpipeline = SetDataPipeLine(pipelines)
+        # self.pipe = DataPipeLine_Sim(setpipeline)
+        # self.renderer = Renderer(self.pipe)
+        self.pipe.update(pipelines)
         
     def reset(self):
         self.reset_pipeline()

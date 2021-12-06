@@ -12,8 +12,8 @@ import time
 
 
 if __name__ == "__main__":
-    p = Player()
-    p.run()
+    # p = Player()
+    # p.run()
 
 
     sim = Simulator()
@@ -23,9 +23,9 @@ if __name__ == "__main__":
     for j in range(10):
         obs = sim.reset()
         sim.portfolio.print()
-
+        m = time.time()
         for t in range(10000):
-            m = time.time()
+            
             action = np.random.randint(0, 8)
             o, r, done, _ = sim.step(action)
             cumulative_reward += r
@@ -36,6 +36,7 @@ if __name__ == "__main__":
         sim.portfolio.print()
         print("Simulation Is Done")
         print(cumulative_reward)
+        print(time.time() - m)
 
     # to = datetime(2020, 1, 2, 0, 0)
     # to_list = [to - timedelta(days=1)]

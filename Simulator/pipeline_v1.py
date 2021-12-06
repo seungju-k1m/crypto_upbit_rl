@@ -146,7 +146,7 @@ class SetDataPipeLine:
         self,
         pipelines: List[DataPipeLine]
     ):
-        self.pipelines = pipelines
+        # self.pipelines = pipelines
 
         self.data = template
 
@@ -155,7 +155,7 @@ class SetDataPipeLine:
         for i in [1, 5, 15, 60]:
             len_info = 0
             df_info = []
-            for p in self.pipelines:
+            for p in pipelines:
                 len_info += len(p.data[i])
                 df_info.append(p.data[i])
             df = pd.concat(df_info)
@@ -168,6 +168,18 @@ class SetDataPipeLine:
         if unit not in [1, 5, 15, 60]:
             raise RuntimeError("UNIT  in [1, 5, 15, 60")
         return self.data[unit].iloc[start:end]
+    
+    def update(self, pipelines):
+        for i in [1, 5, 15, 60]:
+            len_info = 0
+            df_info = []
+            for p in pipelines:
+                len_info += len(p.data[i])
+                df_info.append(p.data[i])
+            df = pd.concat(df_info)
+            df.sort_index()
+            self.data[i] = df
+            self.length_info[i] = len_info
 
 
 class DataPipeLine_Sim:
@@ -183,6 +195,9 @@ class DataPipeLine_Sim:
         self.data = data
         self.end_step = len(data.data[1]) - self.count
     
+    def update(self, pipelines):
+        self.data.update(pipelines)
+
     @staticmethod
     def process(data:pd.DataFrame):
         # output = {'time':None, 'midpoint':None, 'acc_volume':None}
