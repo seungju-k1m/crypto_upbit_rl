@@ -9,7 +9,6 @@ from collections import deque
 from copy import deepcopy
 from itertools import count
 
-from Simulator.simulator import Simulator
 from typing import List
 import numpy as np
 import _pickle as pickle

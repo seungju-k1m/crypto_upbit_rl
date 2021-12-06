@@ -1,5 +1,6 @@
 {
-    "redis_server":"localhost",
+    "crypto_mode":true,
+    "redis_server":"10.142.162.12",
     "redis_server_push":"localhost",
     "redis_server_":"localhost",
     "MARKET":"KRW-BTC",
@@ -12,7 +13,7 @@
     "learner_device":"cuda:0",
 
     "REPLAY_MEMORY_LEN":2000000,
-    "unroll_step":3,
+    "unroll_step":1,
 
     "optim":{
         "name":"rmsprop",

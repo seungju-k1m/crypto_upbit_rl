@@ -13,6 +13,7 @@ import redis
 
 import torch.nn as nn
 import random
+import math
 from PIL import Image as im
 
 
@@ -22,23 +23,27 @@ class LocalBuffer:
     def __init__(self):
         self.storage = []
     
-    def push(self, s, a, r):
-        s_ = deepcopy(s)
+    def push(self, s0, s1, a, r):
+        s0_ = deepcopy(s0)
+        s1_ = deepcopy(s1)
         a_ = deepcopy(a)
         r_ = deepcopy(r)
-        self.storage += [s_, a_, r_]
+        self.storage += [s0_, s1_, a_, r_]
     
     def __len__(self):
-        return int(len(self.storage) / 3)
+        return int(len(self.storage) / 4)
     
     def get_traj(self, done=False):
         if done:
-            traj = [self.storage[-3*UNROLL_STEP]]
-            traj.append(self.storage[-3*UNROLL_STEP + 1])
+            traj = [self.storage[-4*UNROLL_STEP]]
+            traj.append(self.storage[-4*UNROLL_STEP + 1])
+
+            traj.append(self.storage[-4*UNROLL_STEP + 2])
             r = 0
             for i in range(UNROLL_STEP):
-                r += (GAMMA ** i) * self.storage[-3*UNROLL_STEP + i*3 + 2]
+                r += (GAMMA ** i) * self.storage[-4*UNROLL_STEP + i*4 + 3]
             traj.append(r)
+            traj.append(self.storage[-4])
             traj.append(self.storage[-3])
             traj += [done]
             traj_ = deepcopy(traj)
@@ -46,15 +51,17 @@ class LocalBuffer:
         else:
             traj = [self.storage[0]]
             traj.append(self.storage[1])
+            traj.append(self.storage[2])
             r = 0
             for i in range(UNROLL_STEP):
-                r += (GAMMA ** i) * self.storage[i*3 + 2]
+                r += (GAMMA ** i) * self.storage[i*4 + 3]
             traj.append(r)
-            traj.append(self.storage[3*UNROLL_STEP])
+            traj.append(self.storage[4*UNROLL_STEP])
+            traj.append(self.storage[4*UNROLL_STEP+1])
             traj += [done]
             traj_ = deepcopy(traj)
             # kk = np.random.choice([i+1 for i in range(UNROLL_STEP)], 1)[0]
-            del self.storage[:3*UNROLL_STEP]
+            del self.storage[:4*UNROLL_STEP]
         return traj_
     
     def clear(self):
@@ -146,20 +153,18 @@ class Player():
 
     def calculate_priority(self, traj):
         with torch.no_grad():
-            s, a, r, s_, d = traj
-            image, info = s
+            s0, s1, a, r, ns, ns1, d = traj
 
-            next_image, next_info = s_
-            s = torch.tensor([image]).float().to(self.device)
+            s = torch.tensor([s0]).float().to(self.device)
             s = s/255.
 
-            info_s = torch.tensor(info).float().view(1, 1)
+            info_s = torch.tensor(s1).float().view(1, 1)
 
 
-            s_ = torch.tensor([next_image]).float().to(self.device)
+            s_ = torch.tensor([ns]).float().to(self.device)
             s_ = s_/255.
 
-            next_info_s = torch.tensor([next_info]).float().to(self.device).view(1, 1)
+            next_info_s = torch.tensor([ns1]).float().to(self.device).view(1, 1)
             
             state_value = self.model.forward([s, info_s])[0][0]
             # val, adv = self.model.forward([s])
@@ -221,12 +226,12 @@ class Player():
                 total_step += 1
 
                 cumulative_reward += reward
-                local_buffer.push(obs, action, reward)
+                local_buffer.push(obs[0], obs[1], action, reward)
                 action, epsilon = self.forward(next_obs)
                 obs = next_obs
 
                 if done:
-                    local_buffer.push(obs, 0, 0)
+                    local_buffer.push(obs[0], obs[1], 0, 0)
 
                 if len(local_buffer) == 2 * UNROLL_STEP or done:
                     experience = local_buffer.get_traj(done)
@@ -234,25 +239,25 @@ class Player():
                     priority = self.calculate_priority(experience)
                     experience.append(priority)
 
-                    # self.connect.rpush(
-                    #     "experience",
-                    #     pickle.dumps(experience)
-                    # )
+                    self.connect.rpush(
+                        "experience",
+                        pickle.dumps(experience)
+                    )
 
                 if step %  100 == 0:
                     self.pull_param()
-            mean_cumulative_reward += cumulative_reward
+            mean_cumulative_reward += (math.exp(cumulative_reward) - 1)
             self.sim.print()
 
             if (t+1) % per_episode == 0:
                 print("""
-                EPISODE:{} // REWARD:{:.3f} // EPSILON:{:.3f} // COUNT:{} // T_Version:{}
+                EPISODE:{} // YIELD:{:.3f} // EPSILON:{:.3f} // COUNT:{} // T_Version:{}
                 """.format(t+1, mean_cumulative_reward / per_episode, epsilon, self.count, self.target_model_version))
-                # self.connect.rpush(
-                #     "reward", pickle.dumps(
-                #         mean_cumulative_reward / per_episode
-                #     )
-                # )
+                self.connect.rpush(
+                    "reward", pickle.dumps(
+                        mean_cumulative_reward / per_episode
+                    )
+                )
                 mean_cumulative_reward = 0
 
     def eval(self):

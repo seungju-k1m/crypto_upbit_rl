@@ -73,20 +73,25 @@ class ReplayServer():
 
         experiences = np.array([pickle.loads(bin) for bin in experiences])
         
-        state = np.stack(experiences[:, 0], 0)
-        action = experiences[:, 1]
-        reward = experiences[:, 2]
-        next_state = np.stack(experiences[:, 3], 0)
-        done = experiences[:, 4]
+        image = np.stack(experiences[:, 0], 0)
+        ratio = experiences[:, 1]
+
+        action = experiences[:, 2]
+        reward = experiences[:, 3]
+        next_image = np.stack(experiences[:, 4], 0)
+        next_ratio = experiences[:, 5]
+        done = experiences[:, 6]
 
 
-        states = np.vsplit(state, m)
+        images = np.vsplit(image, m)
+        ratios = np.split(ratio, m)
 
         actions = np.split(action, m)
 
         rewards = np.split(reward, m)
 
-        next_states = np.vsplit(next_state, m)
+        next_images = np.vsplit(next_image, m)
+        next_ratios = np.split(next_ratio, m)
 
         dones = np.split(done, m)
 
@@ -94,8 +99,8 @@ class ReplayServer():
         idices = idx.split(BATCHSIZE)
         xx = time.time()
         dd = []
-        for s, a, r, n_s, d, w, i in zip(
-            states, actions, rewards, next_states, dones, weights, idices
+        for s0, s1,  a, r, ns0, ns1, d, w, i in zip(
+            images, ratios, actions, rewards, next_images, next_ratios, dones, weights, idices
         ):
             # self.connect_push.rpush(
             #     "BATCH",pickle.dumps(
@@ -104,7 +109,7 @@ class ReplayServer():
             # )
             dd.append(
                 pickle.dumps(
-                    [s, a, r, n_s, d, w, i]
+                    [s0, s1, a, r, ns0, ns1, d, w, i]
                 )
             )
         num = self.connect_push.rpush(

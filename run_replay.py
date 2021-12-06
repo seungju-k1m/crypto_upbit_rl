@@ -1,9 +1,13 @@
-from configuration import REDIS_SERVER_PUSH
+from configuration import CRYPTO_MODE, REDIS_SERVER_PUSH
 from RL_DQN.ReplayServer import ReplayServer
+from RL_Crypto.ReplayServer import ReplayServer as ReplayServer_cpt
 
 
 if __name__ == "__main__":
-    server = ReplayServer()
+    if CRYPTO_MODE:
+        server = ReplayServer_cpt()
+    else:
+        server = ReplayServer()
     server.run()
 
     # redis_server = [redis.StrictRedis(host=REDIS_SERVER_PUSH, port=6379) for i in range(4)]

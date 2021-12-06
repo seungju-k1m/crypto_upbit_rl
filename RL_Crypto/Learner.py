@@ -50,20 +50,25 @@ class Learner:
         
     def train(self, transition, t=0) -> dict:
         new_priority = None
-        if USE_PER:
-            state, action, reward, next_state, done, weight, idx = transition
-            weight = torch.tensor(weight).float().to(self.device)
-        else:
-            state, action, reward, next_state, done = transition
-            idx  = None
+        image, ratio, action, reward, next_image, next_ratio, done, weight, idx = transition
+        weight = torch.tensor(weight).float().to(self.device)
 
-        state = torch.tensor(state).float()
-        state = state / 255.
-        state = state.to(self.device)
 
-        next_state = torch.tensor(next_state).float()
-        next_state = next_state / 255.
-        next_state = next_state.to(self.device)
+        image = torch.tensor(image).float()
+        image = image / 255.
+        image = image.to(self.device)
+        ratio = ratio.astype(np.float32)
+
+        ratio = torch.tensor(ratio).float().to(self.device)
+        ratio = ratio.view(-1, 1)
+
+        next_image = torch.tensor(next_image).float()
+        next_image = next_image / 255.
+        next_image = next_image.to(self.device)
+
+        next_ratio = next_ratio.astype(np.float32)
+        next_ratio = torch.tensor(next_ratio).float().to(self.device)
+        next_ratio = next_ratio.view(-1, 1)
 
         # action = torch.tensor(action).long().to(self.device)
         action = [6 * i + a for i, a in enumerate(action)]
@@ -74,17 +79,17 @@ class Learner:
 
         done = [float(not d) for d in done]
         done = torch.tensor(done).float().to(self.device)
-        action_value = self.model.forward([state])[0]
-        # val, adv = self.model.forward([state])
+        action_value = self.model.forward([image, ratio])[0]
+        # val, adv = self.model.forward([image])
         # action_value = val + adv - torch.mean(adv, dim=-1, keepdim=True)
         
 
         with torch.no_grad():
             
-            next_action_value = self.target_model.forward([next_state])[0]
+            next_action_value = self.target_model.forward([next_image, next_ratio])[0]
 
-            n_action_value = self.model.forward([next_state])[0]
-            # val_n, adv_n = self.model.forward([next_state])
+            n_action_value = self.model.forward([next_image, next_ratio])[0]
+            # val_n, adv_n = self.model.forward([next_image])
             # n_action_value = val_n + adv_n - torch.mean(adv_n, dim=-1, keepdim=True)
             action_ddqn =  n_action_value.argmax(dim=-1).detach().cpu().numpy()
             action_ddqn = [6*i + a for i, a in enumerate(action_ddqn)]

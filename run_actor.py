@@ -1,7 +1,7 @@
 
+from configuration import CRYPTO_MODE
 from RL_DQN.Player import Player
-from RL_DQN.ReplayMemory import Replay
-from RL_DQN.Learner import Learner
+from RL_Crypto.Player import Player as Player_cpt
 from argparse import ArgumentParser
 
 import ray
@@ -28,20 +28,23 @@ if __name__ == "__main__":
     num_worker = args.num_worker
     start_idx = args.start_idx
     # num_worker = 2
-    p = Player()
+    if CRYPTO_MODE:
+        player = Player_cpt
+    else:
+        player = Player
     # p.test_gym()
     # p.gym_run()
     
     ray.init(num_cpus=num_worker)
-    Player = ray.remote(
-            num_cpus=1)(Player)
+    player = ray.remote(
+            num_cpus=1)(player)
     players = []
     for i in range(num_worker):
         players.append(
-            Player.remote(idx=start_idx+i)
+            player.remote(idx=start_idx+i)
         )
 
-    ray.get([p.gym_run.remote() for p in players])
+    ray.get([p.run.remote() for p in players])
     
     # ---------------------------------------
 

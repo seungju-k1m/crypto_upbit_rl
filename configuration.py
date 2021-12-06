@@ -15,6 +15,8 @@ _data_ = _parser_.loadParser()
 _key_ = list(_data_.keys())
 DATA = _data_
 
+CRYPTO_MODE = True
+
 USE_REDIS_SERVER = True
 USE_PER = True
 USE_RANDOM_START = False
