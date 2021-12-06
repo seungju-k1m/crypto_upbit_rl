@@ -22,7 +22,7 @@ def generate_random_start():
 
     start_id = random.randint(1, total_len-9)
 
-    data_list = [data_list[i] for i in range(start_id, start_id+3)]
+    data_list = [data_list[i] for i in range(start_id, start_id+8)]
     pipelines = []
     for d in data_list:
         k_list = d.split(',')
