@@ -207,7 +207,7 @@ class Player():
             step = 0
 
             obs = self.sim.reset()
-            self.sim.print()
+            # self.sim.print()
             obs = preprocess_obs(obs)
             # obs
                 # char info, account info
@@ -247,7 +247,7 @@ class Player():
                 if step %  100 == 0:
                     self.pull_param()
             mean_cumulative_reward += (math.exp(cumulative_reward) - 1)
-            self.sim.print()
+            # self.sim.print()
 
             if (t+1) % per_episode == 0:
                 print("""
