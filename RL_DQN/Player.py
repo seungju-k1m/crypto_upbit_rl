@@ -98,12 +98,6 @@ class Player():
         self.prev_embedding = [None, None, None, None]
         self.count = 0
         self.target_model_version = -1
-        if USE_GYM:
-            self.forward = self.gym_forward
-            self.run = self.gym_run
-        else:
-            self.forward = self.bit_forward
-            self.run = self.bit_run
 
     def test_gym(self):
 
@@ -127,7 +121,7 @@ class Player():
         self.model.to(self.device)
         self.target_model.to(self.device)
     
-    def gym_forward(self, state:np.ndarray, step=0, no_epsilon=False, random_action=False) -> int:
+    def forward(self, state:np.ndarray, step=0, no_epsilon=False, random_action=False) -> int:
         
         phase_01_random_step = TOTAL_TRAINING_STEP
         phase_02_random_step = 1e7
@@ -146,26 +140,6 @@ class Player():
         
         if random.random() < epsilon:
             action = random.choice([0, 1, 2, 3, 4, 5])
-        else:
-            with torch.no_grad():
-                state = np.expand_dims(state, axis=0)
-                state = torch.tensor(state).float()
-                state = state * (1/255.)
-                
-                # val, adv = self.model.forward([state])
-                # action_value = val + adv - torch.mean(adv, dim=-1, keepdim=True)
-                
-                action_value = self.model.forward([state])[0]
-
-                action = int(action_value.argmax(dim=-1).numpy())
-                # print(action)
-        return action, epsilon
-
-    def bit_forward(self, state):
-        epsilon = self.target_epsilon
-        
-        if random.random() < epsilon:
-            action = random.choice([0, 1])
         else:
             with torch.no_grad():
                 state = np.expand_dims(state, axis=0)
@@ -203,62 +177,6 @@ class Player():
                 param
             )
 
-    def bit_run(self):
-        mean_cumulative_reward = 0
-        per_episode = 2
-        step = 0
-        local_buffer = LocalBuffer()
-        total_step = 0
-
-        for t in count():
-            cumulative_reward = 0
-            done = False
-            local_buffer.clear()
-            experience = []
-            step = 0
-
-            state = self.sim.reset()
-
-            action, _ = self.forward(state)
-            while not done:
-                next_state, reward, done, info = self.sim.step(action, unit=RUN_UNIT_TIME)
-                step += 1
-                total_step += 1
-
-                if self.sim.coin_account < 0.1:
-                    if self.sim.krw_account < 1000000:
-                        done = True
-                
-                cumulative_reward += reward
-
-                local_buffer.push(state, action, reward)
-                action, epsilon = self.forward(next_state, total_step)
-
-                state = next_state
-                
-                if len(local_buffer) == 2* UNROLL_STEP or done:
-                    experience = local_buffer.get_traj(done)
-                    priority = self.calculate_priority(experience)
-                    experience.append(priority)
-
-                    self.connect.rpush(
-                        "experience",
-                        pickle.dumps(experience)
-                    )
-                if step % 100 == 0:
-                    self.pull_param()
-                    # print(cumulative_reward)
-            if (t+1) % per_episode == 0:
-                print("""
-                EPISODE:{} // REWARD:{:.3f} // EPSILON:{:.3f} // COUNT:{} // T_Version:{}
-                """.format(t+1, mean_cumulative_reward / per_episode, epsilon, self.count, self.target_model_version))
-                self.connect.rpush(
-                    "reward", pickle.dumps(
-                        mean_cumulative_reward / per_episode
-                    )
-                )
-                mean_cumulative_reward = 0
-    
     def calculate_priority(self, traj):
         with torch.no_grad():
             s, a, r, s_, d = traj
@@ -304,7 +222,7 @@ class Player():
         else:
             return None
         
-    def gym_run(self):
+    def run(self):
         obsDeque = deque(maxlen=4)
         mean_cumulative_reward = 0
         per_episode = 2
@@ -333,7 +251,7 @@ class Player():
             
             state = self.stack_obs(obs, obsDeque)
 
-            action, _ = self.gym_forward(state, random_action=random_action)
+            action, _ = self.forward(state, random_action=random_action)
 
             while done is False:
 
@@ -365,7 +283,7 @@ class Player():
                 next_state = self.stack_obs(next_obs, obsDeque)
                 cumulative_reward += reward
                 local_buffer.push(state, action, reward)
-                action, epsilon = self.gym_forward(next_state, total_step, random_action=random_action)
+                action, epsilon = self.forward(next_state, total_step, random_action=random_action)
                 state = next_state
 
                 if done:

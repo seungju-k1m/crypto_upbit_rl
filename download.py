@@ -7,7 +7,7 @@ def download_data():
     end_time = '2021-11-01 00:00:00'
     start_time_dt = datetime.fromisoformat(start_time)
     end_time_dt = datetime.fromisoformat(end_time)
-    duration = timedelta(days=DURATION)
+    duration = timedelta(days=1)
     delta = int((end_time_dt - start_time_dt) / duration)
     for i in range(delta):
         start_time_dt = start_time_dt + duration

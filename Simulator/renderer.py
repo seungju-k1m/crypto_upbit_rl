@@ -151,7 +151,6 @@ class Renderer:
         obs = np.array(obs)
         return obs
 
-
     @staticmethod
     def close():
         plt.close()

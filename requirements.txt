@@ -11,3 +11,5 @@ gym[atari]
 atari-py==0.2.4
 tensorboard
 dill
+plotly
+kaleido
