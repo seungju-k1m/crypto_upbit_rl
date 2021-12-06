@@ -13,7 +13,7 @@
     "learner_device":"cuda:0",
 
     "REPLAY_MEMORY_LEN":1000000,
-    "unroll_step":3,
+    "unroll_step":1,
 
     "optim":{
         "name":"rmsprop",
