@@ -244,7 +244,7 @@ class Player():
                         pickle.dumps(experience)
                     )
 
-                if step %  100 == 0:
+                if step %  20 == 0:
                     self.pull_param()
             mean_cumulative_reward += (math.exp(cumulative_reward) - 1)
             # self.sim.print()
