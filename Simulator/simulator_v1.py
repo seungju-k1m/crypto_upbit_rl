@@ -175,7 +175,7 @@ class Simulator:
             self.portfolio.update()
             current_value = deepcopy(self.portfolio.Current_Value)
 
-            reward = math.log(current_value / previous_value)
+            reward =  100 * math.log(current_value / previous_value)
 
         else:
             reward -= 0
@@ -197,7 +197,7 @@ class Simulator:
 
             current_value = deepcopy(self.portfolio.Current_Value)
 
-            reward = math.log(current_value / previous_value)
+            reward = 100 *  math.log(current_value / previous_value)
 
         else:
             reward -= 0
