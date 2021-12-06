@@ -104,7 +104,7 @@ class Learner:
         action_value = action_value.view(-1)
         selected_action_value = action_value[action]
 
-        target = reward + 0.99 ** (UNROLL_STEP) * next_max_value
+        target = reward + GAMMA ** (UNROLL_STEP) * next_max_value
 
         td_error_ = target - selected_action_value
         td_error = torch.clamp(td_error_, -1, 1)
