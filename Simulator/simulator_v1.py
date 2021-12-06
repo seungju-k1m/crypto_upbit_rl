@@ -178,7 +178,11 @@ class Simulator:
             reward =  100 * math.log(current_value / previous_value)
 
         else:
-            reward -= 0
+            self.portfolio.Average_Price = current_price
+            self.portfolio.update()
+            current_value = deepcopy(self.portfolio.Current_Value)
+
+            reward = 100 * math.log(current_value / previous_value)
         
         return reward
     
@@ -200,7 +204,11 @@ class Simulator:
             reward = 100 *  math.log(current_value / previous_value)
 
         else:
-            reward -= 0
+            self.portfolio.Average_Price = current_price
+            self.portfolio.update()
+            current_value = deepcopy(self.portfolio.Current_Value)
+
+            reward = 100 * math.log(current_value / previous_value)
         
         return reward
 
