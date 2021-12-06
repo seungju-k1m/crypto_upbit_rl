@@ -237,7 +237,7 @@ class Simulator:
             self.portfolio.Average_Price = current_price
             self.portfolio.update()
             value = deepcopy(self.portfolio.Current_Value)
-            reward = math.log(value / prev_value)
+            reward = 100 * math.log(value / prev_value)
 
         elif action < 5:
             idx = int(action - 1)
