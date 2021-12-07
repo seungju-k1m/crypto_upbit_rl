@@ -95,13 +95,17 @@ class PortFolio:
         Average_price=5000000,
     ):
 
-        self.KRW_Balance = krw_balance
-        self.Coin_Balance = coin_balance
+        self.KRW_Balance = 0
+        self.Coin_Balance = 1
         self.Ticker = ticker
         self.Is_Coin = is_coin
         self.Is_KRW = False
         self.Average_Price = Average_price
         self.Current_Value = None
+        self.update()
+
+        self.Coin_Balance = 0.5
+        self.KRW_Balance = self.Current_Value / 2
         self.update()
 
         self.Info = {}
