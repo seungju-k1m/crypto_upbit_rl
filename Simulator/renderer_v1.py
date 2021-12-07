@@ -120,7 +120,7 @@ class Renderer:
             # fig.canvas.flush_events()
 
             image.append(image_np)
-        print(time.time() - j)
+        # print(time.time() - j)
         image = np.stack(image, axis=0)
         return image
 
