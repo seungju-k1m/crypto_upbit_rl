@@ -129,6 +129,7 @@ class Player():
                 action_value = self.model.forward([state, ratio])[0]
                 print(action_value)
                 action = int(action_value.argmax(dim=-1).numpy())
+                print(action)
                 # print(action)
         return action, epsilon
 
