@@ -323,6 +323,7 @@ class Player():
                 mz += info
                 action, epsilon = self.forward(next_obs, True)
                 obs = next_obs
+                self.sim.portfolio.print()
                 
             mean_cumulative_reward += mz
             mean_yield += (math.exp(cumulative_reward/100) - 1)
