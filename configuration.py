@@ -30,8 +30,8 @@ BATCHSIZE = 128
 TOTAL_TRAINING_STEP = int(5e4)
 
 FEE = _data_['FEE']
-# ACCESS_KEY = _data_['ACCESS_KEY']
-# SECRETE_KEY = _data_['SECRETE_KEY']
+ACCESS_KEY = _data_['ACCESS_KEY']
+SECRETE_KEY = _data_['SECRETE_KEY']
 MARKET = _data_['MARKET']
 LOG_MODE = _data_['LOG_MODE']
 

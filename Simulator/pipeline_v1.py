@@ -91,18 +91,25 @@ class DataPipeLine:
     def __init__(
         self,
         to:datetime,
-        duration:timedelta
+        duration:timedelta,
+        test=False
     ):
-        self.data = self.preprocess_raw_data(to, duration)
+        if test:
+
+            self.data = self.preprocess_raw_data(to, duration, 'test')
+        else:
+            self.data = self.preprocess_raw_data(to, duration, 'v0')
         self.length_info = deepcopy(template)
 
         for i in [1, 5, 15, 60]:
             self.length_info[i] = len(self.data[i])
 
     @staticmethod
-    def preprocess_raw_data(to:datetime, duration:timedelta):
+    def preprocess_raw_data(to:datetime, duration:timedelta, kk=None):
         to_str = to.strftime("%Y-%m-%d")
-        save_path = './data/v0/' + to_str + '_'+ str(duration) + '.bin'
+        if kk is None:
+            kk = 'v0'
+        save_path = './data/{}/'.format(kk) + to_str + '_'+ str(duration) + '.bin'
 
         if os.path.isfile(save_path):
             file = open(save_path, 'rb')

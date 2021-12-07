@@ -4,6 +4,8 @@
     "redis_server_push":"localhost",
     "redis_server_":"localhost",
     "MARKET":"KRW-BTC",
+    "ACCESS_KEY":"jy66T1dXlJCxxj824XhSgLawFx66QKX7bDulB9sM",
+    "SECRETE_KEY":"hN4d0SQMjNY7259kUp8HRf4C8Hj6DQxAXOqrlYox",
     "LOG_MODE":false,
     "BACKTEST":true,
     "FEE":0.0005,

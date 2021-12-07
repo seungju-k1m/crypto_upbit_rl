@@ -16,40 +16,40 @@ if __name__ == "__main__":
     # p.run()
 
 
-    sim = Simulator()
+    # sim = Simulator()
     
-    cumulative_reward = 0
+    # cumulative_reward = 0
 
-    for j in range(10):
-        obs = sim.reset()
-        sim.portfolio.print()
-        m = time.time()
-        for t in range(10000):
+    # for j in range(10):
+    #     obs = sim.reset()
+    #     sim.portfolio.print()
+    #     m = time.time()
+    #     for t in range(10000):
             
-            action = np.random.randint(0, 8)
-            o, r, done, _ = sim.step(action)
-            cumulative_reward += r
-            if (t+1) % 100 == 0:
-                sim.portfolio.print()
-            if done:
-                break
-        sim.portfolio.print()
-        print("Simulation Is Done")
-        print(cumulative_reward)
-        print(time.time() - m)
+    #         action = np.random.randint(0, 8)
+    #         o, r, done, _ = sim.step(action)
+    #         cumulative_reward += r
+    #         if (t+1) % 100 == 0:
+    #             sim.portfolio.print()
+    #         if done:
+    #             break
+    #     sim.portfolio.print()
+    #     print("Simulation Is Done")
+    #     print(cumulative_reward)
+    #     print(time.time() - m)
 
-    # to = datetime(2020, 1, 2, 0, 0)
-    # to_list = [to - timedelta(days=1)]
-    # pipe_list = []
-    # for i in range(7):
-    #     to_list.append(
-    #         to + timedelta(days=i)
-    #     )
-    # duration = timedelta(days=1)
-    # for t in to_list:
-    #     pipe_list.append(
-    #         DataPipeLine(t, duration)
-    #     )
+    to = datetime(2021, 1, 2, 0, 0)
+    to_list = [to - timedelta(days=1)]
+    pipe_list = []
+    for i in range(30):
+        to_list.append(
+            to + timedelta(days=i)
+        )
+    duration = timedelta(days=1)
+    for t in to_list:
+        pipe_list.append(
+            DataPipeLine(t, duration, True)
+        )
 
 
     # set_pipeline = SetDataPipeLine(pipe_list)

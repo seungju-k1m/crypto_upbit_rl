@@ -36,6 +36,25 @@ def generate_random_start():
         )
     return pipelines
 
+def generate_test_start(idx=0):
+    data_list = os.listdir('./data/test')
+    data_list.sort()
+    total_len = len(data_list)
+
+    start_id = idx
+
+    data_list = [data_list[i] for i in range(start_id, start_id+3)]
+    pipelines = []
+    for d in data_list:
+        k_list = d.split(',')
+        kk = k_list[0]
+        kk = kk[:10]
+        to = datetime.fromisoformat(kk)
+        pipelines.append(
+            DataPipeLine(to, duration=timedelta(days=1), test=True)
+        )
+    return pipelines
+
 
 class PortFolio:
     """
@@ -137,24 +156,39 @@ class Simulator:
     def __init__(
         self,
         pipelines: List[DataPipeLine] = None,
-        unit_step=15
+        unit_step=15,
+        test=False
     ):
         if pipelines is None:
-            pipelines = generate_random_start()
+            if test:
+                pipelines = generate_test_start(1)
+                self.idx = 1
+            else:
+                pipelines = generate_random_start()
         setpipeline = SetDataPipeLine(pipelines)
         self.pipe = DataPipeLine_Sim(setpipeline)
         self.renderer = Renderer(self.pipe)
         self.unit_step = unit_step
     
-    def reset_pipeline(self):
-        pipelines = generate_random_start()
+    def reset_pipeline(self, test):
+        if test:
+            try:
+                self.idx += 3
+            except:
+                self.idx = 1
+            if self.idx > 26:
+                return None
+            pipelines = generate_test_start(self.idx)
+            
+        else:
+            pipelines = generate_random_start()
         # setpipeline = SetDataPipeLine(pipelines)
         # self.pipe = DataPipeLine_Sim(setpipeline)
         # self.renderer = Renderer(self.pipe)
         self.pipe.update(pipelines)
         
-    def reset(self):
-        self.reset_pipeline()
+    def reset(self, test=False):
+        self.reset_pipeline(test)
         obs = self.renderer.reset()
         current_price = float(self.renderer.y_vec[1][-1])
         self.portfolio = PortFolio(

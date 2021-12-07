@@ -96,7 +96,7 @@ class Player():
         self.model.to(self.device)
         self.target_model.to(self.device)
     
-    def forward(self, state:list) -> int:
+    def forward(self, state:list, no_epsilon=False) -> int:
         
         # if step < TOTAL_TRAINING_STEP:
         #     epsilon = 1 - step * (1 - self.target_epsilon) / phase_01_random_step
@@ -107,6 +107,8 @@ class Player():
         #     epsilon = self.target_epsilon
         state, ratio = state
         epsilon = self.target_epsilon
+        if no_epsilon:
+            epsilon = 0
         
         if random.random() < epsilon:
             action = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8])
@@ -271,83 +273,64 @@ class Player():
                 mean_yield = 0
 
     def eval(self):
-        obsDeque = deque(maxlen=4)
         mean_cumulative_reward = 0
+        mean_yield = 0
         per_episode = 10
         step = 0
-        keys = ['ale.lives', 'lives']
-        key = "ale.lives"
-        self.pull_param()
-        # key = "lives"
-        def rgb_to_gray(img, W=84, H=84):
-            grayImage = im.fromarray(img, mode="RGB").convert("L")
+        total_step = 0
 
-            # grayImage = np.expand_dims(Avg, -1)
-            grayImage = grayImage.resize((84, 84), im.NEAREST)
-            return grayImage
-        
-        def stack_obs(img):
-            gray_img = rgb_to_gray(img)
-            obsDeque.append(gray_img)
-            state = []
-            if len(obsDeque) > 3:
-                for i in range(4):
-                    state.append(obsDeque[i])
-                state = np.stack(state, axis=0)
-                return state
-            else:
-                return None
-        
+        def preprocess_obs(obs):
+            chart_info, account_info = obs
+            image, candle_info = chart_info
+
+            value = account_info['Current_Value']
+            KRW_value = account_info['KRW_Balance']
+            # coin_value = value - KRW_value
+            ratio = KRW_value / value
+            return (image, ratio)
+
         for t in count():
             cumulative_reward = 0   
             done = False
-            live = -1
             experience = []
             step = 0
 
-            obs = self.sim.reset()
-            self.obsDeque.clear()
-            for i in range(4):
-                stack_obs(obs)
-            
-            state = stack_obs(obs)
+            obs = self.sim.reset(True)
+            # self.sim.print()
+            obs = preprocess_obs(obs)
+            # obs
+                # char info, account info
+                # char info
+                    # image, 
 
-            action, _ = self.forward(state)
-            
+            action, _ = self.forward(obs, True)
+            mz = 0
+
             while done is False:
-                reward = 0
-                for i in range(3):
-                    _, __, r, _ = self.sim.step(action)
-                    reward += r
-                next_obs, r, done, info = self.sim.step(action)
-                reward += r
-                reward_ = reward
-                reward = max(-1.0, min(reward, 1.0))
-                step += 1
-                # print(step)
+
+                next_obs, reward, done, info = self.sim.step(action)
+                # info 현재 수익률 
+                # reward -> 100 * log(current_value/prev_value)
+                next_obs = preprocess_obs(next_obs)
                 # self.sim.render()
+                # reward = max(-1.0, min(reward, 1.0))
+                step += 1
+                total_step += 1
 
-                if live == -1:
-                    try:
-                        live = info[key]
-                    except:
-                        key = keys[1 - keys.index(key)]
-                        live = info[key]
+                cumulative_reward += reward
+                mz += info
+                action, epsilon = self.forward(next_obs)
+                obs = next_obs
                 
-                if info[key] != 0:
-                    _done = live != info[key]
-                    if _done:
-                        live = info[key]
-                else:
-                    _done = reward != 0
+            mean_cumulative_reward += mz
+            mean_yield += (math.exp(cumulative_reward/100) - 1)
+            # self.sim.print()
 
-                state = stack_obs(next_obs)
-                action, epsilon = self.forward(state, t, no_epsilon=True)
-                cumulative_reward += reward_
-            mean_cumulative_reward += cumulative_reward
             if (t+1) % per_episode == 0:
                 print("""
-                EPISODE:{} // REWARD:{:.3f}
-                """.format(t+1, mean_cumulative_reward / per_episode))
+                EPISODE:{} // YIELD:{:.3f} // EPSILON:{:.3f} // COUNT:{} // T_Version:{}
+                """.format(t+1, mean_yield / per_episode, epsilon, self.count, self.target_model_version))
                 mean_cumulative_reward = 0
-                break
+                mean_yield = 0
+
+           
