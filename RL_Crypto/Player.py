@@ -145,6 +145,7 @@ class Player():
             self.target_model.load_state_dict(t_param)
             param = self.connect.get("state_dict")
             if param is None:
+                print("S!!")
                 return
             param = pickle.loads(param)
             self.count = count
