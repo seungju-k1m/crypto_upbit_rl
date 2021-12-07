@@ -221,6 +221,8 @@ class Player():
             while done is False:
 
                 next_obs, reward, done, info = self.sim.step(action)
+                # info 현재 수익률
+                # reward -> 100 * log(current_value/prev_value)
                 next_obs = preprocess_obs(next_obs)
                 # self.sim.render()
                 # reward = max(-1.0, min(reward, 1.0))
