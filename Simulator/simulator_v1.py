@@ -133,13 +133,19 @@ class PortFolio:
             COIN_PRICE: {:.3f}
 
             TOTAL_VALUE: {:.3f}
+
+            IS_KRW:{}
+
+            IS_COIN
             
             """.format(
                 self.KRW_Balance,
                 self.Ticker,
                 self.Coin_Balance,
                 self.Average_Price,
-                self.Current_Value
+                self.Current_Value,
+                self.Is_KRW,
+                self.Is_Coin
             )
         )
 

@@ -309,7 +309,7 @@ class Player():
             self.sim.portfolio.print()
 
             while done is False:
-
+                print(action)
                 next_obs, reward, done, info = self.sim.step(action)
                 # info 현재 수익률 
                 # reward -> 100 * log(current_value/prev_value)
@@ -330,7 +330,6 @@ class Player():
             mean_yield += (math.exp(cumulative_reward/100) - 1)
             self.sim.print()
 
-            self.sim.portfolio.print()
             print('--------------------')
 
             if (t+1) % per_episode == 0:
