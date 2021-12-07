@@ -127,7 +127,7 @@ class Player():
                 # action_value = val + adv - torch.mean(adv, dim=-1, keepdim=True)
                 
                 action_value = self.model.forward([state, ratio])[0]
-
+                print(action_value)
                 action = int(action_value.argmax(dim=-1).numpy())
                 # print(action)
         return action, epsilon
@@ -309,7 +309,6 @@ class Player():
             self.sim.portfolio.print()
 
             while done is False:
-                print(action)
                 next_obs, reward, done, info = self.sim.step(action)
                 # info 현재 수익률 
                 # reward -> 100 * log(current_value/prev_value)
