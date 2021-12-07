@@ -110,7 +110,7 @@ class Player():
         
         if random.random() < epsilon:
             # action = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8])
-            action = random.choice([0, 1, 2, 3, 4, 5, 6, 7, 8])
+            action = random.choice([0, 1, 2])
         else:
             with torch.no_grad():
                 state = np.expand_dims(state, axis=0)

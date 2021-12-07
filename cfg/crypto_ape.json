@@ -64,7 +64,7 @@
             "netCat":"MLP",
             "iSize":2568,
             "nLayer":2,
-            "fSize":[512, 9],
+            "fSize":[512, 3],
             "act":["relu", "linear"],
             "BN":[false, false, false],
             "prior":2,
