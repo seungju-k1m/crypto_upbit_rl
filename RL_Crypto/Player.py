@@ -278,7 +278,7 @@ class Player():
         per_episode = 1
         step = 0
         total_step = 0
-        self.pull_param()
+        # self.pull_param()
 
         def preprocess_obs(obs):
             chart_info, account_info = obs
@@ -295,7 +295,7 @@ class Player():
             done = False
             step = 0
 
-            obs = self.sim.reset(True)
+            obs = self.sim.reset(False)
             # self.sim.print()
             obs = preprocess_obs(obs)
             # obs
