@@ -295,7 +295,7 @@ class Player():
             experience = []
             step = 0
 
-            obs = self.sim.reset()
+            obs = self.sim.reset(True)
             # self.sim.print()
             obs = preprocess_obs(obs)
             # obs
