@@ -217,6 +217,7 @@ class Player():
                     # image, 
 
             action, _ = self.forward(obs)
+            mz = 0
 
             while done is False:
 
@@ -230,6 +231,7 @@ class Player():
                 total_step += 1
 
                 cumulative_reward += reward
+                mz += info
                 local_buffer.push(obs[0], obs[1], action, info)
                 action, epsilon = self.forward(next_obs)
                 obs = next_obs
@@ -251,7 +253,7 @@ class Player():
                 if step %  20 == 0:
                     self.pull_param()
                 
-            mean_cumulative_reward += cumulative_reward
+            mean_cumulative_reward += mz
             mean_yield += (math.exp(cumulative_reward/100) - 1)
             # self.sim.print()
 
