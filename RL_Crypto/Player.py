@@ -278,7 +278,7 @@ class Player():
         per_episode = 1
         step = 0
         total_step = 0
-        # self.pull_param()
+        self.pull_param()
 
         def preprocess_obs(obs):
             chart_info, account_info = obs
@@ -322,7 +322,7 @@ class Player():
                 mz += info
                 action, epsilon = self.forward(next_obs, True)
                 obs = next_obs
-                if step% 12 == 0:
+                if step% 24 == 0:
                     self.sim.portfolio.print()
                 
             mean_cumulative_reward += mz
