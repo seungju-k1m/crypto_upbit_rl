@@ -185,6 +185,7 @@ class Player():
 
     def run(self):
         mean_cumulative_reward = 0
+        mean_yield = 0
         per_episode = 2
         step = 0
         local_buffer = LocalBuffer()
@@ -247,7 +248,9 @@ class Player():
 
                 if step %  20 == 0:
                     self.pull_param()
-            mean_cumulative_reward += (math.exp(cumulative_reward) - 1)
+                
+            mean_cumulative_reward += cumulative_reward
+            mean_yield += (math.exp(cumulative_reward) - 1)
             # self.sim.print()
 
             if (t+1) % per_episode == 0:
@@ -256,10 +259,11 @@ class Player():
                 """.format(t+1, mean_cumulative_reward / per_episode, epsilon, self.count, self.target_model_version))
                 self.connect.rpush(
                     "reward", pickle.dumps(
-                        mean_cumulative_reward / per_episode
+                        mean_yield / per_episode
                     )
                 )
                 mean_cumulative_reward = 0
+                mean_yield = 0
 
     def eval(self):
         obsDeque = deque(maxlen=4)
