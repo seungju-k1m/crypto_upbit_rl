@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import logging
 import os
 import torch
+import math
 
 
 _path_ = './cfg/crypto_ape.json'
@@ -25,7 +26,7 @@ BETA = 0.4
 GAMMA = .99
 TARGET_FREQUENCY = 2500
 N = 32
-BATCHSIZE = 128
+BATCHSIZE = 4
 TOTAL_TRAINING_STEP = int(5e4)
 
 FEE = _data_['FEE']
@@ -66,6 +67,11 @@ TIMEINTERVAL = 2
 
 
 URL = "https://api.upbit.com"
+
+def convert_reward(x):
+    epsilon = 1e-3
+    y = math.copysign(1, x) * (abs(x)+1)**0.5 + epsilon * x
+    return y
 
 
 _current_time_ = datetime.now()

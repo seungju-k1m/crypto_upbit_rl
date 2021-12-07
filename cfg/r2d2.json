@@ -1,0 +1,102 @@
+{
+    "redis_server_":"10.86.230.140",
+    "redis_server_push":"localhost",
+    "redis_server":"localhost",
+    "MARKET":"KRW-BTC",
+    "LOG_MODE":false,
+    "BACKTEST":true,
+    "FEE":0.0005,
+
+    "use_gym":true,
+    "device":"cpu",
+    "learner_device":"cuda:0",
+
+    "REPLAY_MEMORY_LEN":10000,
+    "unroll_step":5,
+
+    "optim":{
+        "name":"rmsprop",
+        "lr":0.0000625,
+        "eps":1.5e-7,
+        "decay":0,
+        "alpha":0.95,
+        "momentum":0,
+        "centered":true
+    },
+    "optim_":{
+        "name":"adam",
+        "lr":1e-4
+    },
+
+    "model":{
+        "module00":{
+            "netCat":"CNN2D",
+            "iSize":4,
+            "nLayer":4,
+            "fSize":[8, 4, 3, -1],
+            "nUnit":[32, 64, 64],
+            "padding":[0, 0, 0],
+            "stride":[4, 2, 1],
+            "act":["relu", "relu", "relu"],
+            "BN":[false, false, false, false],
+            "linear":true,
+            "input":[0],
+            "prior":0
+        },
+        "module01":{
+            "netCat":"ViewV2",
+            "prevNodeNames":["module00"],
+            "input":[1],
+            "prior":1
+        },
+        "module02":{
+            "netCat":"LSTMNET",
+            "hiddenSize":256,
+            "nLayer":1,
+            "iSize":3136,
+            "device":"cpu",
+            "FlattenMode":true,
+            "return_hidden":false,
+            "prior":2,
+            "prevNodeNames":["module01"]
+        },
+        "module03":{
+            "netCat":"MLP",
+            "iSize":256,
+            "nLayer":2,
+            "fSize":[256, 6],
+            "act":["relu", "linear"],
+            "BN":[false, false, false],
+            "prior":3,
+            "prevNodeNames":["module02"]
+        },
+        "module03_1":{
+            "netCat":"MLP",
+            "iSize":256,
+            "nLayer":2,
+            "fSize":[256,  1],
+            "act":["relu",  "linear"],
+            "BN":[false, false, false],
+            "prior":3,
+            "prevNodeNames":["module02"]
+        },
+        "module04":{
+            "netCat":"Add",
+            "prior":4,
+            "prevNodeNames":["module03", "module03_1"]
+        },
+        "module04_1":{
+            "netCat":"Mean",
+            "prior":4,
+            "prevNodeNames":["module03"]
+        },
+        "module05":{
+            "netCat":"Substract",
+            "prior":5,
+            "prevNodeNames":["module04", "module04_1"],
+            "output":true
+        }
+    }
+        
+}
+    
