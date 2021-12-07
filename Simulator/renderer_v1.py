@@ -109,7 +109,8 @@ class Renderer:
 
             max_y = max(mean_y * (1 + k), max_y_)
             
-            ax.set_ylim(min_y, max_y)
+            # ax.set_ylim(min_y, max_y)
+            ax.set_ylim(min_y_, max_y_)
             
             ax.set_xlim(min(truncated_x), max(truncated_x))
 
