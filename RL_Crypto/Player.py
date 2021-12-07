@@ -308,7 +308,7 @@ class Player():
 
             while done is False:
 
-                next_obs, reward, done, info = self.sim.step(action, True)
+                next_obs, reward, done, info = self.sim.step(action)
                 # info 현재 수익률 
                 # reward -> 100 * log(current_value/prev_value)
                 next_obs = preprocess_obs(next_obs)
@@ -319,7 +319,7 @@ class Player():
 
                 cumulative_reward += reward
                 mz += info
-                action, epsilon = self.forward(next_obs)
+                action, epsilon = self.forward(next_obs, True)
                 obs = next_obs
                 
             mean_cumulative_reward += mz
