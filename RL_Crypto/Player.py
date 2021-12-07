@@ -221,7 +221,7 @@ class Player():
             while done is False:
 
                 next_obs, reward, done, info = self.sim.step(action)
-                # info 현재 수익률
+                # info 현재 수익률 
                 # reward -> 100 * log(current_value/prev_value)
                 next_obs = preprocess_obs(next_obs)
                 # self.sim.render()
@@ -259,11 +259,12 @@ class Player():
                 print("""
                 EPISODE:{} // YIELD:{:.3f} // EPSILON:{:.3f} // COUNT:{} // T_Version:{}
                 """.format(t+1, mean_cumulative_reward / per_episode, epsilon, self.count, self.target_model_version))
-                self.connect.rpush(
-                    "reward", pickle.dumps(
-                        mean_yield / per_episode
+                if self.target_epsilon < 0.05:
+                    self.connect.rpush(
+                        "reward", pickle.dumps(
+                            mean_yield / per_episode
+                        )
                     )
-                )
                 mean_cumulative_reward = 0
                 mean_yield = 0
 
