@@ -94,7 +94,7 @@ class Learner:
             # val_n, adv_n = self.model.forward([next_image])
             # n_action_value = val_n + adv_n - torch.mean(adv_n, dim=-1, keepdim=True)
             action_ddqn =  n_action_value.argmax(dim=-1).detach().cpu().numpy()
-            action_ddqn = [6*i + a for i, a in enumerate(action_ddqn)]
+            action_ddqn = [9*i + a for i, a in enumerate(action_ddqn)]
             next_action_value = next_action_value.view(-1)
             next_action_value = next_action_value[action_ddqn]
 
