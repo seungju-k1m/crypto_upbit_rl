@@ -308,6 +308,7 @@ class Player():
             self.sim.portfolio.print()
 
             while done is False:
+                action=5
                 next_obs, reward, done, info = self.sim.step(action)
                 # info 현재 수익률 
                 # reward -> 100 * log(current_value/prev_value)
