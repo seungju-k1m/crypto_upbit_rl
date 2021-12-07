@@ -247,7 +247,7 @@ class Player():
 
                 if step %  20 == 0:
                     self.pull_param()
-            mean_cumulative_reward += (math.exp(cumulative_reward/100) - 1)
+            mean_cumulative_reward += (math.exp(cumulative_reward) - 1)
             # self.sim.print()
 
             if (t+1) % per_episode == 0:
