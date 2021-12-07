@@ -250,7 +250,7 @@ class Player():
                     self.pull_param()
                 
             mean_cumulative_reward += cumulative_reward
-            mean_yield += (math.exp(cumulative_reward) - 1)
+            mean_yield += (math.exp(cumulative_reward/100) - 1)
             # self.sim.print()
 
             if (t+1) % per_episode == 0:
