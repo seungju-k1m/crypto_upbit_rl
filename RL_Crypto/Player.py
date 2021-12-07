@@ -275,7 +275,7 @@ class Player():
     def eval(self):
         mean_cumulative_reward = 0
         mean_yield = 0
-        per_episode = 10
+        per_episode = 5
         step = 0
         total_step = 0
 
