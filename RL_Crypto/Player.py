@@ -277,6 +277,7 @@ class Player():
         per_episode = 1
         step = 0
         total_step = 0
+        self.pull_param()
 
         def preprocess_obs(obs):
             chart_info, account_info = obs
