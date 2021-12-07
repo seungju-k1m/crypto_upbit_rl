@@ -12,6 +12,8 @@ import matplotlib
 import time
 from copy import deepcopy
 
+from matplotlib import gridspec
+
 matplotlib.use("Agg")
 template = {'time':[], 'midpoint':[], 'acc_volume':[]}
 
@@ -19,6 +21,7 @@ template = {'time':[], 'midpoint':[], 'acc_volume':[]}
 class Renderer:
     plt.style.use("dark_background")
     plt.axis("off")
+    plt.ioff()
 
     def __init__(
         self,
@@ -75,7 +78,7 @@ class Renderer:
 
     def render(self):
         image = []
-        delta = [0.005, 0.02, 0.05, 0.1]
+        delta = [0.005/2, 0.02/2, 0.03/2, 0.05/2]
         j = time.time()
         for i, unit in enumerate([1, 5, 15, 60]):
 
@@ -92,29 +95,51 @@ class Renderer:
             ax, ax_twin = self.axes[i], self.axes_twin[i]
 
             fig = line1.figure
+            fig.clear()
+            bg = self.bgs[i]
+            fig.canvas.restore_region(bg)
+            
 
             # fig.canvas.restore_region(self.bgs[i])
 
             line1.set_ydata(truncated_y)
             line1.set_xdata(truncated_x)
 
-            mean_y = truncated_y.mean()
+            line2.set_ydata(truncated_y2 * self.y2_div[i])
+            line2.set_xdata(truncated_x)
+
+            mean_y = float(truncated_y.mean())
+            min_y_ = float(truncated_y.min())
+            max_y_ = float(truncated_y.max())
 
             k = delta[i]
+
+            min_y = min(mean_y * (1 - k), min_y_)
+
+            max_y = max(mean_y * (1 + k), max_y_)
             
-            ax.set_ylim(mean_y * (1- k), mean_y * (1 + k))
+            ax.set_ylim(min_y, max_y)
+            
 
             # ax.set_ylim(min(truncated_y) * 0.9, max(truncated_y)* 1.1)
             ax.set_xlim(min(truncated_x), max(truncated_x))
 
-            for l, y2_each in zip(line2, truncated_y2):
-                l._height = y2_each * self.y2_div[i]
-                # l._height = 100
-                xx = l.get_x()
-                l.set_x(xx+self.interval[i])
-            
+            ax_twin.set_xlim(min(truncated_x), max(truncated_x))
 
+            # for l, y2_each in zip(line2, truncated_y2):
+            #     # l._height = y2_each * self.y2_div[i]
+            #     l.set_height(y2_each * self.y2_div[i])
+            #     # l._height = 100
+            #     xx = l.get_x()
+            #     l.set_x(xx+self.interval[i])
+            #     ax_twin.draw_artist(l)
+            
             # image_tmp = self.figure_to_array(line1.figure)
+            
+            ax.draw_artist(line1)
+            ax_twin.draw_artist(line2)
+            
+            fig.canvas.blit(fig.bbox)
             image_np = self.get_figure(fig, plot=False)
             # fig.canvas.blit(fig.bbox)
             # fig.canvas.flush_events()
@@ -125,10 +150,13 @@ class Renderer:
         return image
 
     def init_plot_configuration(self):
+        spec = gridspec.GridSpec(ncols=1, nrows=2,
+                         width_ratios=[1], wspace=0.5,
+                         hspace=0.5, height_ratios=[3, 1])
         for i in range(4):
             fig = plt.figure(i, figsize=(4, 3))
-            ax = fig.add_subplot(1, 2, 1)
-            ax02 = fig.add_subplot(1, 2, 2)
+            ax = fig.add_subplot(spec[0])
+            ax02 = fig.add_subplot(spec[1])
             ax.get_xaxis().set_visible(False)
             ax.get_yaxis().set_visible(False)
 
@@ -163,7 +191,7 @@ class Renderer:
         
         # init plot configuration !!
         uu = [1, 5, 15, 60]
-        delta = [0.005, 0.02, 0.05, 0.1]
+        delta = [0.005/2, 0.02/2, 0.05/2, 0.1/2]
         for i, u in enumerate(uu):
             """
                 ax_twin,
@@ -176,6 +204,7 @@ class Renderer:
             ax = self.axes[i]
             ax02 = self.axes_twin[i]
             fig = ax.figure
+            
 
             x, y, y2 = self.x_vec[u], self.y_vec[u], self.y2_vec[u]
             truncated_x = x[-self.offset:]
@@ -189,35 +218,46 @@ class Renderer:
                 line.set_ydata(truncated_y)
                 line.set_xdata(truncated_x)
             else:
-                # line,  = ax.plot(truncated_x, truncated_y, '-', alpha=0.8, animated=True)
-                line,  = ax.plot(truncated_x, truncated_y, '-', alpha=0.8)
+                ax.plot([0], [0])
+                
+                fig.canvas.draw()
+                bg = fig.canvas.copy_from_bbox(fig.bbox)
+                self.bgs.append(bg)
+                line,  = ax.plot(truncated_x, truncated_y, '-', alpha=0.8, animated=True)
+                # line,  = ax.plot(truncated_x, truncated_y, '-', alpha=0.8)
                 self.lines.append(line)
+                
                 
 
             y:np.ndarray
-            mean_y = truncated_y.mean()
+            mean_y = float(truncated_y.mean())
+            min_y_ = float(truncated_y.min())
+            max_y_ = float(truncated_y.max())
 
             k = delta[i]
+
+            min_y = min(mean_y * (1 - k), min_y_)
+
+            max_y = max(mean_y * (1 + k), max_y_)
             
-            ax.set_ylim(mean_y * (1- k), mean_y * (1 + k))
+            ax.set_ylim(min_y, max_y)
             ax.set_xlim(min(truncated_x), max(truncated_x))
             # ax.set_ylim(mean_y * 0.98, mean_y * 1.02)
 
             if len(self.lines_2) > 3:
-                line2 = self.lines_2[i]
-                for l, y2_each in zip(line2, truncated_y2):
-                    l._height = y2_each * self.y2_div[i]
-                    # l._height = 100
-                    xx = l.get_x()
-                    l.set_x(xx+self.interval[i])
+                pass
+                
             else:
-                line2 = ax02.bar(truncated_x, truncated_y2 *self.y2_div[i], width=0.0005 * u, color='w', orientation=u'vertical')
-            # 간격
-                a1 = line2[0].get_x()
-                a2 = line2[1].get_x()
-                self.interval.append(a2 - a1)
+                # line2 = ax02.bar(truncated_x, truncated_y2 *self.y2_div[i], width=0.0005 * u, color='w')
+                # line2 = ax02.bar(truncated_x, truncated_y2 *self.y2_div[i], width=0.0005 * u, color='w', animated=True)
+                # line2 = ax02.scatter(truncated_x, truncated_y2 *self.y2_div[i], width=0.0005 * u, color='w', animated=True)
+                line2,  = ax02.plot(truncated_x, truncated_y2 * self.y2_div[i], '-', alpha=0.8, animated=True)
                 self.lines_2.append(line2)
-                fig.canvas.draw()
+                ax.draw_artist(line)
+                ax02.draw_artist(line2)
+
+                fig.canvas.blit(fig.bbox)
+                # fig.canvas.draw()
         
         image = self.render()
 
