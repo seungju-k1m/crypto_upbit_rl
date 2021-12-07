@@ -275,7 +275,7 @@ class Simulator:
         
         reward_ = reward / 100
         reward_ = math.exp(reward_) - 1
-        reward _ *= 10
+        reward_ *= 10
         
         info = self.portfolio.get_info()
 
