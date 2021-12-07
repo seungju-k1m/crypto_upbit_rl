@@ -183,7 +183,7 @@ class Simulator:
     def reset_pipeline(self, test=False):
         if test:
             try:
-                self.idx += 3
+                self.idx += 1
             except:
                 self.idx = 1
             pipelines = generate_test_start(self.idx)
