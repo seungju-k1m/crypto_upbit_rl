@@ -176,7 +176,7 @@ class Simulator:
         self.renderer = Renderer(self.pipe)
         self.unit_step = unit_step
     
-    def reset_pipeline(self, test):
+    def reset_pipeline(self, test=False):
         if test:
             try:
                 self.idx += 3
