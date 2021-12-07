@@ -273,9 +273,13 @@ class Simulator:
         else:
             raise RuntimeWarning("Action Space !!")
         
+        reward_ = reward / 100
+        reward_ = math.exp(reward_) - 1
+        reward _ *= 10
+        
         info = self.portfolio.get_info()
 
-        return (obs, info), reward, done, {}
+        return (obs, info), reward, done, reward_
 
     def print(self):
         self.portfolio.print()

@@ -228,7 +228,7 @@ class Player():
                 total_step += 1
 
                 cumulative_reward += reward
-                local_buffer.push(obs[0], obs[1], action, reward)
+                local_buffer.push(obs[0], obs[1], action, info)
                 action, epsilon = self.forward(next_obs)
                 obs = next_obs
 

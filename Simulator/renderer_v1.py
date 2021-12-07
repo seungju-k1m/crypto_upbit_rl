@@ -47,13 +47,7 @@ class Renderer:
         self.lines_2 = []
         self.interval = []
         self.y2_div = [1 / (5*unit) for unit in [1, 5, 15, 60]]
-        # self.y2_div = [1, 1/25, 1/50, 1/100]
-        # for i in range(4):
-        #     fig = plt.figure(i, figsize=(20, 12))
-        #     ax = fig.addd_subplot(111)
-        #     self.axes.append(ax)
-        
-        # self.lines = []
+
         self.init_plot_configuration()
 
         self.bgs = []
@@ -98,9 +92,6 @@ class Renderer:
             fig.clear()
             bg = self.bgs[i]
             fig.canvas.restore_region(bg)
-            
-
-            # fig.canvas.restore_region(self.bgs[i])
 
             line1.set_ydata(truncated_y)
             line1.set_xdata(truncated_x)
@@ -120,29 +111,16 @@ class Renderer:
             
             ax.set_ylim(min_y, max_y)
             
-
-            # ax.set_ylim(min(truncated_y) * 0.9, max(truncated_y)* 1.1)
             ax.set_xlim(min(truncated_x), max(truncated_x))
 
             ax_twin.set_xlim(min(truncated_x), max(truncated_x))
 
-            # for l, y2_each in zip(line2, truncated_y2):
-            #     # l._height = y2_each * self.y2_div[i]
-            #     l.set_height(y2_each * self.y2_div[i])
-            #     # l._height = 100
-            #     xx = l.get_x()
-            #     l.set_x(xx+self.interval[i])
-            #     ax_twin.draw_artist(l)
-            
-            # image_tmp = self.figure_to_array(line1.figure)
             
             ax.draw_artist(line1)
             ax_twin.draw_artist(line2)
             
             fig.canvas.blit(fig.bbox)
             image_np = self.get_figure(fig, plot=False)
-            # fig.canvas.blit(fig.bbox)
-            # fig.canvas.flush_events()
 
             image.append(image_np)
         # print(time.time() - j)
@@ -210,7 +188,6 @@ class Renderer:
             truncated_x = x[-self.offset:]
             truncated_y = y[-self.offset:]
             truncated_y2 = y2[-self.offset:]
-            # truncated_x = np.datetime64(truncated_x)
             truncated_x = np.array([np.datetime64(i) for i in truncated_x])
             
             if len(self.lines) > 3:
@@ -248,9 +225,6 @@ class Renderer:
                 pass
                 
             else:
-                # line2 = ax02.bar(truncated_x, truncated_y2 *self.y2_div[i], width=0.0005 * u, color='w')
-                # line2 = ax02.bar(truncated_x, truncated_y2 *self.y2_div[i], width=0.0005 * u, color='w', animated=True)
-                # line2 = ax02.scatter(truncated_x, truncated_y2 *self.y2_div[i], width=0.0005 * u, color='w', animated=True)
                 line2,  = ax02.plot(truncated_x, truncated_y2 * self.y2_div[i], '-', alpha=0.8, animated=True)
                 self.lines_2.append(line2)
                 ax.draw_artist(line)
