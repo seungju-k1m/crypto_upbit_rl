@@ -40,7 +40,8 @@
             "act":["linear"],
             "BN":[false],
             "prior":0,
-            "input":[1]
+            "input":[1],
+            "bias":true
         },
 
         "module00":{

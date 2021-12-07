@@ -41,7 +41,7 @@ if __name__ == "__main__":
     to = datetime(2021, 1, 2, 0, 0)
     to_list = [to - timedelta(days=1)]
     pipe_list = []
-    for i in range(30):
+    for i in range(60):
         to_list.append(
             to + timedelta(days=i)
         )
