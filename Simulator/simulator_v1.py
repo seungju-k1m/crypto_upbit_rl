@@ -136,7 +136,7 @@ class PortFolio:
 
             IS_KRW:{}
 
-            IS_COIN
+            IS_COIN:{}
             
             """.format(
                 self.KRW_Balance,
