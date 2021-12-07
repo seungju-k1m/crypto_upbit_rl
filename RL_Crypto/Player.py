@@ -332,5 +332,8 @@ class Player():
                 """.format(t+1, mean_yield / per_episode, epsilon, self.count, self.target_model_version))
                 mean_cumulative_reward = 0
                 mean_yield = 0
+            
+            if(t+1) == 25:
+                break
 
            

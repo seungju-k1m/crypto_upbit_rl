@@ -176,9 +176,8 @@ class Simulator:
                 self.idx += 3
             except:
                 self.idx = 1
-            if self.idx > 26:
-                return None
             pipelines = generate_test_start(self.idx)
+            print(self.idx)
             
         else:
             pipelines = generate_random_start()
