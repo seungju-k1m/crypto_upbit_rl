@@ -46,7 +46,7 @@ class Renderer:
         self.lines = []
         self.lines_2 = []
         self.interval = []
-        self.y2_div = [1 / (20*unit) for unit in [1, 5, 15, 60]]
+        self.y2_div = [1 / (5*unit) for unit in [1, 5, 15, 60]]
 
         self.init_plot_configuration()
 
