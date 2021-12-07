@@ -239,19 +239,6 @@ class Simulator:
         amount_list = [.25, .5, .75, 1.0]
 
         # rebalance
-        if action == 0:
-            reward = 0
-            prev_value = deepcopy(self.portfolio.Current_Value)
-            self.portfolio.Average_Price = current_price
-            self.portfolio.update()
-            value = deepcopy(self.portfolio.Current_Value)
-            reward = 100 * math.log(value / prev_value)
-        
-        elif action == 1:
-            reward = self.rebalance_KRW_2_COIN(1, current_price)
-        else:
-            reward = self.rebalance_COIN_2_KRW(1, current_price)
-
         # if action == 0:
         #     reward = 0
         #     prev_value = deepcopy(self.portfolio.Current_Value)
@@ -259,17 +246,30 @@ class Simulator:
         #     self.portfolio.update()
         #     value = deepcopy(self.portfolio.Current_Value)
         #     reward = 100 * math.log(value / prev_value)
-
-        # elif action < 5:
-        #     idx = int(action - 1)
-        #     amount = amount_list[idx]
-        #     reward = self.rebalance_KRW_2_COIN(amount, current_price)
-        # elif action < 9:
-        #     idx = int(action - 5)
-        #     amount = amount_list[idx]
-        #     reward = self.rebalance_COIN_2_KRW(amount, current_price)
+        
+        # elif action == 1:
+        #     reward = self.rebalance_KRW_2_COIN(1, current_price)
         # else:
-        #     raise RuntimeWarning("Action Space !!")
+        #     reward = self.rebalance_COIN_2_KRW(1, current_price)
+
+        if action == 0:
+            reward = 0
+            prev_value = deepcopy(self.portfolio.Current_Value)
+            self.portfolio.Average_Price = current_price
+            self.portfolio.update()
+            value = deepcopy(self.portfolio.Current_Value)
+            reward = 100 * math.log(value / prev_value)
+
+        elif action < 5:
+            idx = int(action - 1)
+            amount = amount_list[idx]
+            reward = self.rebalance_KRW_2_COIN(amount, current_price)
+        elif action < 9:
+            idx = int(action - 5)
+            amount = amount_list[idx]
+            reward = self.rebalance_COIN_2_KRW(amount, current_price)
+        else:
+            raise RuntimeWarning("Action Space !!")
         
         info = self.portfolio.get_info()
 

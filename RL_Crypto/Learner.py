@@ -71,7 +71,9 @@ class Learner:
         next_ratio = next_ratio.view(-1, 1)
 
         # action = torch.tensor(action).long().to(self.device)
-        action = [3 * i + a for i, a in enumerate(action)]
+
+        action = [9 * i + a for i, a in enumerate(action)]
+
         reward= reward.astype(np.float32)
         done = done.astype(np.bool)
         reward = torch.tensor(reward).float().to(self.device)
