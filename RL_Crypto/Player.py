@@ -305,6 +305,8 @@ class Player():
 
             action, _ = self.forward(obs, True)
             mz = 0
+            print('--------------')
+            self.sim.portfolio.print()
 
             while done is False:
 
@@ -325,6 +327,9 @@ class Player():
             mean_cumulative_reward += mz
             mean_yield += (math.exp(cumulative_reward/100) - 1)
             # self.sim.print()
+
+            self.sim.portfolio.print()
+            print('--------------------')
 
             if (t+1) % per_episode == 0:
                 print("""
