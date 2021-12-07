@@ -15,6 +15,8 @@ import math
 import os
 
 
+LEVERAGE = 100
+
 def generate_random_start():
     data_list = os.listdir('./data/v0')
     data_list.sort()
@@ -176,14 +178,14 @@ class Simulator:
             self.portfolio.update()
             current_value = deepcopy(self.portfolio.Current_Value)
 
-            reward =  math.log(current_value / previous_value)
+            reward =  LEVERAGE * math.log(current_value / previous_value)
 
         else:
             self.portfolio.Average_Price = current_price
             self.portfolio.update()
             current_value = deepcopy(self.portfolio.Current_Value)
 
-            reward = math.log(current_value / previous_value)
+            reward = LEVERAGE * math.log(current_value / previous_value)
         
         return reward
     
@@ -202,14 +204,14 @@ class Simulator:
 
             current_value = deepcopy(self.portfolio.Current_Value)
 
-            reward = math.log(current_value / previous_value)
+            reward = LEVERAGE * math.log(current_value / previous_value)
 
         else:
             self.portfolio.Average_Price = current_price
             self.portfolio.update()
             current_value = deepcopy(self.portfolio.Current_Value)
 
-            reward = math.log(current_value / previous_value)
+            reward = LEVERAGE * math.log(current_value / previous_value)
         
         return reward
 
@@ -258,7 +260,7 @@ class Simulator:
             self.portfolio.Average_Price = current_price
             self.portfolio.update()
             value = deepcopy(self.portfolio.Current_Value)
-            reward = math.log(value / prev_value)
+            reward = LEVERAGE * math.log(value / prev_value)
 
         elif action < 5:
             idx = int(action - 1)
