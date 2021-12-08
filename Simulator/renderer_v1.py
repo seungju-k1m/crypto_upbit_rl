@@ -51,6 +51,7 @@ class Renderer:
         self.init_plot_configuration()
 
         self.bgs = []
+        self.Image = [False for i in range(4)]
     
     @staticmethod
     def get_figure(fig, plot=False) -> np.ndarray:
@@ -70,13 +71,17 @@ class Renderer:
             fig_Image.show()
         return np.array(fig_Image)
 
-    def render(self):
+    def render(self, cond):
         image = []
         delta = [0.005/2, 0.02/2, 0.03/2, 0.05/2]
         j = time.time()
         for i, unit in enumerate([1, 5, 15, 60]):
+            if not cond[i]:
+                
+                image_np = self.Image[i]
+                image.append(image_np)
+                continue
 
-            
             x, y, y2 = self.x_vec[unit], self.y_vec[unit], self.y2_vec[unit]
 
             truncated_x = x[-self.offset:]
@@ -122,7 +127,7 @@ class Renderer:
             
             fig.canvas.blit(fig.bbox)
             image_np = self.get_figure(fig, plot=False)
-
+            self.Image[i] = deepcopy(image_np)
             image.append(image_np)
         # print(time.time() - j)
         image = np.stack(image, axis=0)
@@ -233,8 +238,8 @@ class Renderer:
 
                 fig.canvas.blit(fig.bbox)
                 # fig.canvas.draw()
-        
-        image = self.render()
+        cond = [True for i in range(4)]
+        image = self.render(cond)
 
         return (image, (deepcopy(self.y_vec), deepcopy(self.y2_vec)))
         
@@ -243,20 +248,23 @@ class Renderer:
         # updating unit : 15min
 
         output, done = self.pipe.step(duration)
+        cond = [False for i in range(4)]
 
         def update(new_data:np.ndarray, prev_data:np.ndarray):
             len_data = len(prev_data)
             data = np.concatenate((prev_data, new_data), 0)
             data = data[-len_data:]
             return data
-
+        j = 0
         for unit, value in output.items():
             time_np, midpoint_np, acc_volume_np = value
 
             prev_time_np = self.x_vec[unit]
             prev_midpoint_np = self.y_vec[unit]
             prev_acc_volume_np = self.y2_vec[unit]
-
+            if len(time_np) > 0:
+                cond[j] = True
+            j += 1
             time_np = update(time_np, prev_time_np)
             midpoint_np = update(midpoint_np, prev_midpoint_np)
             acc_volume_np = update(acc_volume_np, prev_acc_volume_np)
@@ -265,7 +273,7 @@ class Renderer:
             self.y_vec[unit] = midpoint_np
             self.y2_vec[unit] = acc_volume_np
         
-        image = self.render()
+        image = self.render(cond)
         return (image, (deepcopy(self.y_vec), deepcopy(self.y2_vec))), done
 
     @staticmethod

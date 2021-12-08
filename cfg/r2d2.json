@@ -9,9 +9,9 @@
 
     "use_gym":true,
     "device":"cpu",
-    "learner_device":"cuda:0",
+    "learner_device":"cpu",
 
-    "REPLAY_MEMORY_LEN":10000,
+    "REPLAY_MEMORY_LEN":50000,
     "unroll_step":5,
 
     "optim":{

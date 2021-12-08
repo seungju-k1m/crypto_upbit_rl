@@ -99,19 +99,6 @@ class Player():
         self.count = 0
         self.target_model_version = -1
 
-    def test_gym(self):
-
-        self.sim.reset()
-
-        done = False
-
-        while done is False:
-            _, __, done, ___ = self.sim.step(
-                self.sim.action_space.sample()
-            )
-            self.sim.render()
-            time.sleep(0.1)
-
     def build_model(self):
         info = DATA["model"]
         self.model = baseAgent(info)
@@ -121,25 +108,14 @@ class Player():
         self.model.to(self.device)
         self.target_model.to(self.device)
     
-    def forward(self, state:np.ndarray, step=0, no_epsilon=False, random_action=False) -> int:
-        
-        phase_01_random_step = TOTAL_TRAINING_STEP
-        phase_02_random_step = 1e7
-        step = step
-        # if step < TOTAL_TRAINING_STEP:
-        #     epsilon = 1 - step * (1 - self.target_epsilon) / phase_01_random_step
-        
-        # elif step < phase_02_random_step:
-        #     epsilon = 0.1 - (step - phase_01_random_step) / phase_02_random_step
-        # else:
-        #     epsilon = self.target_epsilon
+    def forward(self, state:np.ndarray, no_epsilon=False) -> int:
         
         epsilon = self.target_epsilon
 
         hidden_state = self.model.getCellState()
 
-        if random_action:
-            epsilon = 1
+        if no_epsilon:
+            epsilon = 0
         
         if random.random() < epsilon:
             action = random.choice([0, 1, 2, 3, 4, 5])
@@ -280,8 +256,6 @@ class Player():
         local_buffer = LocalBuffer()
         keys = ['ale.lives', 'lives']
         key = "ale.lives"
-        random_action=USE_RANDOM_START
-        # key = "lives"
         
         total_step = 0
 
@@ -305,7 +279,7 @@ class Player():
             
             state = self.stack_obs(obs, obsDeque)
 
-            action, hidden_state, _ = self.forward(state, random_action=random_action)
+            action, hidden_state, _ = self.forward(state)
 
             while done is False:
 
@@ -338,7 +312,7 @@ class Player():
                 cumulative_reward += reward
                 local_buffer.push(state, action, reward)
                 local_buffer.push_hidden_state(hidden_state)
-                action, next_hidden_state, epsilon = self.forward(next_state, total_step, random_action=random_action)
+                action, next_hidden_state, epsilon = self.forward(next_state)
                 state = next_state
                 hidden_state = next_hidden_state
 

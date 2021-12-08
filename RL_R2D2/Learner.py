@@ -53,6 +53,7 @@ class Learner:
         new_priority = None
 
         hidden_state, state, action, reward, done, weight, idx = transition
+        # state -> SEQ * BATCH
         weight = torch.tensor(weight).float().to(self.device)
 
         hidden_state_0 = hidden_state[0].to(self.device)
@@ -68,17 +69,21 @@ class Learner:
         shape = torch.tensor([80, BATCHSIZE, -1])
 
         # action = torch.tensor(action).long().to(self.device)
+        action = np.transpose(action, (1, 0))
+        action = action[:-1]
         action = action.reshape(-1)
+
         action = [6 * i + a for i, a in enumerate(action)]
 
         reward= reward.astype(np.float32)
         reward = np.transpose(reward, (1, 0))
 
-        action_value = self.model.forward([state, shape])[0]
-
+        action_value = self.model.forward([state, shape])[0].view(-1)
+        # 320 * 6
         selected_action_value = action_value[action]
 
         detach_action_value = action_value.detach()
+        detach_action_value = detach_action_value.view(-1, 6)
         # val, adv = self.model.forward([state])
         # action_value = val + adv - torch.mean(adv, dim=-1, keepdim=True)
         
@@ -104,15 +109,17 @@ class Learner:
             for i in range(UNROLL_STEP):
                 rewards += GAMMA ** i * reward[i:80 - UNROLL_STEP-1+i]
                 remainder.append(
-                    reward[-(i+1) + GAMMA * remainder[i]]
+                    reward[-(i+1)] + GAMMA * remainder[i]
                 )
             
             rewards = torch.tensor(rewards).float().to(self.device)
             remainder = remainder[::-1]
             remainder.pop()
-            remainder = torch.tensor(remainder).floiat().to(self.device)
+            remainder = torch.tensor(remainder).float().to(self.device)
 
             target = rewards + GAMMA * UNROLL_STEP * target_value
+            target = torch.cat((target, remainder), 0)
+            target = target.view(-1)
 
 
             # next_max_value, _ = next_action_value.max(dim=-1) 
@@ -129,7 +136,7 @@ class Learner:
         # td_error_for_prior = (np.abs(td_error_for_prior) + 1e-7) ** ALPHA
         new_priority = td_error_for_prior
 
-        td_error_view = td_error.view(80, -1)
+        td_error_view = td_error.view(79, -1)
         td_error_truncated = td_error_view[20:].contiguous()
 
         td_error_truncated = td_error_truncated.permute(1, 0)

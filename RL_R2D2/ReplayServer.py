@@ -63,7 +63,7 @@ class ReplayServer():
                 print("Update fails, if it happens")
 
     def buffer(self):
-        m = 4
+        m = 12
         experiences, prob, idx = self.memory.sample(
             BATCHSIZE * m
         )
@@ -83,11 +83,14 @@ class ReplayServer():
         reward_idx = [3 + i * 3 for i in range(80)]
 
         state = [np.stack(exp[state_idx], 0) for exp in experiences]
-        state = np.concatenate(state, 0)
+        state = np.stack(state, 1)
+        state_shape = state.shape
+        state = state.reshape(-1 , state_shape[2], state_shape[3], state_shape[4])
 
         action = np.array([exp[action_idx].astype(np.int32) for exp in experiences])
+        # action = np.transpose(action, (1, 0))
         reward = np.array([exp[reward_idx].astype(np.float32) for exp in experiences])
-
+        # reward = np.transpose(reward, (1, 0))
         done = np.array([float(not exp[-2]) for exp in experiences])
         hidden_state_0 = torch.cat([exp[0][0] for exp in experiences], 1)
         hidden_state_1 = torch.cat([exp[0][1] for exp in experiences], 1)
@@ -128,7 +131,7 @@ class ReplayServer():
 
     def run(self):
         data = []
-        k = 64
+        k = 10000
         while 1:
             if len(self.memory.priority.prior_torch) > k:
                 self.FLAG_BATCH = True

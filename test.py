@@ -16,7 +16,7 @@ if __name__ == "__main__":
     # p.run()
 
 
-    sim = Simulator()
+    sim = Simulator(unit_step=1)
     
     cumulative_reward = 0
 
@@ -24,12 +24,12 @@ if __name__ == "__main__":
         obs = sim.reset()
         sim.portfolio.print()
         m = time.time()
-        for t in range(10000):
+        for t in range(100000):
             
             action = np.random.randint(0, 8)
             o, r, done, _ = sim.step(action)
             cumulative_reward += r
-            if (t+1) % 100 == 0:
+            if (t+1) % 500 == 0:
                 sim.portfolio.print()
             if done:
                 break
