@@ -186,7 +186,7 @@ class Learner:
                         if cond:
                             break
                 else:
-                    if len(self.memory.memory) > 50000:
+                    if len(self.memory.memory) > 1000:
                         break
                     else:
                         print(len(self.memory.memory))
