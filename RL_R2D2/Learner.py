@@ -88,7 +88,8 @@ class Learner:
         state = torch.tensor(state).to(self.device).float()
         state = state / 255.
         # BURN IN
-        state_view = state.view(FIXED_TRAJECTORY, BATCHSIZE, 4, 84, 84)
+        state_view = state.view(BATCHSIZE, FIXED_TRAJECTORY, 4, 84, 84)
+        state_view = state_view.permute(1, 0, 2, 3, 4).contiguous()
         burn_in = state_view[:20].contiguous()
         truncated_state = state_view[20:].contiguous()
         truncated_state = truncated_state.view(-1, 4, 84, 84)
