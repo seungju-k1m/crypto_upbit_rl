@@ -1,7 +1,7 @@
 {
-    "redis_server_":"10.86.230.140",
+    "redis_server":"10.172.88.44",
     "redis_server_push":"localhost",
-    "redis_server":"localhost",
+    "redis_server_":"localhost",
     "MARKET":"KRW-BTC",
     "LOG_MODE":false,
     "BACKTEST":true,
