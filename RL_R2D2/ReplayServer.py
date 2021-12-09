@@ -87,6 +87,9 @@ class ReplayServer():
         state_shape = state.shape
         state = state.reshape(-1 , state_shape[2], state_shape[3], state_shape[4])
 
+        state = state.astype(np.float32)
+        state = state / 255.
+
         action = np.array([exp[action_idx].astype(np.int32) for exp in experiences])
         # action = np.transpose(action, (1, 0))
         reward = np.array([exp[reward_idx].astype(np.float32) for exp in experiences])
