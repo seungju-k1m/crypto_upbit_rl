@@ -72,17 +72,19 @@ class Learner:
 
         state = torch.tensor(state).to(self.device).float()
         state = state / 255.
-        print(state.shape)
         # BURN IN
-        state_view = state.view(FIXED_TRAJECTORY, BATCHSIZE, 3, 84, 84)
-        burn_in = state_view[:20]
-        truncated_state = state_view[20:]
+        state_view = state.view(FIXED_TRAJECTORY, BATCHSIZE, 4, 84, 84)
+        burn_in = state_view[:20].contiguous()
+        truncated_state = state_view[20:].contiguous()
+        truncated_state = truncated_state.view(-1, 4, 84, 84)
         shape = torch.tensor([20, BATCHSIZE, -1])
 
         with torch.no_grad():
-            burn_in = burn_in.view(-1, 3, 84, 84)
+            burn_in = burn_in.view(-1, 4, 84, 84)
             self.model.forward([burn_in, shape])
+            self.target_model.forward([burn_in, shape])
             self.model.detachCellState()
+            self.target_model.detachCellState()
         # state = state.to(self.device)
 
         shape = torch.tensor([60, BATCHSIZE, -1])
