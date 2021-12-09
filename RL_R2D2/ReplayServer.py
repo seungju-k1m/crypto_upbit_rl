@@ -63,8 +63,7 @@ class ReplayServer():
                 print("Update fails, if it happens")
 
     def buffer(self):
-        m = 8
-        zz = time.time()
+        m = 32
         experiences, prob, idx = self.memory.sample(
             BATCHSIZE * m
         )
@@ -118,21 +117,22 @@ class ReplayServer():
         for s, a, r, h0, h1, d, w, i in zip(
             states, actions, rewards, hidden_states_0, hidden_states_1, dones, weights, idices
         ):
-            self.connect_push.rpush(
-                "BATCH",pickle.dumps(
-                    [(h0, h1), s, a, r, d, w, i]
-                )
-            )
-            # dd.append(
-            #     pickle.dumps(
+            # self.connect_push.rpush(
+            #     "BATCH",pickle.dumps(
             #         [(h0, h1), s, a, r, d, w, i]
             #     )
             # )
-        # num = self.connect_push.rpush(
-        #     "BATCH", *dd
-        # )
+            dd.append(
+                pickle.dumps(
+                    [(h0, h1), s, a, r, d, w, i]
+                )
+            )
+        num = self.connect_push.rpush(
+            "BATCH", *dd
+        )
+        self.connect_push.lpush
         print(time.time() - xx)
-        return 0
+        return num
 
     def run(self):
         data = []
