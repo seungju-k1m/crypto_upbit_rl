@@ -26,12 +26,12 @@ class Learner:
         self.build_optim()
         self.connect = redis.StrictRedis(host=REDIS_SERVER, port=6379)
 
-        # if USE_REDIS_SERVER:
-        #     self.memory = Replay_Server()
-        # else:
-        #     self.memory = Replay()
-        
-        self.memory = Replay()
+        if USE_REDIS_SERVER:
+            self.memory = Replay_Server()
+        else:
+            self.memory = Replay()
+
+        # self.memory = Replay()s
         self.memory.start()
         
         self.writer = SummaryWriter(
