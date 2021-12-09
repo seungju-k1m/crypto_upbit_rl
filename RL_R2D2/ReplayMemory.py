@@ -54,7 +54,7 @@ class Replay(threading.Thread):
             self.vals.append(vals)
     
     def buffer(self):
-        m = 8
+        m = 16
         xx = time.time()
         experiences, prob, idx = self.memory.sample(
             BATCHSIZE * m
@@ -160,12 +160,14 @@ class Replay(threading.Thread):
                 self.total_frame += len(data)
                 data.clear()
                 if len(self.memory.priority.prior_torch) > m:
-                    if len(self.deque) < 8:
+                    if len(self.deque) < 48:
                         self.buffer()
                         t += 1
                         if t == 1:
                             print("Data Batch Start!!!")
                 self._update()
+                self.idx.clear()
+                self.vals.clear()
                 if self.lock:
                     if len(self.memory) < REPLAY_MEMORY_LEN:
                         pass
