@@ -143,7 +143,7 @@ class Replay(threading.Thread):
         data = []
         m = 1000
         while True:
-            if len(self.memory.priority) > m:
+            if len(self.memory.priority.prior_torch) > m:
                 if t == 1:
                     print("Cond is True")
                 self.cond = True
@@ -159,7 +159,7 @@ class Replay(threading.Thread):
                 self.memory.push(data)
                 self.total_frame += len(data)
                 data.clear()
-                if len(self.memory.priority) > m:
+                if len(self.memory.priority.prior_torch) > m:
                     if len(self.deque) < 8:
                         self.buffer()
                         t += 1
