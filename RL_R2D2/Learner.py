@@ -42,8 +42,8 @@ class Learner:
         
         names = self.connect.scan()
 
-        self.action_idx = torch.tensor([6 * i for i in range(BATCHSIZE * FIXED_TRAJECTORY)]).to(self.device)
-        self.action_idx_np = np.array([6 * i for i in range(BATCHSIZE * (FIXED_TRAJECTORY - 1))])
+        self.action_idx = torch.tensor([6 * i for i in range(BATCHSIZE * (FIXED_TRAJECTORY - 20))]).to(self.device)
+        self.action_idx_np = np.array([6 * i for i in range(BATCHSIZE * (FIXED_TRAJECTORY - 21))])
         if len(names[-1]) > 0:
             self.connect.delete(*names[-1])
 
@@ -72,13 +72,24 @@ class Learner:
 
         state = torch.tensor(state).to(self.device).float()
         state = state / 255.
+
+        # BURN IN
+        state_view = state.view(FIXED_TRAJECTORY, BATCHSIZE, 3, 84, 84)
+        burn_in = state_view[:20]
+        truncated_state = state_view[20:]
+        shape = torch.tensor([20, BATCHSIZE, -1])
+
+        with torch.no_grad():
+            burn_in = burn_in.view(-1, 3, 84, 84)
+            self.model.forward([burn_in, shape])
+            self.model.detachCellState()
         # state = state.to(self.device)
 
-        shape = torch.tensor([80, BATCHSIZE, -1])
+        shape = torch.tensor([60, BATCHSIZE, -1])
 
         # action = torch.tensor(action).long().to(self.device)
         action = np.transpose(action, (1, 0))
-        action = action[:-1]
+        action = action[20:-1]
         action = action.reshape(-1)
 
         # action = [6 * i + a for i, a in enumerate(action)]
@@ -87,7 +98,8 @@ class Learner:
 
         reward= reward.astype(np.float32)
         reward = np.transpose(reward, (1, 0))
-        action_value = self.model.forward([state, shape])[0].view(-1)
+        reward = reward[20:-1]
+        action_value = self.model.forward([truncated_state, shape])[0].view(-1)
         # 320 * 6
         selected_action_value = action_value[action]
         
@@ -97,7 +109,7 @@ class Learner:
         # action_value = val + adv - torch.mean(adv, dim=-1, keepdim=True)
         
         with torch.no_grad():
-            target_action_value = self.target_model.forward([state, shape])[0]
+            target_action_value = self.target_model.forward([truncated_state, shape])[0]
             target_action_value = target_action_value.view(-1)
             action_max = detach_action_value.argmax(-1)
             # action_idx = [6 * i + j for i, j in enumerate(action_max)]
@@ -105,14 +117,14 @@ class Learner:
             target_action_max_value = target_action_value[action_idx]
 
             next_max_value =  target_action_max_value
-            next_max_value = next_max_value.view(80, BATCHSIZE)
+            next_max_value = next_max_value.view(60, BATCHSIZE)
             target_value = next_max_value[UNROLL_STEP:-1].contiguous()
-            rewards = np.zeros((80 - UNROLL_STEP - 1, BATCHSIZE))
+            rewards = np.zeros((60 - UNROLL_STEP - 1, BATCHSIZE))
             bootstrap = next_max_value[-1].detach().cpu().numpy()
             
             remainder = [bootstrap * done]
             for i in range(UNROLL_STEP):
-                rewards += GAMMA ** i * reward[i:80 - UNROLL_STEP-1+i]
+                rewards += GAMMA ** i * reward[i:60 - UNROLL_STEP-1+i]
                 remainder.append(
                     reward[-(i+2)] + GAMMA * remainder[i]
                 )
@@ -135,13 +147,13 @@ class Learner:
         td_error_for_prior = td_error.detach().cpu().numpy()
 
         # td_error_for_prior = (np.abs(td_error_for_prior) + 1e-7) ** ALPHA
-        td_error_for_prior = abs(np.reshape(td_error_for_prior, (79, -1)))
+        td_error_for_prior = abs(np.reshape(td_error_for_prior, (59, -1)))
         
         new_priority = td_error_for_prior.max(0) * 0.9 + 0.1 * td_error_for_prior.mean(0)
         # print(new_priority.shape)
 
-        td_error_view = td_error.view(79, -1)
-        td_error_truncated = td_error_view[20:].contiguous()
+        td_error_view = td_error.view(59, -1)
+        td_error_truncated = td_error_view
 
         td_error_truncated = td_error_truncated.permute(1, 0)
         weight = weight.view(-1, 1)
