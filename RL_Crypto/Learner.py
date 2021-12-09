@@ -202,7 +202,7 @@ class Learner:
             # ------Update------
             tt = time.time()
             
-            if (step % 500) == 0:
+            if (step % 250) == 0:
                 
                 if USE_REDIS_SERVER:
                     self.connect.set("FLAG_REMOVE", pickle.dumps(True))
