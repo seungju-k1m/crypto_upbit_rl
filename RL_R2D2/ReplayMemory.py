@@ -143,10 +143,10 @@ class Replay(threading.Thread):
         data = []
         m = 1000
         while True:
-            if len(self.memory.priority.prior_torch) > m:
-                if t == 1:
-                    print("Cond is True")
-                self.cond = True
+            # if len(self.memory.priority.prior_torch) > m:
+            #     if t == 1:
+            #         print("Cond is True")
+            #     self.cond = True
             
             pipe = self.connect.pipeline()
             pipe.lrange("experience", 0, -1)
