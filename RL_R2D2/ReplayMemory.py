@@ -166,9 +166,10 @@ class Replay(threading.Thread):
                         t += 1
                         if t == 1:
                             print("Data Batch Start!!!")
-                self._update()
-                self.idx.clear()
-                self.vals.clear()
+                if len(self.idx) > 1000:
+                    self._update()
+                    self.idx.clear()
+                    self.vals.clear()
                 if self.lock:
                     if len(self.memory) < REPLAY_MEMORY_LEN:
                         pass
