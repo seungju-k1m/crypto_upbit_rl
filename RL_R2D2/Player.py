@@ -318,6 +318,7 @@ class Player():
 
                 if done:
                     local_buffer.push(state, 0, 0)
+                    local_buffer.push_hidden_state(hidden_state)
 
                 if len(local_buffer) == int(1.6 * FIXED_TRAJECTORY) or done:
                     experience = local_buffer.get_traj(done)

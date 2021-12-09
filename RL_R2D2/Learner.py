@@ -88,8 +88,8 @@ class Learner:
         state = torch.tensor(state).to(self.device).float()
         state = state / 255.
         # BURN IN
-        state_view = state.view(BATCHSIZE, FIXED_TRAJECTORY, 4, 84, 84)
-        state_view = state_view.permute(1, 0, 2, 3, 4).contiguous()
+        # state_view = state.view(BATCHSIZE, FIXED_TRAJECTORY, 4, 84, 84)
+        state_view = state.permute(1, 0, 2, 3, 4).contiguous()
         burn_in = state_view[:20].contiguous()
         truncated_state = state_view[20:].contiguous()
         truncated_state = truncated_state.view(-1, 4, 84, 84)
@@ -178,7 +178,7 @@ class Learner:
         td_error_view = td_error.view(59, -1)
         td_error_truncated = td_error_view
 
-        td_error_truncated = td_error_truncated.permute(1, 0)
+        td_error_truncated = td_error_truncated.permute(1, 0).contiguous()
         weight = weight.view(-1, 1)
 
         loss = torch.mean(

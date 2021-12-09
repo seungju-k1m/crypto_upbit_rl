@@ -75,8 +75,8 @@ class Replay(threading.Thread):
 
         state = [np.stack(exp[state_idx], 0) for exp in experiences]
         state = np.stack(state, 0)
-        state_shape = state.shape
-        state = state.reshape(-1 , state_shape[2], state_shape[3], state_shape[4])
+        # state_shape = state.shape
+        # state = state.reshape(-1 , state_shape[2], state_shape[3], state_shape[4])
 
         # state = state.astype(np.float32)
         # state = state / 255.
