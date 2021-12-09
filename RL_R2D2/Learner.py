@@ -146,7 +146,7 @@ class Learner:
         td_error_for_prior = abs(np.reshape(td_error_for_prior, (79, -1)))
         
         new_priority = td_error_for_prior.max(0) * 0.9 + 0.1 * td_error_for_prior.mean(0)
-        print(new_priority.shape)
+        # print(new_priority.shape)
 
         td_error_view = td_error.view(79, -1)
         td_error_truncated = td_error_view[20:].contiguous()
