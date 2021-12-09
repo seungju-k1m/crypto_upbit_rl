@@ -118,11 +118,11 @@ class ReplayServer():
         for s, a, r, h0, h1, d, w, i in zip(
             states, actions, rewards, hidden_states_0, hidden_states_1, dones, weights, idices
         ):
-            # self.connect_push.rpush(
-            #     "BATCH",pickle.dumps(
-            #         [(h0, h1), s, a, r, d, w, i]
-            #     )
-            # )
+            num = self.connect_push.rpush(
+                "BATCH",pickle.dumps(
+                    [(h0, h1), s, a, r, d, w, i]
+                )
+            )
             dd.append(
                 pickle.dumps(
                     [(h0, h1), s, a, r, d, w, i]

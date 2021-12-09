@@ -53,54 +53,45 @@ class Replay(threading.Thread):
             self.idx += idx
             self.vals.append(vals)
     
-    def _update(self):
-        with self._lock:
-            if len(self.idx) == 0:
-                return 
-            vals = np.concatenate(self.vals, axis=0)
-            if len(vals) != len(self.idx):
-                print("!!")
-                return
-            self.memory.update(self.idx, vals)
-            self.vals.clear()
-            self.idx.clear()
+    def buffer(self):
+        m = 8
+        xx = time.time()
+        experiences, prob, idx = self.memory.sample(
+            BATCHSIZE * m
+        )
+        n = len(self.memory.memory)
+        weight = (1 / (n * prob)) ** BETA
+        weight /= self.memory.max_weight
 
-    def buffer(self, print_f=False):
-        m = 16
-        sample_time = time.time()
-        if self.use_PER:
-            experiences, prob, idx = self.memory.sample(BATCHSIZE * m)
-            n = len(self.memory)
-            weight = (1 / (n * prob)) ** BETA
-            weight /= self.memory.max_weight
-        else:
-            experiences = deepcopy(self.memory.sample(BATCHSIZE))
-        
-        if print_f:
-            print("---Sample Time:{:.3f}".format(time.time() - sample_time))
+        experiences = [pickle.loads(bin) for bin in experiences]
 
-        preprocess_time = time.time()
+        # batch0, batch1, ,....
 
-        experiences = np.array([pickle.loads(bin) for bin in experiences])
+        # BAtch, hidden, (s, a, r ,, ), done
+        # state -> SEQ * BATCH
 
-        # state = np.stack([(bin), dtype=np.uint8) for bin in experiences[:, 0]], 0)
-        state = np.stack(experiences[:, 0], 0)
-        if print_f:
-            print("-----PP_01:{:.3f}".format(preprocess_time - time.time()))
-        # S, A, R, S_
-        # experiences = np.array([list(map(pickle.loads, experiences))])
-        # BATCH, 4
-        # state = np.stack(experiences[:, 0], 0)
-        if print_f:
-            print("-----PP_02:{:.3f}".format(preprocess_time - time.time()))
+        state_idx = [1 + i * 3 for i in range(80)]
+        action_idx = [2 + i * 3 for i in range(80)]
+        reward_idx = [3 + i * 3 for i in range(80)]
 
-        action = experiences[:, 1]
-        # action = [int(i) for i in experiences[:, 1]]
-        reward = experiences[:, 2]
-        # reward = [float(i) for i in experiences[:, 2]]
-        next_state = np.stack(experiences[:, 3], 0)
-        # next_state = np.stack([np.frombuffer(base64.b64decode(bin), dtype=np.uint8) for bin in experiences[:, 3]], 0)
-        done = experiences[:, 4]
+        state = [np.stack(exp[state_idx], 0) for exp in experiences]
+        state = np.stack(state, 1)
+        state_shape = state.shape
+        state = state.reshape(-1 , state_shape[2], state_shape[3], state_shape[4])
+
+        # state = state.astype(np.float32)
+        # state = state / 255.
+
+        action = np.array([exp[action_idx].astype(np.int32) for exp in experiences])
+        # action = np.transpose(action, (1, 0))
+        reward = np.array([exp[reward_idx].astype(np.float32) for exp in experiences])
+        # reward = np.transpose(reward, (1, 0))
+        done = np.array([float(not exp[-2]) for exp in experiences])
+        hidden_state_0 = torch.cat([exp[0][0] for exp in experiences], 1)
+        hidden_state_1 = torch.cat([exp[0][1] for exp in experiences], 1)
+
+        hidden_states_0 = torch.split(hidden_state_0, BATCHSIZE, dim=1)
+        hidden_states_1 = torch.split(hidden_state_1, BATCHSIZE, dim=1)
 
         states = np.vsplit(state, m)
 
@@ -108,28 +99,51 @@ class Replay(threading.Thread):
 
         rewards = np.split(reward, m)
 
-        next_states = np.vsplit(next_state, m)
-
         dones = np.split(done, m)
 
         weights = weight.split(BATCHSIZE)
         idices = idx.split(BATCHSIZE)
+        
 
-        for s, a, r, n_s, d, w, i in zip(
-            states, actions, rewards, next_states, dones, weights, idices
+        for s, a, r, h0, h1, d, w, i in zip(
+            states, actions, rewards, hidden_states_0, hidden_states_1, dones, weights, idices
         ):
+            # num = self.connect_push.rpush(
+            #     "BATCH",pickle.dumps(
+            #         [(h0, h1), s, a, r, d, w, i]
+            #     )
+            # )
+            # dd.append(
+            #     pickle.dumps(
+            #         [(h0, h1), s, a, r, d, w, i]
+            #     )
+            # )
             self.deque.append(
-                [s, a, r, n_s, d, w, i]
+                [(h0, h1), s, a, r, d, w, i]
             )
-        # done = [bool(i) for i in experiences[:, 4]]
-        if print_f:
-            print("-----PP_03:{:.3f}".format(preprocess_time - time.time()))
-    
+
+        print(time.time() - xx)
+
+    def _update(self):
+        if len(self.idx) == 0:
+            return 
+        vals = np.concatenate(self.vals, axis=0)
+        if len(vals) != len(self.idx):
+            print("!!")
+            return
+        try:
+            self.memory.update(self.idx, vals)
+        except:
+            print("Update fails, if it happens")
+        self.vals.clear()
+        self.idx.clear()
+
     def run(self):
         t = 0
         data = []
+        m = 1000
         while True:
-            if len(self.memory.priority) > 50000:
+            if len(self.memory.priority) > m:
                 if t == 1:
                     print("Cond is True")
                 self.cond = True
@@ -142,13 +156,10 @@ class Replay(threading.Thread):
             data: list
             self.connect.delete("experience")
             if len(data) > 0:
-                check_time = time.time()
                 self.memory.push(data)
-                # print("Push Time:{:.3f}".format(time.time() - check_time))
                 self.total_frame += len(data)
                 data.clear()
-                # assert len(self.memory.memory) == len(self.memory.priority_torch)
-                if len(self.memory) > 50000:
+                if len(self.memory) > m:
                     if len(self.deque) < 8:
                         self.buffer()
                         t += 1
@@ -166,11 +177,6 @@ class Replay(threading.Thread):
                         self.vals.clear()
                         self.buffer()
                     self.lock = False
-                if (t+1) % 500 == 0:
-                    # profile = cProfile.Profile()
-                    # profile.runctx('self.buffer()', globals(), locals())
-                    # profile.print_stats()
-                    a = 1
             gc.collect()
         
     def sample(self):
