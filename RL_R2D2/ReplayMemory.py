@@ -125,10 +125,12 @@ class Replay(threading.Thread):
 
     def _update(self):
         with self._lock:
+            vals = np.concatenate(deepcopy(self.vals), axis=0)
             if len(self.idx) == 0:
                 return 
-            vals = np.concatenate(self.vals, axis=0)
             if len(vals) != len(self.idx):
+                print(len(vals))
+                print(len(self.idx))
                 print("!!")
                 return
             try:
