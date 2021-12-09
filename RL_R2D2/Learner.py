@@ -4,6 +4,8 @@ from baseline.baseAgent import baseAgent
 from baseline.utils import getOptim, writeTrainInfo
 from RL_DQN.ReplayMemory import Replay, Replay_Server
 
+from RL_R2D2.ReplayMemory import Replay, Replay_Server
+
 from torch.utils.tensorboard import SummaryWriter
 from itertools import count
 

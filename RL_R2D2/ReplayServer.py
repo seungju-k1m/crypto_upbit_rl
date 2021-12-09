@@ -154,7 +154,6 @@ class ReplayServer():
 
             if len(data) > 0:
                 self.memory.push(data)
-                print(len(self.memory.memory))
                 self.total_transition += len(data)
                 data.clear()
                 if len(self.memory) > k:
