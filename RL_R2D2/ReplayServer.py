@@ -63,7 +63,7 @@ class ReplayServer():
                 print("Update fails, if it happens")
 
     def buffer(self):
-        m = 2
+        m = 16
         experiences, prob, idx = self.memory.sample(
             BATCHSIZE * m
         )
@@ -87,8 +87,8 @@ class ReplayServer():
         state_shape = state.shape
         state = state.reshape(-1 , state_shape[2], state_shape[3], state_shape[4])
 
-        state = state.astype(np.float32)
-        state = state / 255.
+        # state = state.astype(np.float32)
+        # state = state / 255.
 
         action = np.array([exp[action_idx].astype(np.int32) for exp in experiences])
         # action = np.transpose(action, (1, 0))

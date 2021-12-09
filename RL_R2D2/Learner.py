@@ -62,8 +62,9 @@ class Learner:
         self.model.setCellState((hidden_state_0, hidden_state_1))
         self.target_model.setCellState((hidden_state_0, hidden_state_1))
 
-        state = torch.tensor(state)
-        state = state.to(self.device)
+        state = torch.tensor(state).to(self.device).float()
+        state = state / 255.
+        # state = state.to(self.device)
 
         shape = torch.tensor([80, BATCHSIZE, -1])
 
@@ -197,7 +198,7 @@ class Learner:
         step, norm, mean_value = 0, 0, 0
         amount_sample_time, amount_train_tim, amount_update_time = 0, 0, 0
         init_time = time.time()
-        mm = 25
+        mm = 100
         mean_weight = 0
         for t in count():
             time_sample = time.time()
