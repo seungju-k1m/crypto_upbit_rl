@@ -89,8 +89,10 @@ class Learner:
         selected_action_value = action_value[action]
 
         m = time.time()
-        detach_action_value = action_value.detach()
-        detach_action_value = detach_action_value.view(-1, 6)
+        with torch.no_grad():
+            self.model.setCellState((hidden_state_0, hidden_state_1))
+            detach_action_value = self.model.forward([state, shape])[0].view(-1)
+            detach_action_value = detach_action_value.view(-1, 6)
         print(time.time() - m)
         # val, adv = self.model.forward([state])
         # action_value = val + adv - torch.mean(adv, dim=-1, keepdim=True)
@@ -102,14 +104,12 @@ class Learner:
             action_max = detach_action_value.argmax(-1)
             action_idx = [6 * i + j for i, j in enumerate(action_max)]
             target_action_max_value = target_action_value[action_idx]
-            print(time.time() - m)
 
             next_max_value =  target_action_max_value
             next_max_value = next_max_value.view(80, BATCHSIZE)
             target_value = next_max_value[UNROLL_STEP+1:].contiguous()
             rewards = np.zeros((80 - UNROLL_STEP - 1, BATCHSIZE))
             bootstrap = next_max_value[-1].detach().cpu().numpy()
-            print(time.time() - m)
             
             remainder = [bootstrap * done]
             for i in range(UNROLL_STEP):
@@ -122,12 +122,10 @@ class Learner:
             remainder.pop()
             remainder = torch.tensor(remainder).float().to(self.device)
             # remainder = torch.cat(remainder)
-            print(time.time() - m)
 
             target = rewards + GAMMA * UNROLL_STEP * target_value
             target = torch.cat((target, remainder), 0)
             target = target.view(-1)
-            print(time.time() - m)
 
             # next_max_value, _ = next_action_value.max(dim=-1) 
             # next_max_value = next_max_value * done
