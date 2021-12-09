@@ -36,6 +36,10 @@ def value_inv_transform(x: torch.Tensor, eps: float = 1e-3) -> torch.Tensor:
     """
     return torch.sign(x) * (((torch.sqrt(1 + 4 * eps * (torch.abs(x) + 1 + eps)) - 1) / (2 * eps)) ** 2 - 1)
 
+
+MEM = 40
+
+
 class Learner:
     def __init__(self):
         self.device = torch.device(LEARNER_DEVICE)
@@ -57,8 +61,8 @@ class Learner:
         
         names = self.connect.scan()
 
-        self.action_idx = torch.tensor([6 * i for i in range(BATCHSIZE * (FIXED_TRAJECTORY - 20))]).to(self.device)
-        self.action_idx_np = np.array([6 * i for i in range(BATCHSIZE * (FIXED_TRAJECTORY - 21))])
+        self.action_idx = torch.tensor([6 * i for i in range(BATCHSIZE * (FIXED_TRAJECTORY - MEM))]).to(self.device)
+        self.action_idx_np = np.array([6 * i for i in range(BATCHSIZE * (FIXED_TRAJECTORY - MEM - 1))])
         if len(names[-1]) > 0:
             self.connect.delete(*names[-1])
 
@@ -75,6 +79,8 @@ class Learner:
     def train(self, transition, t=0) -> dict:
         new_priority = None
 
+        
+
         hidden_state, state, action, reward, done, weight, idx = transition
         # state -> SEQ * BATCH
         weight = torch.tensor(weight).float().to(self.device)
@@ -90,10 +96,10 @@ class Learner:
         # BURN IN
         # state_view = state.view(BATCHSIZE, FIXED_TRAJECTORY, 4, 84, 84)
         state_view = state.permute(1, 0, 2, 3, 4).contiguous()
-        burn_in = state_view[:20].contiguous()
-        truncated_state = state_view[20:].contiguous()
+        burn_in = state_view[:MEM].contiguous()
+        truncated_state = state_view[MEM:].contiguous()
         truncated_state = truncated_state.view(-1, 4, 84, 84)
-        shape = torch.tensor([20, BATCHSIZE, -1])
+        shape = torch.tensor([MEM, BATCHSIZE, -1])
 
         with torch.no_grad():
             burn_in = burn_in.view(-1, 4, 84, 84)
@@ -103,7 +109,7 @@ class Learner:
             self.target_model.detachCellState()
         # state = state.to(self.device)
 
-        shape = torch.tensor([60, BATCHSIZE, -1])
+        shape = torch.tensor([FIXED_TRAJECTORY - MEM, BATCHSIZE, -1])
 
         # action = torch.tensor(action).long().to(self.device)
         action = np.transpose(action, (1, 0))
@@ -116,7 +122,7 @@ class Learner:
 
         reward= reward.astype(np.float32)
         reward = np.transpose(reward, (1, 0))
-        reward = reward[20:-1]
+        reward = reward[MEM:-1]
         action_value = self.model.forward([truncated_state, shape])[0].view(-1)
         # 320 * 6
         selected_action_value = action_value[action]
@@ -136,14 +142,14 @@ class Learner:
             target_action_max_value = target_action_value[action_idx]
 
             next_max_value =  target_action_max_value
-            next_max_value = next_max_value.view(60, BATCHSIZE)
+            next_max_value = next_max_value.view(FIXED_TRAJECTORY - MEM, BATCHSIZE)
             target_value = next_max_value[UNROLL_STEP:-1].contiguous()
             rewards = np.zeros((60 - UNROLL_STEP - 1, BATCHSIZE))
             bootstrap = value_inv_transform(next_max_value[-1]).detach().cpu().numpy()
             
             remainder = [bootstrap * done]
             for i in range(UNROLL_STEP):
-                rewards += GAMMA ** i * reward[i:60 - UNROLL_STEP-1+i]
+                rewards += GAMMA ** i * reward[i:FIXED_TRAJECTORY - MEM - UNROLL_STEP-1+i]
                 remainder.append(
                     reward[-(i+2)] + GAMMA * remainder[i]
                 )
@@ -169,13 +175,13 @@ class Learner:
         td_error_for_prior = td_error.detach().cpu().numpy()
 
         # td_error_for_prior = (np.abs(td_error_for_prior) + 1e-7) ** ALPHA
-        td_error_for_prior = abs(np.reshape(td_error_for_prior, (59, -1)))
+        td_error_for_prior = abs(np.reshape(td_error_for_prior, (FIXED_TRAJECTORY - MEM - 1, -1)))
         
         new_priority = td_error_for_prior.max(0) * 0.9 + 0.1 * td_error_for_prior.mean(0)
         new_priority = new_priority ** ALPHA
         # print(new_priority.shape)
 
-        td_error_view = td_error.view(59, -1)
+        td_error_view = td_error.view(FIXED_TRAJECTORY - MEM - 1, -1)
         td_error_truncated = td_error_view
 
         td_error_truncated = td_error_truncated.permute(1, 0).contiguous()
