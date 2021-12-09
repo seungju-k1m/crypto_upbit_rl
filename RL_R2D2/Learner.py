@@ -136,11 +136,10 @@ class Learner:
 
         td_error = torch.clamp(td_error_, -1, 1)
 
-
         td_error_for_prior = td_error.detach().cpu().numpy()
 
         # td_error_for_prior = (np.abs(td_error_for_prior) + 1e-7) ** ALPHA
-        td_error_for_prior = np.reshape(td_error_for_prior, (79, -1))
+        td_error_for_prior = abs(np.reshape(td_error_for_prior, (79, -1)))
         
         new_priority = td_error_for_prior.max(0) * 0.9 + 0.1 * td_error_for_prior.mean(0)
         print(new_priority.shape)
