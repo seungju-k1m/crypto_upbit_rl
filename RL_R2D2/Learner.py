@@ -77,7 +77,6 @@ class Learner:
 
         reward= reward.astype(np.float32)
         reward = np.transpose(reward, (1, 0))
-        reward = torch.tensor(reward).float().to(self.device)
 
         action_value = self.model.forward([state, shape])[0].view(-1)
         # 320 * 6
@@ -103,9 +102,8 @@ class Learner:
             target_value = next_max_value[UNROLL_STEP+1:].contiguous()
 
             rewards = np.zeros((80 - UNROLL_STEP - 1, BATCHSIZE))
-            rewards = torch.zeros((80 - UNROLL_STEP -1 , BATCHSIZE)).float().to(self.device)
             bootstrap = next_max_value[-1].detach()
-            done = torch.tensor(done).float().to(self.device)
+
             remainder = [bootstrap * done]
 
             for i in range(UNROLL_STEP):
@@ -114,11 +112,11 @@ class Learner:
                     reward[-(i+1)] + GAMMA * remainder[i]
                 )
             
-            # rewards = torch.tensor(rewards).float().to(self.device)
+            rewards = torch.tensor(rewards).float().to(self.device)
             remainder = remainder[::-1]
             remainder.pop()
             # remainder = torch.tensor(remainder).float().to(self.device)
-            remainder = torch.cat(remainder).view(UNROLL_STEP, BATCHSIZE)
+            remainder = torch.cat(remainder)
 
             target = rewards + GAMMA * UNROLL_STEP * target_value
             target = torch.cat((target, remainder), 0)
