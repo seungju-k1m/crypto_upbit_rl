@@ -137,8 +137,9 @@ class Learner:
         td_error_ = target - selected_action_value
 
         td_error = torch.clamp(td_error_, -1, 1)
-
+        m = time.time()
         td_error_for_prior = td_error.detach().cpu().numpy()
+        print(time.time() - m)
 
         # td_error_for_prior = (np.abs(td_error_for_prior) + 1e-7) ** ALPHA
         td_error_for_prior = abs(np.reshape(td_error_for_prior, (79, -1)))
