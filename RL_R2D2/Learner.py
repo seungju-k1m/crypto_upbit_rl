@@ -21,7 +21,7 @@ import _pickle as pickle
 import cProfile
 
 
-def value_transform(x: torch.Tensor, eps: float = 1e-2) -> torch.Tensor:
+def value_transform(x: torch.Tensor, eps: float = 1e-3) -> torch.Tensor:
     r"""
     Overview:
         :math: `h(x) = sign(x)(\sqrt{(abs(x)+1)} - 1) + \eps * x` .
@@ -29,7 +29,7 @@ def value_transform(x: torch.Tensor, eps: float = 1e-2) -> torch.Tensor:
     return torch.sign(x) * (torch.sqrt(torch.abs(x) + 1) - 1) + eps * x
 
 
-def value_inv_transform(x: torch.Tensor, eps: float = 1e-2) -> torch.Tensor:
+def value_inv_transform(x: torch.Tensor, eps: float = 1e-3) -> torch.Tensor:
     r"""
     Overview:
         :math: `h^{-1}(x) = sign(x)({(\frac{\sqrt{1+4\eps(|x|+1+\eps)}-1}{2\eps})}^2-1)` .
