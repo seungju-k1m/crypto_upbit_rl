@@ -90,8 +90,10 @@ class Learner:
         # 320 * 6
         selected_action_value = action_value[action]
 
+        m = time.time()
         detach_action_value = action_value.detach()
         detach_action_value = detach_action_value.view(-1, 6)
+        print(time.time() - m)
         # val, adv = self.model.forward([state])
         # action_value = val + adv - torch.mean(adv, dim=-1, keepdim=True)
         
@@ -119,11 +121,13 @@ class Learner:
                 remainder.append(
                     reward[-(i+1)] + GAMMA * remainder[i]
                 )
+            m = time.time()
             rewards = torch.tensor(rewards).float().to(self.device)
             remainder = remainder[::-1]
             remainder.pop()
             remainder = torch.tensor(remainder).float().to(self.device)
             # remainder = torch.cat(remainder)
+            print(time.time() - m)
 
             target = rewards + GAMMA * UNROLL_STEP * target_value
             target = torch.cat((target, remainder), 0)
