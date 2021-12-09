@@ -67,9 +67,7 @@ class Learner:
         self.model.setCellState((hidden_state_0, hidden_state_1))
         self.target_model.setCellState((hidden_state_0, hidden_state_1))
 
-        m = time.time()
-
-        print(time.time())
+        print('-----')
 
         state = torch.tensor(state).to(self.device).float()
         state = state / 255.
