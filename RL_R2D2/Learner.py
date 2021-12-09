@@ -69,6 +69,8 @@ class Learner:
 
         m = time.time()
 
+        print(time.time())
+
         state = torch.tensor(state).to(self.device).float()
         state = state / 255.
         # state = state.to(self.device)
@@ -84,9 +86,7 @@ class Learner:
 
         reward= reward.astype(np.float32)
         reward = np.transpose(reward, (1, 0))
-        m = time.time()
         action_value = self.model.forward([state, shape])[0].view(-1)
-        print(time.time() - m)
         # 320 * 6
         selected_action_value = action_value[action]
 
@@ -97,9 +97,7 @@ class Learner:
         
 
         with torch.no_grad():
-            m = time.time()
             target_action_value = self.target_model.forward([state, shape])[0]
-            print(time.time() - m)
             target_action_value = target_action_value.view(-1)
             action_max = detach_action_value.argmax(-1)
             action_idx = [6 * i + j for i, j in enumerate(action_max)]
@@ -111,8 +109,10 @@ class Learner:
             target_value = next_max_value[UNROLL_STEP+1:].contiguous()
 
             rewards = np.zeros((80 - UNROLL_STEP - 1, BATCHSIZE))
+            m = time.time()
             bootstrap = next_max_value[-1].detach().cpu().numpy()
-
+            print(time.time())
+            
             remainder = [bootstrap * done]
             for i in range(UNROLL_STEP):
                 rewards += GAMMA ** i * reward[i:80 - UNROLL_STEP-1+i]
