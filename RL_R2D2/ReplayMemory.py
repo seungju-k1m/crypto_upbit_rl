@@ -159,7 +159,7 @@ class Replay(threading.Thread):
                 self.memory.push(data)
                 self.total_frame += len(data)
                 data.clear()
-                if len(self.memory) > m:
+                if len(self.memory.priority) > m:
                     if len(self.deque) < 8:
                         self.buffer()
                         t += 1
