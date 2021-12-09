@@ -11,7 +11,7 @@ if __name__ == "__main__":
     players = []
     for i in range(2):
         players.append(
-            player.remote(idx=i * 10)
+            player.remote(idx=i * 8)
         )
     
     ray.get([p.run.remote() for p in players])
