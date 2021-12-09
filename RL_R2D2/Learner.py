@@ -114,7 +114,7 @@ class Learner:
             for i in range(UNROLL_STEP):
                 rewards += GAMMA ** i * reward[i:80 - UNROLL_STEP-1+i]
                 remainder.append(
-                    reward[-(i+1)] + GAMMA * remainder[i]
+                    reward[-(i+2)] + GAMMA * remainder[i]
                 )
             rewards = torch.tensor(rewards).float().to(self.device)
             remainder = remainder[::-1]
