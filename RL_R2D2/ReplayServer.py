@@ -63,7 +63,8 @@ class ReplayServer():
                 print("Update fails, if it happens")
 
     def buffer(self):
-        m = 32
+        m = 8
+        xx = time.time()
         experiences, prob, idx = self.memory.sample(
             BATCHSIZE * m
         )
@@ -111,7 +112,7 @@ class ReplayServer():
 
         weights = weight.split(BATCHSIZE)
         idices = idx.split(BATCHSIZE)
-        xx = time.time()
+        
 
         dd = []
         for s, a, r, h0, h1, d, w, i in zip(
