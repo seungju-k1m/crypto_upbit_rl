@@ -67,11 +67,15 @@ class Learner:
         self.model.setCellState((hidden_state_0, hidden_state_1))
         self.target_model.setCellState((hidden_state_0, hidden_state_1))
 
+        print('-------')
+        m = time.time()
+
         state = torch.tensor(state).to(self.device).float()
         state = state / 255.
         # state = state.to(self.device)
 
         shape = torch.tensor([80, BATCHSIZE, -1])
+        print(time.time() - m)
 
         # action = torch.tensor(action).long().to(self.device)
         action = np.transpose(action, (1, 0))
@@ -131,7 +135,7 @@ class Learner:
             # next_max_value, _ = next_action_value.max(dim=-1) 
             # next_max_value = next_max_value * done
             
-
+        print(time.time() - m)
         td_error_ = target - selected_action_value
 
         td_error = torch.clamp(td_error_, -1, 1)
@@ -157,6 +161,7 @@ class Learner:
         loss.backward()
 
         info = self.step()
+        print(time.time() - m)
 
         info['mean_value'] = float(target.mean().detach().cpu().numpy())           
         # print(len(new_priority))
