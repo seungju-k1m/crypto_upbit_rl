@@ -88,28 +88,31 @@ class Learner:
         # 320 * 6
         selected_action_value = action_value[action]
 
-        m = time.time()
-        with torch.no_grad():
-            self.model.setCellState((hidden_state_0, hidden_state_1))
-            detach_action_value = self.model.forward([state, shape])[0].view(-1)
-            detach_action_value = detach_action_value.view(-1, 6)
-        print(time.time() - m)
+        
+        detach_action_value = action_value.detach()
+        detach_action_value = detach_action_value.view(-1, 6)
         # val, adv = self.model.forward([state])
         # action_value = val + adv - torch.mean(adv, dim=-1, keepdim=True)
         
-
+        m = time.time()
         with torch.no_grad():
             target_action_value = self.target_model.forward([state, shape])[0]
+            print(time.time() - m)
             target_action_value = target_action_value.view(-1)
+            print(time.time() - m)
             action_max = detach_action_value.argmax(-1)
+            print(time.time() - m)
             action_idx = [6 * i + j for i, j in enumerate(action_max)]
+            print(time.time() - m)
             target_action_max_value = target_action_value[action_idx]
+            print(time.time() - m)
 
             next_max_value =  target_action_max_value
             next_max_value = next_max_value.view(80, BATCHSIZE)
             target_value = next_max_value[UNROLL_STEP+1:].contiguous()
             rewards = np.zeros((80 - UNROLL_STEP - 1, BATCHSIZE))
             bootstrap = next_max_value[-1].detach().cpu().numpy()
+            print(time.time() - m)
             
             remainder = [bootstrap * done]
             for i in range(UNROLL_STEP):
@@ -134,7 +137,6 @@ class Learner:
 
         td_error = torch.clamp(td_error_, -1, 1)
         td_error_for_prior = td_error.detach().cpu().numpy()
-        print(time.time() - m)
 
         # td_error_for_prior = (np.abs(td_error_for_prior) + 1e-7) ** ALPHA
         td_error_for_prior = abs(np.reshape(td_error_for_prior, (79, -1)))
@@ -144,7 +146,6 @@ class Learner:
 
         td_error_view = td_error.view(79, -1)
         td_error_truncated = td_error_view[20:].contiguous()
-        print(time.time() - m)
 
         td_error_truncated = td_error_truncated.permute(1, 0)
         weight = weight.view(-1, 1)
@@ -156,7 +157,6 @@ class Learner:
         loss.backward()
 
         info = self.step()
-        print(time.time() - m)
         info['mean_value'] = float(target.mean().detach().cpu().numpy())           
         # print(len(new_priority))
         # print(len(idx))
