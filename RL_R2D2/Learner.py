@@ -118,7 +118,7 @@ class Learner:
             remainder = remainder[::-1]
             remainder.pop()
             # remainder = torch.tensor(remainder).float().to(self.device)
-            remainder = torch.cat(remainder)
+            remainder = torch.cat(remainder).view(80 - UNROLL_STEP - 1, BATCHSIZE)
 
             target = rewards + GAMMA * UNROLL_STEP * target_value
             target = torch.cat((target, remainder), 0)
