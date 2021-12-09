@@ -162,7 +162,7 @@ class Replay(threading.Thread):
                 self.total_frame += len(data)
                 data.clear()
                 if len(self.memory.priority.prior_torch) > m:
-                    if len(self.deque) < 48:
+                    if len(self.deque) < 12:
                         self.buffer()
                         t += 1
                         if t == 1:
