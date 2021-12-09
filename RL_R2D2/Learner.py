@@ -102,7 +102,7 @@ class Learner:
             target_value = next_max_value[UNROLL_STEP+1:].contiguous()
 
             rewards = np.zeros((80 - UNROLL_STEP - 1, BATCHSIZE))
-            bootstrap = next_max_value[-1].detach()
+            bootstrap = next_max_value[-1].detach().cpu().numpy()
 
             remainder = [bootstrap * done]
 
@@ -115,8 +115,8 @@ class Learner:
             rewards = torch.tensor(rewards).float().to(self.device)
             remainder = remainder[::-1]
             remainder.pop()
-            # remainder = torch.tensor(remainder).float().to(self.device)
-            remainder = torch.cat(remainder)
+            remainder = torch.tensor(remainder).float().to(self.device)
+            # remainder = torch.cat(remainder)
 
             target = rewards + GAMMA * UNROLL_STEP * target_value
             target = torch.cat((target, remainder), 0)
