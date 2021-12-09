@@ -112,7 +112,7 @@ class Learner:
             
             remainder = [bootstrap * done]
             for i in range(UNROLL_STEP):
-                rewards += GAMMA ** (UNROLL_STEP - 1 - i) * reward[i:80 - UNROLL_STEP-1+i]
+                rewards += GAMMA ** i * reward[i:80 - UNROLL_STEP-1+i]
                 remainder.append(
                     reward[-(i+1)] + GAMMA * remainder[i]
                 )
