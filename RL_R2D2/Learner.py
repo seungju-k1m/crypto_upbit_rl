@@ -43,7 +43,7 @@ class Learner:
         names = self.connect.scan()
 
         self.action_idx = torch.tensor([6 * i for i in range(BATCHSIZE * FIXED_TRAJECTORY)])
-        self.action_idx_np = np.array([6 * i for i in range(BATCHSIZE * FIXED_TRAJECTORY)])
+        self.action_idx_np = np.array([6 * i for i in range(BATCHSIZE * (FIXED_TRAJECTORY - 1))])
         if len(names[-1]) > 0:
             self.connect.delete(*names[-1])
 
