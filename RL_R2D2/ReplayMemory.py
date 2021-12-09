@@ -125,18 +125,19 @@ class Replay(threading.Thread):
         print(time.time() - xx)
 
     def _update(self):
-        if len(self.idx) == 0:
-            return 
-        vals = np.concatenate(self.vals, axis=0)
-        if len(vals) != len(self.idx):
-            print("!!")
-            return
-        try:
-            self.memory.update(self.idx, vals)
-        except:
-            print("Update fails, if it happens")
-        self.vals.clear()
-        self.idx.clear()
+        with self._lock:
+            if len(self.idx) == 0:
+                return 
+            vals = np.concatenate(self.vals, axis=0)
+            if len(vals) != len(self.idx):
+                print("!!")
+                return
+            try:
+                self.memory.update(self.idx, vals)
+            except:
+                print("Update fails, if it happens")
+            self.vals.clear()
+            self.idx.clear()
 
     def run(self):
         t = 0
