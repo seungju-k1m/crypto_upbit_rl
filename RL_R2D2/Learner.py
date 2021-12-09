@@ -72,7 +72,7 @@ class Learner:
 
         state = torch.tensor(state).to(self.device).float()
         state = state / 255.
-
+        print(state.shape)
         # BURN IN
         state_view = state.view(FIXED_TRAJECTORY, BATCHSIZE, 3, 84, 84)
         burn_in = state_view[:20]
