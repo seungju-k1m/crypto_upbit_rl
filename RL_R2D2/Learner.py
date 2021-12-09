@@ -106,7 +106,7 @@ class Learner:
 
             next_max_value =  target_action_max_value
             next_max_value = next_max_value.view(80, BATCHSIZE)
-            target_value = next_max_value[UNROLL_STEP+1:].contiguous()
+            target_value = next_max_value[UNROLL_STEP:-1].contiguous()
             rewards = np.zeros((80 - UNROLL_STEP - 1, BATCHSIZE))
             bootstrap = next_max_value[-1].detach().cpu().numpy()
             
