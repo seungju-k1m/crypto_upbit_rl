@@ -175,8 +175,6 @@ class Replay(threading.Thread):
                     if len(self.memory) < REPLAY_MEMORY_LEN:
                         pass
                     else:
-                        while len(self.deque) > 0:
-                            time.sleep(0.001)
                         self.memory.remove_to_fit()
                         self.idx.clear()
                         self.vals.clear()
