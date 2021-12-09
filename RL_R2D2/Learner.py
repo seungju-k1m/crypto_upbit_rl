@@ -158,8 +158,8 @@ class Learner:
         info = self.step()
 
         info['mean_value'] = float(target.mean().detach().cpu().numpy())           
-        print(len(new_priority))
-        print(len(idx))
+        # print(len(new_priority))
+        # print(len(idx))
         return info, new_priority, idx
 
     def step(self):
