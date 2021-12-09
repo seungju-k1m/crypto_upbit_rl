@@ -11,7 +11,7 @@
     "device":"cpu",
     "learner_device":"cuda:0",
 
-    "REPLAY_MEMORY_LEN":20000,
+    "REPLAY_MEMORY_LEN":12500,
     "unroll_step":5,
 
     "optim_":{
