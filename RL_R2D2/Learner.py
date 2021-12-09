@@ -111,7 +111,7 @@ class Learner:
             rewards = np.zeros((80 - UNROLL_STEP - 1, BATCHSIZE))
             m = time.time()
             bootstrap = next_max_value[-1].detach().cpu().numpy()
-            print(time.time())
+            print(time.time() - m)
             
             remainder = [bootstrap * done]
             for i in range(UNROLL_STEP):
