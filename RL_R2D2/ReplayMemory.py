@@ -27,13 +27,13 @@ class Replay(threading.Thread):
         self.setDaemon(True)
         self.use_PER = USE_PER
         # self.memory = ReplayMemory(REPLAY_MEMORY_LEN)
-        if self.use_PER:
-            self.memory = PER(
-                maxlen=REPLAY_MEMORY_LEN,
-                max_value=1.0,
-                beta=BETA)
-        else:
-            self.memory = ReplayMemory(REPLAY_MEMORY_LEN)
+        # if self.use_PER:
+        self.memory = PER(
+            maxlen=REPLAY_MEMORY_LEN,
+            max_value=1.0,
+            beta=BETA)
+        # else:
+        #     self.memory = ReplayMemory(REPLAY_MEMORY_LEN)
         # PER 구현해보자
         self.cond = False
         self.connect = redis.StrictRedis(host=REDIS_SERVER, port=6379)
@@ -156,6 +156,7 @@ class Replay(threading.Thread):
             data: list
             self.connect.delete("experience")
             if len(data) > 0:
+                print(self.memory.priority.prior_torch)
                 self.memory.push(data)
                 self.total_frame += len(data)
                 data.clear()
