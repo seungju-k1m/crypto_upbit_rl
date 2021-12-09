@@ -98,7 +98,8 @@ class Learner:
         
 
         with torch.no_grad():
-            
+            print('`````')
+            zxz = time.time()
             target_action_value = self.target_model.forward([state, shape])[0]
             target_action_value = target_action_value.view(-1)
             action_max = detach_action_value.argmax(-1)
@@ -111,11 +112,11 @@ class Learner:
             target_value = next_max_value[UNROLL_STEP+1:].contiguous()
 
             rewards = np.zeros((80 - UNROLL_STEP - 1, BATCHSIZE))
+            print(time.time() - zxz)
             bootstrap = next_max_value[-1].detach().cpu().numpy()
 
             remainder = [bootstrap * done]
-            print('`````')
-            zxz = time.time()
+            print(time.time() - zxz)
             for i in range(UNROLL_STEP):
                 rewards += GAMMA ** i * reward[i:80 - UNROLL_STEP-1+i]
                 remainder.append(
@@ -132,6 +133,8 @@ class Learner:
             target = rewards + GAMMA * UNROLL_STEP * target_value
             target = torch.cat((target, remainder), 0)
             target = target.view(-1)
+            print(time.time() - zxz)
+            print('````````')
 
 
             # next_max_value, _ = next_action_value.max(dim=-1) 
