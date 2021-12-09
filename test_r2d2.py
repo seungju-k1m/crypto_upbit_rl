@@ -24,7 +24,7 @@ if __name__ == "__main__":
     start_idx = args.start_idx
 
     ray.init(num_cpus=num_worker)
-    player = ray.remote(num_cpus=num_worker)(Player)
+    player = ray.remote(num_cpus=1)(Player)
     players = []
     for i in range(num_worker):
         players.append(
