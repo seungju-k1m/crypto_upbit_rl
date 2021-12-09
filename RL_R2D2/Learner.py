@@ -135,7 +135,7 @@ class Learner:
             remainder.pop()
             remainder = torch.tensor(remainder).float().to(self.device)
             # remainder = torch.cat(remainder)
-            print(rewards.mean())
+            # print(rewards.mean())
 
             target = rewards + GAMMA ** UNROLL_STEP * target_value
             target = torch.cat((target, remainder), 0)
@@ -168,7 +168,7 @@ class Learner:
         loss.backward()
 
         info = self.step()
-        info['mean_value'] = float(target.mean().detach().cpu().numpy())           
+        info['mean_value'] = float(selected_action_value.mean().detach().cpu().numpy())           
         # print(len(new_priority))
         # print(len(idx))
         return info, new_priority, idx
