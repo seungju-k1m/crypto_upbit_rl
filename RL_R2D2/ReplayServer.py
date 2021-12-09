@@ -63,7 +63,7 @@ class ReplayServer():
                 print("Update fails, if it happens")
 
     def buffer(self):
-        m = 12
+        m = 8
         experiences, prob, idx = self.memory.sample(
             BATCHSIZE * m
         )
@@ -95,8 +95,8 @@ class ReplayServer():
         hidden_state_0 = torch.cat([exp[0][0] for exp in experiences], 1)
         hidden_state_1 = torch.cat([exp[0][1] for exp in experiences], 1)
 
-        hidden_states_0 = torch.split(hidden_state_0, m, dim=1)
-        hidden_states_1 = torch.split(hidden_state_1, m, dim=1)
+        hidden_states_0 = torch.split(hidden_state_0, BATCHSIZE, dim=1)
+        hidden_states_1 = torch.split(hidden_state_1, BATCHSIZE, dim=1)
 
         states = np.vsplit(state, m)
 
