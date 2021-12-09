@@ -113,7 +113,7 @@ class Learner:
 
         # action = torch.tensor(action).long().to(self.device)
         action = np.transpose(action, (1, 0))
-        action = action[20:-1]
+        action = action[FIXED_TRAJECTORY - MEM:-1]
         action = action.reshape(-1)
 
         # action = [6 * i + a for i, a in enumerate(action)]
