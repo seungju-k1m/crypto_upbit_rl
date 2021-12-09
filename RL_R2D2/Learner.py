@@ -144,7 +144,7 @@ class Learner:
             next_max_value =  target_action_max_value
             next_max_value = next_max_value.view(FIXED_TRAJECTORY - MEM, BATCHSIZE)
             target_value = next_max_value[UNROLL_STEP:-1].contiguous()
-            rewards = np.zeros((60 - UNROLL_STEP - 1, BATCHSIZE))
+            rewards = np.zeros((FIXED_TRAJECTORY- MEM - UNROLL_STEP - 1, BATCHSIZE))
             bootstrap = value_inv_transform(next_max_value[-1]).detach().cpu().numpy()
             
             remainder = [bootstrap * done]
