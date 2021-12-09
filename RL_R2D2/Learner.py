@@ -102,14 +102,12 @@ class Learner:
             action_max = detach_action_value.argmax(-1)
             action_idx = [6 * i + j for i, j in enumerate(action_max)]
             target_action_max_value = target_action_value[action_idx]
+            print(time.time() - m)
 
             next_max_value =  target_action_max_value
             next_max_value = next_max_value.view(80, BATCHSIZE)
-
             target_value = next_max_value[UNROLL_STEP+1:].contiguous()
-
             rewards = np.zeros((80 - UNROLL_STEP - 1, BATCHSIZE))
-            m = time.time()
             bootstrap = next_max_value[-1].detach().cpu().numpy()
             print(time.time() - m)
             
@@ -119,7 +117,6 @@ class Learner:
                 remainder.append(
                     reward[-(i+1)] + GAMMA * remainder[i]
                 )
-            m = time.time()
             rewards = torch.tensor(rewards).float().to(self.device)
             remainder = remainder[::-1]
             remainder.pop()
@@ -130,6 +127,7 @@ class Learner:
             target = rewards + GAMMA * UNROLL_STEP * target_value
             target = torch.cat((target, remainder), 0)
             target = target.view(-1)
+            print(time.time() - m)
 
             # next_max_value, _ = next_action_value.max(dim=-1) 
             # next_max_value = next_max_value * done
@@ -137,7 +135,6 @@ class Learner:
         td_error_ = target - selected_action_value
 
         td_error = torch.clamp(td_error_, -1, 1)
-        m = time.time()
         td_error_for_prior = td_error.detach().cpu().numpy()
         print(time.time() - m)
 
@@ -149,6 +146,7 @@ class Learner:
 
         td_error_view = td_error.view(79, -1)
         td_error_truncated = td_error_view[20:].contiguous()
+        print(time.time() - m)
 
         td_error_truncated = td_error_truncated.permute(1, 0)
         weight = weight.view(-1, 1)
@@ -160,6 +158,7 @@ class Learner:
         loss.backward()
 
         info = self.step()
+        print(time.time() - m)
         info['mean_value'] = float(target.mean().detach().cpu().numpy())           
         # print(len(new_priority))
         # print(len(idx))
