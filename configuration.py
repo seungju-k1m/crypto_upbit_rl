@@ -69,11 +69,6 @@ TIMEINTERVAL = 2
 
 URL = "https://api.upbit.com"
 
-def convert_reward(x):
-    epsilon = 1e-3
-    y = math.copysign(1, x) * (abs(x)+1)**0.5 + epsilon * x
-    return y
-
 
 _current_time_ = datetime.now()
 _logger_ = logging.getLogger("Crypto_RL")
