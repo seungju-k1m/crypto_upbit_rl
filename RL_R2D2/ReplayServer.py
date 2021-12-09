@@ -63,7 +63,7 @@ class ReplayServer():
                 print("Update fails, if it happens")
 
     def buffer(self):
-        m = 16
+        m = 2
         experiences, prob, idx = self.memory.sample(
             BATCHSIZE * m
         )
