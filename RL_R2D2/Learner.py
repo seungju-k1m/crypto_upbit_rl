@@ -92,7 +92,7 @@ class Learner:
             
             target_action_value = self.target_model.forward([state, shape])[0]
             target_action_value = target_action_value.view(-1)
-            action_max = detach_action_value.argmax(-1).cpu().numpy()
+            action_max = detach_action_value.argmax(-1)
             action_idx = [6 * i + j for i, j in enumerate(action_max)]
             target_action_max_value = target_action_value[action_idx]
 
@@ -102,7 +102,7 @@ class Learner:
             target_value = next_max_value[UNROLL_STEP+1:].contiguous()
 
             rewards = np.zeros((80 - UNROLL_STEP - 1, BATCHSIZE))
-            bootstrap = next_max_value[-1].detach().cpu().numpy()
+            bootstrap = next_max_value[-1].detach()
 
             remainder = [bootstrap * done]
 
@@ -115,7 +115,8 @@ class Learner:
             rewards = torch.tensor(rewards).float().to(self.device)
             remainder = remainder[::-1]
             remainder.pop()
-            remainder = torch.tensor(remainder).float().to(self.device)
+            # remainder = torch.tensor(remainder).float().to(self.device)
+            remainder = torch.cat(remainder)
 
             target = rewards + GAMMA * UNROLL_STEP * target_value
             target = torch.cat((target, remainder), 0)
@@ -151,8 +152,7 @@ class Learner:
         info = self.step()
 
         info['mean_value'] = float(target.mean().detach().cpu().numpy())           
-        weight = weight.detach().cpu().numpy().mean()
-        return info, new_priority, idx, weight
+        return info, new_priority, idx
 
     def step(self):
         p_norm = 0
@@ -219,9 +219,9 @@ class Learner:
                 profile = cProfile.Profile()
                 profile.runctx('self.train(experience)', globals(), locals())
                 profile.print_stats()
-            info, priority, idx, weight = self.train(experience)
+            info, priority, idx  = self.train(experience)
             amount_train_tim += (time.time() - tt)
-            mean_weight += weight
+            mean_weight += 0
             # -----------------
 
             # ------Update------
