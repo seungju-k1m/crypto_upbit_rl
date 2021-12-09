@@ -137,7 +137,7 @@ class ReplayServer():
 
     def run(self):
         data = []
-        k = 3200
+        k = 800
         while 1:
             if len(self.memory.priority.prior_torch) > k:
                 self.FLAG_BATCH = True
