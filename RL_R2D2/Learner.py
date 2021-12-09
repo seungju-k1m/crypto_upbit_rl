@@ -41,6 +41,9 @@ class Learner:
         )
         
         names = self.connect.scan()
+
+        self.action_idx = torch.tensor([6 * i for i in range(BATCHSIZE * FIXED_TRAJECTORY)])
+        self.action_idx_np = np.array([6 * i for i in range(BATCHSIZE * FIXED_TRAJECTORY)]])
         if len(names[-1]) > 0:
             self.connect.delete(*names[-1])
 
@@ -80,13 +83,16 @@ class Learner:
         action = action[:-1]
         action = action.reshape(-1)
 
-        action = [6 * i + a for i, a in enumerate(action)]
+        # action = [6 * i + a for i, a in enumerate(action)]
+        m = time.time()
+        action = self.action_idx_np + action
 
         reward= reward.astype(np.float32)
         reward = np.transpose(reward, (1, 0))
         action_value = self.model.forward([state, shape])[0].view(-1)
         # 320 * 6
         selected_action_value = action_value[action]
+        print(time.time() - m)
 
         
         detach_action_value = action_value.detach()
@@ -94,15 +100,13 @@ class Learner:
         # val, adv = self.model.forward([state])
         # action_value = val + adv - torch.mean(adv, dim=-1, keepdim=True)
         
-        m = time.time()
         with torch.no_grad():
             target_action_value = self.target_model.forward([state, shape])[0]
-            print(time.time() - m)
             target_action_value = target_action_value.view(-1)
-            print(time.time() - m)
             action_max = detach_action_value.argmax(-1)
             print(time.time() - m)
-            action_idx = [6 * i + j for i, j in enumerate(action_max)]
+            # action_idx = [6 * i + j for i, j in enumerate(action_max)]
+            action_idx = self.action_idx + action_max
             print(time.time() - m)
             target_action_max_value = target_action_value[action_idx]
             print(time.time() - m)
