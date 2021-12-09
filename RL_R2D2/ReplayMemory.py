@@ -147,7 +147,6 @@ class Replay(threading.Thread):
                 if t == 1:
                     print("Cond is True")
                 self.cond = True
-                print(self.cond)
             
             pipe = self.connect.pipeline()
             pipe.lrange("experience", 0, -1)
@@ -156,7 +155,7 @@ class Replay(threading.Thread):
             data: list
             self.connect.delete("experience")
             if len(data) > 0:
-                print(self.memory.priority.prior_torch)
+                # print(self.memory.priority.prior_torch)
                 self.memory.push(data)
                 self.total_frame += len(data)
                 data.clear()
