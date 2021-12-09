@@ -112,7 +112,7 @@ class Learner:
             
             remainder = [bootstrap * done]
             for i in range(UNROLL_STEP):
-                rewards += GAMMA ** i * reward[i:80 - UNROLL_STEP-1+i]
+                rewards += GAMMA ** (UNROLL_STEP - 1 - i) * reward[i:80 - UNROLL_STEP-1+i]
                 remainder.append(
                     reward[-(i+1)] + GAMMA * remainder[i]
                 )
@@ -122,7 +122,7 @@ class Learner:
             remainder = torch.tensor(remainder).float().to(self.device)
             # remainder = torch.cat(remainder)
 
-            target = rewards + GAMMA * UNROLL_STEP * target_value
+            target = rewards + GAMMA ** UNROLL_STEP * target_value
             target = torch.cat((target, remainder), 0)
             target = target.view(-1)
 
