@@ -153,7 +153,7 @@ class ReplayServer():
                 data.clear()
                 if len(self.memory) > k:
                     num = self.buffer()
-                    num = self.buffer()
+                    # num = self.buffer()
                     if num > 100:
                         time.sleep(1)
             
