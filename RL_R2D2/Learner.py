@@ -103,7 +103,7 @@ class Learner:
 
             rewards = np.zeros((80 - UNROLL_STEP - 1, BATCHSIZE))
             bootstrap = next_max_value[-1].detach()
-
+            done = torch.tenosr(done).float().to(self.device)
             remainder = [bootstrap * done]
 
             for i in range(UNROLL_STEP):
