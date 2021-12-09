@@ -155,7 +155,9 @@ class Learner:
 
             target = rewards + GAMMA ** UNROLL_STEP * value_inv_transform(target_value)
             target = torch.cat((target, remainder), 0)
+            
             target = target.view(-1)
+            target = value_transform(target)
 
             # next_max_value, _ = next_action_value.max(dim=-1) 
             # next_max_value = next_max_value * done
