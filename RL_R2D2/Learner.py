@@ -21,18 +21,20 @@ import _pickle as pickle
 import cProfile
 
 
-def convert_x(x):
-    epsilon = 0.001
-    sign = torch.sign(x)
-    abs_x = (torch.abs(x) + 1) ** 0.5 - 1
-    output = abs_x * sign + epsilon * x
-    return output
+def value_transform(x: torch.Tensor, eps: float = 1e-2) -> torch.Tensor:
+    r"""
+    Overview:
+        :math: `h(x) = sign(x)(\sqrt{(abs(x)+1)} - 1) + \eps * x` .
+    """
+    return torch.sign(x) * (torch.sqrt(torch.abs(x) + 1) - 1) + eps * x
 
-def invert_x():
-    epsilon = 0.001
-    
-    pass
 
+def value_inv_transform(x: torch.Tensor, eps: float = 1e-2) -> torch.Tensor:
+    r"""
+    Overview:
+        :math: `h^{-1}(x) = sign(x)({(\frac{\sqrt{1+4\eps(|x|+1+\eps)}-1}{2\eps})}^2-1)` .
+    """
+    return torch.sign(x) * (((torch.sqrt(1 + 4 * eps * (torch.abs(x) + 1 + eps)) - 1) / (2 * eps)) ** 2 - 1)
 
 class Learner:
     def __init__(self):
@@ -117,6 +119,7 @@ class Learner:
         action_value = self.model.forward([truncated_state, shape])[0].view(-1)
         # 320 * 6
         selected_action_value = action_value[action]
+        selected_action_value = value_transform(selected_action_value)
         
         detach_action_value = action_value.detach()
         detach_action_value = detach_action_value.view(-1, 6)
@@ -135,7 +138,7 @@ class Learner:
             next_max_value = next_max_value.view(60, BATCHSIZE)
             target_value = next_max_value[UNROLL_STEP:-1].contiguous()
             rewards = np.zeros((60 - UNROLL_STEP - 1, BATCHSIZE))
-            bootstrap = next_max_value[-1].detach().cpu().numpy()
+            bootstrap = value_inv_transform(next_max_value[-1]).detach().cpu().numpy()
             
             remainder = [bootstrap * done]
             for i in range(UNROLL_STEP):
@@ -150,7 +153,7 @@ class Learner:
             # remainder = torch.cat(remainder)
             # print(rewards.mean())
 
-            target = rewards + GAMMA ** UNROLL_STEP * target_value
+            target = rewards + GAMMA ** UNROLL_STEP * value_inv_transform(target_value)
             target = torch.cat((target, remainder), 0)
             target = target.view(-1)
 
