@@ -92,7 +92,7 @@ class Learner:
             
             target_action_value = self.target_model.forward([state, shape])[0]
             target_action_value = target_action_value.view(-1)
-            action_max = detach_action_value.argmax(-1).numpy()
+            action_max = detach_action_value.argmax(-1).cpu().numpy()
             action_idx = [6 * i + j for i, j in enumerate(action_max)]
             target_action_max_value = target_action_value[action_idx]
 
