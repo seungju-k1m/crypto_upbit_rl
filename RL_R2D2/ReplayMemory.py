@@ -121,7 +121,7 @@ class Replay(threading.Thread):
                 [(h0, h1), s, a, r, d, w, i]
             )
 
-        print(time.time() - xx)
+        # print(time.time() - xx)
 
     def _update(self):
         with self._lock:
