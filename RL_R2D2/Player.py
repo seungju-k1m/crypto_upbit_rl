@@ -219,7 +219,7 @@ class Player():
             target = rewards + GAMMA * UNROLL_STEP * target_value
             target = torch.cat((target, remainder), 0)
 
-            td_error = abs((target - action_value[:-1]))
+            td_error = abs((target - action_value[:-1])) ** ALPHA
 
             weight = td_error.max() * 0.9 + 0.1 * td_error.mean()
         

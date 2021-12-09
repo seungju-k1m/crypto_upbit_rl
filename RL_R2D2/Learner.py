@@ -21,6 +21,19 @@ import _pickle as pickle
 import cProfile
 
 
+def convert_x(x):
+    epsilon = 0.001
+    sign = torch.sign(x)
+    abs_x = (torch.abs(x) + 1) ** 0.5 - 1
+    output = abs_x * sign + epsilon * x
+    return output
+
+def invert_x():
+    epsilon = 0.001
+    
+    pass
+
+
 class Learner:
     def __init__(self):
         self.device = torch.device(LEARNER_DEVICE)
@@ -153,6 +166,7 @@ class Learner:
         td_error_for_prior = abs(np.reshape(td_error_for_prior, (59, -1)))
         
         new_priority = td_error_for_prior.max(0) * 0.9 + 0.1 * td_error_for_prior.mean(0)
+        new_priority = new_priority ** ALPHA
         # print(new_priority.shape)
 
         td_error_view = td_error.view(59, -1)
