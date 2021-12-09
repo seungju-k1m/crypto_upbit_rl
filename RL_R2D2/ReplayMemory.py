@@ -241,7 +241,7 @@ class Replay_Server(threading.Thread):
                     self.deque += deepcopy(data)
                     data.clear()
             
-            if len(self.deque) > 32:
+            if len(self.deque) > 18:
                 self.connect.set(
                     "FLAG_ENOUGH", pickle.dumps(True)
                 )
