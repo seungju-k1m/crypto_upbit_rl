@@ -135,6 +135,7 @@ class Learner:
             remainder.pop()
             remainder = torch.tensor(remainder).float().to(self.device)
             # remainder = torch.cat(remainder)
+            print(rewards.mean())
 
             target = rewards + GAMMA ** UNROLL_STEP * target_value
             target = torch.cat((target, remainder), 0)
