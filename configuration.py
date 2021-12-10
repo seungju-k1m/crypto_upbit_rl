@@ -9,15 +9,27 @@ import math
 
 
 # _path_ = './cfg/crypto_ape.json'
-_path_ = './cfg/r2d2.json'
+# _path_ = "./cfg/ape_x.json"
+# _path_ = './cfg/r2d2.json'
+_path_ = "./cfg/cpt_r2d2.json"
 
 
 _parser_ = jsonParser(_path_)
 _data_ = _parser_.loadParser()
 _key_ = list(_data_.keys())
+
+
+ALG = _data_['ALG']
+
+
 DATA = _data_
 
 CRYPTO_MODE = True
+
+ACTION_SIZE = DATA["ACTION_SIZE"]
+FIXED_TRAJECTORY = 80
+MEM = 40
+
 
 USE_REDIS_SERVER = False
 USE_PER = True

@@ -1,0 +1,106 @@
+{
+    "crypto_mode":true,
+    "redis_server":"10.142.162.12",
+    "redis_server_push":"localhost",
+    "redis_server_":"localhost",
+    "MARKET":"KRW-BTC",
+    "ACCESS_KEY":"jy66T1dXlJCxxj824XhSgLawFx66QKX7bDulB9sM",
+    "SECRETE_KEY":"hN4d0SQMjNY7259kUp8HRf4C8Hj6DQxAXOqrlYox",
+    "LOG_MODE":false,
+    "BACKTEST":true,
+    "FEE":0.0005,
+    "ACTION_SIZE":9,
+
+    "use_gym":true,
+    "device":"cpu",
+    "learner_device":"cuda:0",
+
+    "REPLAY_MEMORY_LEN":500000,
+    "unroll_step":3,
+
+    "optim":{
+        "name":"rmsprop",
+        "lr":0.0000625,
+        "eps":1.5e-7,
+        "decay":0,
+        "alpha":0.95,
+        "momentum":0,
+        "centered":true
+    },
+    "optim_":{
+        "name":"adam",
+        "lr":1e-4
+    },
+
+    "model":{
+        "module00_1":{
+            "netCat":"MLP",
+            "iSize":1,
+            "nLayer":1,
+            "fSize":[8],
+            "act":["linear"],
+            "BN":[false],
+            "prior":0,
+            "input":[1],
+            "bias":true
+        },
+
+        "module00":{
+            "netCat":"CNN2D",
+            "iSize":4,
+            "nLayer":4,
+            "fSize":[8, 4, 3, -1],
+            "nUnit":[32, 64, 64],
+            "padding":[0, 0, 0],
+            "stride":[4, 2, 1],
+            "act":["relu", "relu", "relu"],
+            "BN":[false, false, false, false],
+            "linear":true,
+            "input":[0],
+            "prior":0
+        },
+        "module01":{
+            "netCat":"Cat",
+            "prior":1,
+            "prevNodeNames":["module00", "module00_1"]
+        },
+        "module02":{
+            "netCat":"MLP",
+            "iSize":2568,
+            "nLayer":2,
+            "fSize":[512, 9],
+            "act":["relu", "linear"],
+            "BN":[false, false, false],
+            "prior":2,
+            "prevNodeNames":["module01"]
+        },
+        "module02_1":{
+            "netCat":"MLP",
+            "iSize":2568,
+            "nLayer":2,
+            "fSize":[512,  1],
+            "act":["relu",  "linear"],
+            "BN":[false, false, false],
+            "prior":2,
+            "prevNodeNames":["module01"]
+        },
+        "module03":{
+            "netCat":"Add",
+            "prior":3,
+            "prevNodeNames":["module02", "module02_1"]
+        },
+        "module03_1":{
+            "netCat":"Mean",
+            "prior":3,
+            "prevNodeNames":["module02"]
+        },
+        "module04":{
+            "netCat":"Substract",
+            "prior":4,
+            "prevNodeNames":["module03", "module03_1"],
+            "output":true
+        }
+    }
+        
+}
+    

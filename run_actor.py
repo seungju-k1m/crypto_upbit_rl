@@ -1,7 +1,22 @@
 
-from configuration import CRYPTO_MODE
-from RL_DQN.Player import Player
-from RL_Crypto.Player import Player as Player_cpt
+from configuration import ALG
+
+if ALG == "APE_X":
+    from APE_X.Player import Player
+
+elif ALG == "R2D2":
+    from R2D2.Player import Player
+
+elif ALG == "APE_X_CPT":
+    from APE_X_Crypto.Player import Player
+
+elif ALG == "R2D2_CPT":
+    from R2D2_Crypto.Player import Player
+
+else:
+    raise RuntimeError("!!")
+
+
 from argparse import ArgumentParser
 
 import ray
@@ -21,20 +36,15 @@ parser.add_argument(
 )
 
 
+
 if __name__ == "__main__":
 
     # -------------- Player ----------------
     args = parser.parse_args()
     num_worker = args.num_worker
     start_idx = args.start_idx
-    # num_worker = 2
-    if CRYPTO_MODE:
-        player = Player_cpt
-    else:
-        player = Player
-    # p.test_gym()
-    # p.gym_run()
-    
+    player = Player
+
     ray.init(num_cpus=num_worker)
     player = ray.remote(
             num_cpus=1)(player)

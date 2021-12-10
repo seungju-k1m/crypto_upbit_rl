@@ -1,13 +1,18 @@
-from configuration import CRYPTO_MODE, REDIS_SERVER_PUSH
-from RL_DQN.ReplayServer import ReplayServer
-from RL_Crypto.ReplayServer import ReplayServer as ReplayServer_cpt
+from configuration import ALG
+
+if ALG == "APE_X":
+    from APE_X.ReplayServer import ReplayServer
+
+elif ALG == "CPT":
+    from APE_X_Crypto.ReplayServer import ReplayServer
+
+else:
+    raise RuntimeError("!!")
 
 
 if __name__ == "__main__":
-    if CRYPTO_MODE:
-        server = ReplayServer_cpt()
-    else:
-        server = ReplayServer()
+
+    server = ReplayServer()
     server.run()
 
     # redis_server = [redis.StrictRedis(host=REDIS_SERVER_PUSH, port=6379) for i in range(4)]

@@ -5,15 +5,15 @@ from Simulator.renderer_v1 import Renderer
 
 from datetime import datetime, timedelta
 
-from RL_Crypto.Player import Player
+from R2D2_Crypto.Player import Player
 
 import numpy as np
 import time
 
 
 if __name__ == "__main__":
-    # p = Player()
-    # p.run()
+    p = Player()
+    p.run()
 
 
     sim = Simulator(unit_step=1)

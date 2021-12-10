@@ -1,4 +1,5 @@
 {
+    "ALG":"R2D2",
     "redis_server":"10.172.88.44",
     "redis_server_push":"localhost",
     "redis_server_":"localhost",
@@ -6,6 +7,7 @@
     "LOG_MODE":false,
     "BACKTEST":true,
     "FEE":0.0005,
+    "ACTION_SIZE":6,
 
     "use_gym":true,
     "device":"cpu",
