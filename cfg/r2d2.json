@@ -50,6 +50,9 @@
             "input":[1],
             "prior":1
         },
+        "module02_1":{
+
+        },
         "module02":{
             "netCat":"LSTMNET",
             "hiddenSize":512,
