@@ -133,6 +133,7 @@ class Player():
         total_step = 0
         self.target_epsilon = 0
         self.pull_param()
+        action_count = np.array([0 for i in range(ACTION_SIZE)])
 
         def preprocess_obs(obs):
             chart_info, account_info = obs
@@ -166,6 +167,7 @@ class Player():
                 next_obs, reward, done, raw_reward = self.sim.step(action)
                 # info 현재 수익률 
                 # reward -> 100 * log(current_value/prev_value)
+                action_count[action] += 1
                 next_obs = preprocess_obs(next_obs)
                 # self.sim.render()
                 # reward = max(-1.0, min(reward, 1.0))
@@ -189,6 +191,8 @@ class Player():
                 EPISODE:{} // YIELD:{:.3f} // EPSILON:{:.3f} // COUNT:{} // T_Version:{}
                 """.format(t+1, mean_yield / per_episode, epsilon, self.count, self.target_model_version))
                 mean_yield = 0
+                print(action_count)
+                action_count = np.zeros(ACTION_SIZE)
             
             if(t+1) == 25:
                 break
