@@ -319,7 +319,7 @@ class Simulator:
             raise RuntimeWarning("Action Space !!")
         
         if idle:
-            reward = reward_ - 0.005
+            reward = reward_
         else:
             reward = reward_
         

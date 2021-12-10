@@ -131,7 +131,7 @@ class Player():
         per_episode = 1
         step = 0
         total_step = 0
-        self.target_epsilon = 0.3
+        self.target_epsilon = 0
         self.pull_param()
         action_count = np.array([0 for i in range(ACTION_SIZE)])
 
