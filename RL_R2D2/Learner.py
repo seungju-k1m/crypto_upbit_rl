@@ -148,6 +148,8 @@ class Learner:
             bootstrap = value_inv_transform(next_max_value[-1]).detach().cpu().numpy()
             
             remainder = [bootstrap * done]
+            print(done.sum())
+            print(done.shape)
             for i in range(UNROLL_STEP):
                 rewards += GAMMA ** i * reward[i:FIXED_TRAJECTORY - MEM - UNROLL_STEP-1+i]
                 remainder.append(
@@ -172,7 +174,7 @@ class Learner:
             
         td_error_ = target - selected_action_value
 
-        td_error = torch.clamp(td_error_, -1, 1)
+        # td_error = torch.clamp(td_error_, -1, 1)
         td_error_for_prior = td_error.detach().cpu().numpy()
 
         # td_error_for_prior = (np.abs(td_error_for_prior) + 1e-7) ** ALPHA
