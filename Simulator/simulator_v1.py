@@ -104,9 +104,9 @@ class PortFolio:
         self.Current_Value = None
         self.update()
 
-        self.Coin_Balance = 0.5
-        self.KRW_Balance = self.Current_Value / 2
-        self.update()
+        # self.Coin_Balance = 0.5
+        # self.KRW_Balance = self.Current_Value / 2
+        # self.update()
 
         self.Info = {}
     
