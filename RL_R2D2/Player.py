@@ -113,6 +113,16 @@ class Player():
         epsilon = self.target_epsilon
 
         hidden_state = self.model.getCellState()
+        with torch.no_grad():
+            state = np.expand_dims(state, axis=0)
+            state = torch.tensor(state).float()
+            state = state * (1/255.)
+            
+            # val, adv = self.model.forward([state])
+            # action_value = val + adv - torch.mean(adv, dim=-1, keepdim=True)
+            
+            shape = torch.tensor([1, 1, -1])
+            action_value = self.model.forward([state, shape])[0]
 
         if no_epsilon:
             epsilon = 0
@@ -120,18 +130,7 @@ class Player():
         if random.random() < epsilon:
             action = random.choice([0, 1, 2, 3, 4, 5])
         else:
-            with torch.no_grad():
-                state = np.expand_dims(state, axis=0)
-                state = torch.tensor(state).float()
-                state = state * (1/255.)
-                
-                # val, adv = self.model.forward([state])
-                # action_value = val + adv - torch.mean(adv, dim=-1, keepdim=True)
-                
-                shape = torch.tensor([1, 1, -1])
-                action_value = self.model.forward([state, shape])[0]
-
-                action = int(action_value.argmax(dim=-1).numpy())
+            action = int(action_value.argmax(dim=-1).numpy())
                 # print(action)
         return action, hidden_state, epsilon
 
