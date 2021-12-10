@@ -126,7 +126,7 @@ class Learner:
         action_value = self.model.forward([truncated_state, shape])[0].view(-1)
         # 320 * 6
         selected_action_value = action_value[action]
-        selected_action_value = value_transform(selected_action_value)
+        selected_action_value = selected_action_value
         
         detach_action_value = action_value.detach()
         detach_action_value = detach_action_value.view(-1, 6)
@@ -135,7 +135,7 @@ class Learner:
         
         with torch.no_grad():
             target_action_value = self.target_model.forward([truncated_state, shape])[0]
-            target_action_value = target_action_value.view(-1)
+            target_action_value = target_action_value.view(-1).detach()
             action_max = detach_action_value.argmax(-1)
             # action_idx = [6 * i + j for i, j in enumerate(action_max)]
             action_idx = self.action_idx + action_max
@@ -165,6 +165,7 @@ class Learner:
             
             target = target.view(-1)
             target = value_transform(target)
+            target = target.detach()
 
             # next_max_value, _ = next_action_value.max(dim=-1) 
             # next_max_value = next_max_value * done
