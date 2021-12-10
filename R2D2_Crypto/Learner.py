@@ -182,10 +182,10 @@ class Learner:
         td_error_view = td_error.view(FIXED_TRAJECTORY - MEM - 1, -1)
 
         td_error_truncated = td_error_view.permute(1, 0).contiguous()
-        weight = weight.view(-1, 1)
+        weight = weight.view(-1)
 
         loss = torch.mean(
-            weight * (td_error_truncated ** 2)
+            weight * torch.sum(td_error_truncated ** 2, -1)
         ) * 0.5
         # loss = torch.sum(
         #     weight * (td_error_truncated ** 2)
