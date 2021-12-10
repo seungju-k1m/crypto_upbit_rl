@@ -159,6 +159,8 @@ class Player():
                     # image, 
 
             action, _, __ = self.forward(obs)
+
+            self.model.zeroCellState()
             raw_yield = 0
             print('--------------')
             self.sim.portfolio.print()
