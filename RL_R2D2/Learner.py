@@ -190,9 +190,9 @@ class Learner:
         loss = torch.mean(
             weight * (td_error_truncated ** 2)
         ) * 0.5
-        loss = torch.sum(
-            weight * (td_error_truncated ** 2)
-        ) * 0.5
+        # loss = torch.sum(
+        #     weight * (td_error_truncated ** 2)
+        # ) * 0.5
 
         loss.backward()
 
