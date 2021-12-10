@@ -183,7 +183,7 @@ class Player():
             state = state.to(self.device)
 
             self.model.setCellState(hidden_state)
-            self.target_model.setCellState(hidden_state)
+            # self.target_model.setCellState(target_prev_hidden_state)
 
             shape = torch.tensor([80, 1, -1])
             online_action_value = self.model.forward([state, shape])[0]
