@@ -44,6 +44,7 @@ class Renderer:
         self.axes = []
         self.axes_twin = []
         self.lines = []
+        self.lines_fill = []
         self.lines_2 = []
         self.interval = []
         self.y2_div = [1 / (5*unit) for unit in [1, 5, 15, 60]]
@@ -92,6 +93,7 @@ class Renderer:
             
             line1, line2 = self.lines[i], self.lines_2[i]
             ax, ax_twin = self.axes[i], self.axes_twin[i]
+            # line_fill = self.lines_fill[i]
 
             fig = line1.figure
             fig.clear()
@@ -104,6 +106,9 @@ class Renderer:
             line2.set_ydata(truncated_y2 * self.y2_div[i])
             line2.set_xdata(truncated_x)
 
+            # l_fill = ax.fill_between(truncated_x, truncated_y, 0,  facecolor = 'C0', alpha = 0.2)
+            # l_fill_2 = ax_twin.fill_between(truncated_x, truncated_y2 * self.y2_div[i], 0, facecolor= 'C0', alpha=0.4)
+
             mean_y = float(truncated_y.mean())
             min_y_ = float(truncated_y.min())
             max_y_ = float(truncated_y.max())
@@ -114,8 +119,8 @@ class Renderer:
 
             max_y = max(mean_y * (1 + k), max_y_)
             
-            # ax.set_ylim(min_y, max_y)
-            ax.set_ylim(min_y_, max_y_)
+            ax.set_ylim(min_y, max_y)
+            # ax.set_ylim(min_y_, max_y_)
             
             ax.set_xlim(min(truncated_x), max(truncated_x))
 
@@ -124,6 +129,9 @@ class Renderer:
             
             ax.draw_artist(line1)
             ax_twin.draw_artist(line2)
+
+            # ax.draw_artist(l_fill)
+            # ax_twin.draw_artist(l_fill_2)
             
             fig.canvas.blit(fig.bbox)
             image_np = self.get_figure(fig, plot=False)
@@ -207,8 +215,10 @@ class Renderer:
                 bg = fig.canvas.copy_from_bbox(fig.bbox)
                 self.bgs.append(bg)
                 line,  = ax.plot(truncated_x, truncated_y, '-', alpha=0.8, animated=True)
+                # line_fill = ax.fill_between(truncated_x, truncated_y, animated=True)
                 # line,  = ax.plot(truncated_x, truncated_y, '-', alpha=0.8)
                 self.lines.append(line)
+                # self.lines_fill.append(line_fill)
                 
                 
 

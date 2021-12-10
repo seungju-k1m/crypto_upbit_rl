@@ -12,8 +12,8 @@ import time
 
 
 if __name__ == "__main__":
-    p = Player()
-    p.run()
+    # p = Player()
+    # p.run()
 
 
     sim = Simulator(unit_step=1)
