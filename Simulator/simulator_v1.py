@@ -17,14 +17,14 @@ import os
 
 LEVERAGE = 100
 
-def generate_random_start():
+def generate_random_start(day):
     data_list = os.listdir('./data/v0')
     data_list.sort()
     total_len = len(data_list)
 
     start_id = random.randint(1, total_len-9)
 
-    data_list = [data_list[i] for i in range(start_id, start_id+2)]
+    data_list = [data_list[i] for i in range(start_id, start_id+day)]
     pipelines = []
     for d in data_list:
         k_list = d.split(',')
@@ -167,18 +167,24 @@ class Simulator:
         self,
         pipelines: List[DataPipeLine] = None,
         unit_step=15,
-        test=False
+        test=False,
+        size=24,
+        day=3
     ):
         if pipelines is None:
             if test:
                 pipelines = generate_test_start(1)
                 self.idx = 1
             else:
-                pipelines = generate_random_start()
+                mz = int(size / 24)
+                pipelines = generate_random_start(day + mz)
+        self.size = size
         setpipeline = SetDataPipeLine(pipelines)
-        self.pipe = DataPipeLine_Sim(setpipeline)
+        offset = 1440 * int(self.size / 24)
+        self.pipe = DataPipeLine_Sim(setpipeline, offset=offset, size=size)
         self.renderer = Renderer(self.pipe)
         self.unit_step = unit_step
+        self.day = day
     
     def reset_pipeline(self, test=False):
         if test:
@@ -190,7 +196,8 @@ class Simulator:
             print(self.idx)
             
         else:
-            pipelines = generate_random_start()
+            mz = int(self.size / 24)
+            pipelines = generate_random_start(self.day + mz)
         # setpipeline = SetDataPipeLine(pipelines)
         # self.pipe = DataPipeLine_Sim(setpipeline)
         # self.renderer = Renderer(self.pipe)

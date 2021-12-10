@@ -13,9 +13,113 @@ import time
 from copy import deepcopy
 
 from matplotlib import gridspec
+from matplotlib import animation
 
 matplotlib.use("Agg")
 template = {'time':[], 'midpoint':[], 'acc_volume':[]}
+
+
+class Animator:
+    plt.style.use("dark_background")
+    plt.axis("off")
+    plt.ioff()
+
+    def __init__(
+        self,
+        pipeline:DataPipeLine_Sim,
+        plot_unit = 1
+    ):
+        self.pipe = pipeline
+        self.plot_unit = 1
+
+        self.x_vec, self.y_vec, self.y2_vec = [], [], []
+
+        spec = gridspec.GridSpec(ncols=1, nrows=2,
+                         width_ratios=[1], wspace=0.5,
+                         hspace=0.5, height_ratios=[3, 1])
+        
+        self.fig = plt.figure(figsize=(4, 3))
+
+        self.ax = self.fig.add_subplot(spec[0])
+        self.ax02 = self.fig.add_subplot(spec[1])
+
+        self.ax.get_xaxis().set_visible(False)
+        self.ax.get_yaxis().set_visible(False)
+
+        self.ax02.get_xaxis().set_visible(False)
+        self.ax02.get_yaxis().set_visible(False)
+
+        self.ax02.set_ylim(0, 5)
+        self.plot_unit = plot_unit
+        self.y2_div = [1 / (5*unit) for unit in [1, 5, 15, 60]]
+        self._init()
+
+    def _init(self):
+        data_dict = self.pipe.reset()
+        time_np, mindpoint_np, acc_volume_np = data_dict[self.plot_unit]
+
+        self.line, = self.ax.plot(time_np, mindpoint_np, '-', alpha=0.8, animated=True)
+        i = [1, 5, 15, 60].index(self.plot_unit)
+        self.line2, = self.ax02.plot(time_np, acc_volume_np * self.y2_div[i], '-', alpha=0.8, animated=True)
+
+    def plot(self):
+        i = [1, 5, 15, 60].index(self.plot_unit)
+        delta = [0.01/2, 0.02/2, 0.05/2, 0.1/2]
+        k = delta[i]
+        def update(x):
+            t_line_1 = self.line.get_xdata()
+            mid_line = self.line.get_ydata()
+            acc_line = self.line2.get_ydata()
+
+            len_data =len(t_line_1)
+
+            output, done = self.pipe.step(self.plot_unit)
+            output = output[self.plot_unit]
+            t, mid, vol = output
+
+            vol = vol * self.y2_div[i]
+
+            # t_line_1 = np.concatenate((t_line_1, t), 0)
+            # t_line_1 = t_line_1[-len_data:]
+
+            mid_line = np.concatenate((mid_line, mid), 0)
+            mid_line = mid_line[-len_data:]
+
+            acc_line = np.concatenate((acc_line, vol), 0)
+            acc_line = acc_line[-len_data:]
+
+            # self.line.set_xdata(t_line_1)
+            self.line.set_ydata(mid_line)
+
+            # self.line2.set_xdata(t_line_1)
+            self.line2.set_ydata(acc_line)
+
+            mean_y = float(mid_line.mean())
+
+            lim_info = self.ax.get_ylim()
+
+            if np.min(mid_line) <= lim_info[0]:
+                self.ax.set_ylim(np.min(mid_line), lim_info[1])
+            lim_info = self.ax.get_ylim()
+            if np.max(mid_line) >= lim_info[1]:
+                self.ax.set_ylim(lim_info[0], max(mid_line))
+
+
+            # self.ax.set_xlim(min(t_line_1), max(t_line_1))
+            # self.ax02.set_xlim(min(t_line_1), max(t_line_1))
+
+            return self.line, self.line2
+        
+        offset = self.pipe.offset
+        size = self.pipe.size
+        data_len = self.pipe.data.length_info[self.plot_unit]
+
+        m = data_len - int(offset/self.plot_unit) - size
+        zxz = [i for i in range(m-10)]
+        anime = animation.FuncAnimation(
+            self.fig, update, frames=zxz, blit=True
+        )
+        anime.save('./test.gif')
 
 
 class Renderer:
@@ -31,13 +135,13 @@ class Renderer:
         self.pipe = pipeline
 
         self.which_plot = which_plot
-        self.offset = 24
+        self.offset = self.pipe.size
 
         # x, y -> 4개
         self.x_vec = {}
         self.y_vec = {}
         self.y2_vec = {}
-        self.size = self.pipe.offset * 24
+        self.size = self.pipe.offset * self.offset
 
         # plot !!
         # 4개의 line이 있어야한다.
@@ -74,7 +178,6 @@ class Renderer:
 
     def render(self, cond):
         image = []
-        delta = [0.005/2, 0.02/2, 0.03/2, 0.05/2]
         j = time.time()
         for i, unit in enumerate([1, 5, 15, 60]):
             if not cond[i]:
@@ -108,25 +211,18 @@ class Renderer:
 
             # l_fill = ax.fill_between(truncated_x, truncated_y, 0,  facecolor = 'C0', alpha = 0.2)
             # l_fill_2 = ax_twin.fill_between(truncated_x, truncated_y2 * self.y2_div[i], 0, facecolor= 'C0', alpha=0.4)
+            lim_info = ax.get_ylim()
 
-            mean_y = float(truncated_y.mean())
-            min_y_ = float(truncated_y.min())
-            max_y_ = float(truncated_y.max())
-
-            k = delta[i]
-
-            min_y = min(mean_y * (1 - k), min_y_)
-
-            max_y = max(mean_y * (1 + k), max_y_)
-            
-            ax.set_ylim(min_y, max_y)
-            # ax.set_ylim(min_y_, max_y_)
+            if np.min(truncated_y) <= lim_info[0]:
+                ax.set_ylim(np.min(truncated_y), lim_info[1])
+            lim_info = ax.get_ylim()
+            if np.max(truncated_y) >= lim_info[1]:
+                ax.set_ylim(lim_info[0], max(truncated_y))
             
             ax.set_xlim(min(truncated_x), max(truncated_x))
 
             ax_twin.set_xlim(min(truncated_x), max(truncated_x))
 
-            
             ax.draw_artist(line1)
             ax_twin.draw_artist(line2)
 
@@ -154,7 +250,7 @@ class Renderer:
 
             ax02.get_xaxis().set_visible(False)
             ax02.get_yaxis().set_visible(False)
-            ax02.set_ylim(0, 5)
+            ax02.set_ylim(0, 12)
             self.axes.append(ax)
             self.axes_twin.append(ax02)
 

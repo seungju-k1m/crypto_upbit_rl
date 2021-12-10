@@ -1,7 +1,7 @@
 from os import pipe
 from Simulator.pipeline_v1 import DataPipeLine, SetDataPipeLine, DataPipeLine_Sim
 from Simulator.simulator_v1 import Simulator
-from Simulator.renderer_v1 import Renderer
+from Simulator.renderer_v1 import Renderer, Animator
 
 from datetime import datetime, timedelta
 
@@ -16,27 +16,33 @@ if __name__ == "__main__":
     # p.run()
 
 
-    sim = Simulator(unit_step=1)
     
-    cumulative_reward = 0
 
-    for j in range(10):
-        obs = sim.reset()
-        sim.portfolio.print()
-        m = time.time()
-        for t in range(100000):
+    plot_unit = 5
+    sim = Simulator(unit_step=plot_unit, size=48, day=3)
+
+    a = Animator(sim.pipe, plot_unit=plot_unit)
+    a.plot()
+    
+    # cumulative_reward = 0
+
+    # for j in range(10):
+    #     obs = sim.reset()
+    #     sim.portfolio.print()
+    #     m = time.time()
+    #     for t in range(100000):
             
-            action = np.random.randint(0, 8)
-            o, r, done, _ = sim.step(action)
-            cumulative_reward += r
-            if (t+1) % 500 == 0:
-                sim.portfolio.print()
-            if done:
-                break
-        sim.portfolio.print()
-        print("Simulation Is Done")
-        print(cumulative_reward)
-        print(time.time() - m)
+    #         action = np.random.randint(0, 8)
+    #         o, r, done, _ = sim.step(action)
+    #         cumulative_reward += r
+    #         if (t+1) % 500 == 0:
+    #             sim.portfolio.print()
+    #         if done:
+    #             break
+    #     sim.portfolio.print()
+    #     print("Simulation Is Done")
+    #     print(cumulative_reward)
+    #     print(time.time() - m)
 
     # to = datetime(2021, 1, 2, 0, 0)
     # to_list = [to - timedelta(days=1)]

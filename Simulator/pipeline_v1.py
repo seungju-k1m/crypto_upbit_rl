@@ -194,13 +194,15 @@ class DataPipeLine_Sim:
     def __init__(
         self,
         data:SetDataPipeLine or DataPipeLine,
-        offset:int = 1440
+        offset:int = 1440,
+        size=24
     ):
 
         self.offset = offset
         self.count = 0
         self.data = data
         self.end_step = len(data.data[1]) - self.count
+        self.size = size
     
     def update(self, pipelines):
         self.data.update(pipelines)
@@ -215,7 +217,7 @@ class DataPipeLine_Sim:
         self.count = 0
         output = {}
         for unit in [1, 5, 15, 60]:
-            output[unit] = self.process(self.data.get(int(self.offset/unit)-24, int(self.offset/unit), unit))
+            output[unit] = self.process(self.data.get(int(self.offset/unit)-self.size, int(self.offset/unit), unit))
         return output
     
     def step(self, duration=1) -> Dict:
