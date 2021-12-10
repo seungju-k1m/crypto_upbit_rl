@@ -143,9 +143,9 @@ class Learner:
 
             next_max_value =  target_action_max_value
             next_max_value = next_max_value.view(FIXED_TRAJECTORY - MEM, BATCHSIZE)
-            target_value = next_max_value[UNROLL_STEP:-1].contiguous()
+            target_value = value_inv_transform(next_max_value[UNROLL_STEP:-1].contiguous())
             rewards = np.zeros((FIXED_TRAJECTORY- MEM - UNROLL_STEP - 1, BATCHSIZE))
-            bootstrap = value_inv_transform(next_max_value[-1]).detach().cpu().numpy()
+            bootstrap = next_max_value[-1].detach().cpu().numpy()
             
             remainder = [bootstrap * done]
             for i in range(UNROLL_STEP):
@@ -160,7 +160,7 @@ class Learner:
             # remainder = torch.cat(remainder)
             # print(rewards.mean())
 
-            target = rewards + GAMMA ** UNROLL_STEP * value_inv_transform(target_value)
+            target = rewards + GAMMA ** UNROLL_STEP * target_value
             target = torch.cat((target, remainder), 0)
             
             target = target.view(-1)
