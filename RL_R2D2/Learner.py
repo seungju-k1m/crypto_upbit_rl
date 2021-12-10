@@ -190,6 +190,9 @@ class Learner:
         loss = torch.mean(
             weight * (td_error_truncated ** 2)
         ) * 0.5
+        loss = torch.sum(
+            weight * (td_error_truncated ** 2)
+        ) * 0.5
 
         loss.backward()
 
@@ -207,7 +210,7 @@ class Learner:
             for p in pp:
                 p_norm += p.grad.data.norm(2)
             p_norm = p_norm ** .5
-        # torch.nn.utils.clip_grad_norm_(pp, 40)
+        torch.nn.utils.clip_grad_norm_(pp, 40)
         # for optim in self.optim:
         #     optim.step()
         self.optim.step()
