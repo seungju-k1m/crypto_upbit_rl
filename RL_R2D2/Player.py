@@ -127,10 +127,10 @@ class Player():
         if no_epsilon:
             epsilon = 0
         
-        if random.random() < epsilon:
-            action = random.choice([0, 1, 2, 3, 4, 5])
-        else:
-            action = int(action_value.argmax(dim=-1).numpy())
+        # if random.random() < epsilon:
+        #     action = random.choice([0, 1, 2, 3, 4, 5])
+        # else:
+        action = int(action_value.argmax(dim=-1).numpy())
                 # print(action)
         return action, hidden_state, epsilon
 
