@@ -158,12 +158,12 @@ class Player():
                     # image, 
 
             action, _, __ = self.forward(obs)
-            mz = 0
+            raw_yield = 0
             print('--------------')
             self.sim.portfolio.print()
 
             while done is False:
-                next_obs, reward, done, info = self.sim.step(action)
+                next_obs, reward, done, raw_reward = self.sim.step(action)
                 # info 현재 수익률 
                 # reward -> 100 * log(current_value/prev_value)
                 next_obs = preprocess_obs(next_obs)
@@ -173,14 +173,13 @@ class Player():
                 total_step += 1
 
                 cumulative_reward += reward
-                mz += info
+                raw_yield += raw_reward
                 action, _, epsilon = self.forward(next_obs)
                 obs = next_obs
                 if step% 240 == 0:
                     self.sim.portfolio.print()
                 
-            mean_cumulative_reward += mz
-            mean_yield += (math.exp(cumulative_reward/100) - 1)
+            mean_yield += (math.exp(raw_yield/100) - 1)
             self.sim.print()
 
             print('--------------------')
@@ -189,7 +188,6 @@ class Player():
                 print("""
                 EPISODE:{} // YIELD:{:.3f} // EPSILON:{:.3f} // COUNT:{} // T_Version:{}
                 """.format(t+1, mean_yield / per_episode, epsilon, self.count, self.target_model_version))
-                mean_cumulative_reward = 0
                 mean_yield = 0
             
             if(t+1) == 25:
@@ -336,11 +334,11 @@ class Player():
             self.target_model.zeroCellState()
 
             action, hidden_state, _ = self.forward(state)
-            mz = 0
+            raw_yield = 0
 
             while done is False:
 
-                next_obs, reward, done, info = self.sim.step(action)
+                next_obs, reward, done, raw_reward = self.sim.step(action)
 
                 next_state = preprocess_obs(next_obs)
 
@@ -348,8 +346,7 @@ class Player():
                 total_step += 1
 
                 cumulative_reward += reward
-                mz += reward
-
+                raw_yield += raw_reward
                 local_buffer.push(state[0], state[1], action, reward)
                 local_buffer.push_hidden_state(hidden_state)
 
@@ -374,8 +371,9 @@ class Player():
 
                 if total_step %  400 == 0:
                     self.pull_param()
-            mean_cumulative_reward += mz
-            mean_yield += (math.exp(cumulative_reward/100) - 1)
+            mean_cumulative_reward += cumulative_reward
+
+            mean_yield += (math.exp(raw_yield/100) - 1)
 
             if (t+1) % per_episode == 0:
                 print("""

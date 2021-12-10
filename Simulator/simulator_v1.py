@@ -209,6 +209,7 @@ class Simulator:
     def rebalance_KRW_2_COIN(self, amount=0.25, current_price=0):
         previous_value = deepcopy(self.portfolio.Current_Value)
         reward = 0
+        idle = False
         if self.portfolio.Is_KRW:
             
             KRW = self.portfolio.KRW_Balance * amount * (1 - FEE)
@@ -229,12 +230,14 @@ class Simulator:
             current_value = deepcopy(self.portfolio.Current_Value)
 
             reward = LEVERAGE * math.log(current_value / previous_value)
+            idle = True
         
-        return reward
+        return reward, idle
     
     def rebalance_COIN_2_KRW(self, amount=0.25, current_price=0):
         previous_value = deepcopy(self.portfolio.Current_Value)
         reward = 0
+        idle = False
         if self.portfolio.Is_Coin:
             
             COIN = self.portfolio.Coin_Balance * amount
@@ -255,8 +258,9 @@ class Simulator:
             current_value = deepcopy(self.portfolio.Current_Value)
 
             reward = LEVERAGE * math.log(current_value / previous_value)
+            idle = True
         
-        return reward
+        return reward, idle
 
     def step(self, action=0):
         """
@@ -275,7 +279,6 @@ class Simulator:
                 8 -> COIN -> KRW (25%)
         """
         obs, done = self.renderer.step(duration=self.unit_step)
-        reward = deepcopy(self.portfolio.Current_Value)
         _, candle_info = obs
         y1, y2 = candle_info
 
@@ -298,27 +301,30 @@ class Simulator:
         #     reward = self.rebalance_COIN_2_KRW(1, current_price)
 
         if action == 0:
-            reward = 0
             prev_value = deepcopy(self.portfolio.Current_Value)
             self.portfolio.Average_Price = current_price
             self.portfolio.update()
             value = deepcopy(self.portfolio.Current_Value)
-            reward = LEVERAGE * math.log(value / prev_value)
-
+            reward_ = LEVERAGE * math.log(value / prev_value)
+            idle = False
         elif action < 5:
             idx = int(action - 1)
             amount = amount_list[idx]
-            reward = self.rebalance_KRW_2_COIN(amount, current_price)
+            reward_, idle = self.rebalance_KRW_2_COIN(amount, current_price)
         elif action < 9:
             idx = int(action - 5)
             amount = amount_list[idx]
-            reward = self.rebalance_COIN_2_KRW(amount, current_price)
+            reward_, idle = self.rebalance_COIN_2_KRW(amount, current_price)
         else:
             raise RuntimeWarning("Action Space !!")
         
-        reward_ = reward / 100
-        reward_ = math.exp(reward_) - 1
-        reward_ *= 10
+        if idle:
+            reward = reward_ - 1
+        else:
+            reward = reward_
+        
+        # reward_ -> raw !!
+        # reward -> reward_ + idle !!
         
         info = self.portfolio.get_info()
 
