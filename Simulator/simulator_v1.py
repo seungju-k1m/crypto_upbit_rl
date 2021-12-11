@@ -237,7 +237,7 @@ class Simulator:
         else:
             self.portfolio.Average_Price = current_price
             self.portfolio.update()
-            current_value = deepcopy(self.portfolio.Current_Value)
+            current_value = deepcopy(self.portfolio.Current_Value) * (1 - FEE)
 
             reward = LEVERAGE * math.log(current_value / previous_value)
             idle = True
@@ -265,7 +265,7 @@ class Simulator:
         else:
             self.portfolio.Average_Price = current_price
             self.portfolio.update()
-            current_value = deepcopy(self.portfolio.Current_Value)
+            current_value = deepcopy(self.portfolio.Current_Value) * (1 - FEE)
 
             reward = LEVERAGE * math.log(current_value / previous_value)
             idle = True
@@ -294,7 +294,7 @@ class Simulator:
 
         current_price = y1[1][-1]
 
-        amount_list = [.25, .5, .75, 1.0]
+        amount_list = [.05, .10, .25, 0.5]
 
         # rebalance
         # if action == 0:
