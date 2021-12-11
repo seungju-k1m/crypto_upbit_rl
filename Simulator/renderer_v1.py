@@ -213,11 +213,14 @@ class Renderer:
             # l_fill_2 = ax_twin.fill_between(truncated_x, truncated_y2 * self.y2_div[i], 0, facecolor= 'C0', alpha=0.4)
             lim_info = ax.get_ylim()
 
-            if np.min(truncated_y) <= lim_info[0]:
-                ax.set_ylim(np.min(truncated_y), lim_info[1])
-            lim_info = ax.get_ylim()
-            if np.max(truncated_y) >= lim_info[1]:
-                ax.set_ylim(lim_info[0], max(truncated_y))
+            # if np.min(truncated_y) <= lim_info[0]:
+            #     ax.set_ylim(np.min(truncated_y), lim_info[1])
+            # lim_info = ax.get_ylim()
+            # if np.max(truncated_y) >= lim_info[1]:
+            #     ax.set_ylim(lim_info[0], max(truncated_y))
+            
+            if np.min(truncated_y) <= lim_info[0] or np.max(truncated_y) >= lim_info[1]:
+                ax.set_ylim(min(truncated_y), max(truncated_y))
             
             ax.set_xlim(min(truncated_x), max(truncated_x))
 
