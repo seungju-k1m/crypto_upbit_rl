@@ -140,7 +140,7 @@ class Player():
         total_step = 0
         self.target_epsilon = 0
         # self.pull_param()
-        # self.load_data()
+        self.load_data()
         action_count = np.array([0 for i in range(ACTION_SIZE)])
 
         def preprocess_obs(obs):
@@ -160,11 +160,11 @@ class Player():
             step = 0
             num_idle = 0
             raw_yield = 0
-            # try:
-            #     port = deepcopy(self.sim.portfolio)
-            #     obs = self.sim.reset(True, port=port)
-            # except:
-            obs = self.sim.reset(True)
+            try:
+                port = deepcopy(self.sim.portfolio)
+                obs = self.sim.reset(True, port=port)
+            except:
+                obs = self.sim.reset(True)
             self.model.zeroCellState()
             # self.sim.print()
             obs = preprocess_obs(obs)
