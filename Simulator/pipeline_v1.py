@@ -51,6 +51,7 @@ import _pickle as pickle
 import pandas as pd
 import numpy as np
 
+import random
 import os
 
 
@@ -199,6 +200,7 @@ class DataPipeLine_Sim:
     ):
 
         self.offset = offset
+        self.offset = int(offset * (1 - (random.random() - 0.5) * 2 * 0.1 ))
         self.count = 0
         self.data = data
         self.end_step = len(data.data[1]) - self.count
