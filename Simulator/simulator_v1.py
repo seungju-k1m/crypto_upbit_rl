@@ -294,7 +294,7 @@ class Simulator:
 
         current_price = y1[1][-1]
 
-        amount_list = [.05, .10, .25, 0.5]
+        amount_list = [.25, .5, .75, 1.0]
 
         # rebalance
         # if action == 0:
