@@ -17,7 +17,7 @@ import redis
 
 import torch.nn as nn
 from torch.distributions import Categorical
-from Simulator.simulator_v1 import Simulator
+from Simulator.simulator_v1 import LEVERAGE, Simulator
 
 import time
 import random
@@ -156,6 +156,7 @@ class Player():
         for t in count():
             cumulative_reward = 0   
             done = False
+            mean_yield = 0
             step = 0
             # try:
             #     port = deepcopy(self.sim.portfolio)
@@ -194,7 +195,7 @@ class Player():
                 if step% 240 == 0:
                     self.sim.portfolio.print()
                 
-            mean_yield += (math.exp(raw_yield/100) - 1)
+            mean_yield += (math.exp(raw_yield/LEVERAGE) - 1)
             self.sim.print()
 
             print('--------------------')
