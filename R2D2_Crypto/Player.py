@@ -159,7 +159,7 @@ class Player():
             mean_yield = 0
             step = 0
             num_idle = 0
-            raw_yield = 0
+            # raw_yield = 0
             try:
                 port = deepcopy(self.sim.portfolio)
                 obs = self.sim.reset(True, port=port)
