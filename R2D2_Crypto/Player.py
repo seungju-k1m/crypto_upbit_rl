@@ -149,8 +149,11 @@ class Player():
             cumulative_reward = 0   
             done = False
             step = 0
-            port = deepcopy(self.sim.portfolio)
-            obs = self.sim.reset(True, port=port)
+            try:
+                port = deepcopy(self.sim.portfolio)
+                obs = self.sim.reset(True, port=port)
+            except:
+                obs = self.sim.reset(True)
             # self.sim.print()
             obs = preprocess_obs(obs)
             # obs
