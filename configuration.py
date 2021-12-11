@@ -9,7 +9,7 @@ import math
 
 
 # _path_ = './cfg/crypto_ape.json'
-# _path_ = "./cfg/ape_x.json"
+# _path_ = "./cfg/cpt_ape_x.json"
 # _path_ = './cfg/r2d2.json'
 _path_ = "./cfg/cpt_r2d2.json"
 
@@ -43,8 +43,11 @@ BATCHSIZE = 32
 TOTAL_TRAINING_STEP = int(5e4)
 
 FEE = _data_['FEE']
-# ACCESS_KEY = _data_['ACCESS_KEY']
-# SECRETE_KEY = _data_['SECRETE_KEY']
+try:
+    ACCESS_KEY = _data_['ACCESS_KEY']
+    SECRETE_KEY = _data_['SECRETE_KEY']
+except:
+    pass
 MARKET = _data_['MARKET']
 LOG_MODE = _data_['LOG_MODE']
 

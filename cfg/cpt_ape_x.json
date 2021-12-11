@@ -1,4 +1,5 @@
 {
+    "ALG":"APE_X_CPT",
     "crypto_mode":true,
     "redis_server":"10.142.162.12",
     "redis_server_push":"localhost",

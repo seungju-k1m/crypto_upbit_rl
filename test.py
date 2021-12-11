@@ -16,11 +16,11 @@ if __name__ == "__main__":
     # p.run()
 
 
-    plot_unit = 5
-    sim = Simulator(unit_step=plot_unit, size=48, day=3)
+    # plot_unit = 5
+    # sim = Simulator(unit_step=plot_unit, size=48, day=3)
 
-    a = Animator(sim.pipe, plot_unit=plot_unit)
-    a.plot()
+    # a = Animator(sim.pipe, plot_unit=plot_unit)
+    # a.plot()
     
     # cumulative_reward = 0
 
@@ -42,18 +42,18 @@ if __name__ == "__main__":
     #     print(cumulative_reward)
     #     print(time.time() - m)
 
-    # to = datetime(2021, 1, 2, 0, 0)
-    # to_list = [to - timedelta(days=1)]
-    # pipe_list = []
-    # for i in range(60):
-    #     to_list.append(
-    #         to + timedelta(days=i)
-    #     )
-    # duration = timedelta(days=1)
-    # for t in to_list:
-    #     pipe_list.append(
-    #         DataPipeLine(t, duration, True)
-    #     )
+    to = datetime(2021, 1, 2, 0, 0)
+    to_list = [to - timedelta(days=1)]
+    pipe_list = []
+    for i in range(90):
+        to_list.append(
+            to + timedelta(days=i)
+        )
+    duration = timedelta(days=1)
+    for t in to_list:
+        pipe_list.append(
+            DataPipeLine(t, duration, True)
+        )
 
 
     # set_pipeline = SetDataPipeLine(pipe_list)

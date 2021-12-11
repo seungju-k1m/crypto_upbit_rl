@@ -214,7 +214,7 @@ class Player():
                 num_idle = 0
                 action_count = np.zeros(ACTION_SIZE)
             
-            if(t+1) == 25:
+            if(t+1) == 1000:
                 break
 
     def forward(self, state:np.ndarray, no_epsilon=False) -> int:
