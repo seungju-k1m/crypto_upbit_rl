@@ -158,6 +158,7 @@ class Player():
             done = False
             mean_yield = 0
             step = 0
+            num_idle = 0
             # try:
             #     port = deepcopy(self.sim.portfolio)
             #     obs = self.sim.reset(True, port=port)
@@ -177,7 +178,7 @@ class Player():
             self.sim.portfolio.print()
 
             while done is False:
-                next_obs, reward, done, raw_reward = self.sim.step(action)
+                next_obs, reward, done, idle = self.sim.step(action)
                 # info 현재 수익률 
                 # reward -> 100 * log(current_value/prev_value)
                 action_count[action] += 1
@@ -188,9 +189,12 @@ class Player():
                 total_step += 1
 
                 cumulative_reward += reward
-                raw_yield += raw_reward
+                if idle:
+                    raw_yield += reward / (1 - FEE)
+                    num_idle += 1
+                else:
+                    raw_yield += reward
                 action, _, epsilon = self.forward(next_obs)
-                obs = next_obs
                 if step% 240 == 0:
                     self.sim.portfolio.print()
                 
@@ -205,6 +209,8 @@ class Player():
                 """.format(t+1, mean_yield / per_episode, epsilon, self.count, self.target_model_version))
                 mean_yield = 0
                 print(action_count)
+                print(num_idle)
+                num_idle = 0
                 action_count = np.zeros(ACTION_SIZE)
             
             if(t+1) == 25:

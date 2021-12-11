@@ -338,7 +338,7 @@ class Simulator:
         
         info = self.portfolio.get_info()
 
-        return (obs, info), reward, done, reward_
+        return (obs, info), reward, done, idle
 
     def print(self):
         self.portfolio.print()
