@@ -222,10 +222,10 @@ class Simulator:
         idle = False
         if self.portfolio.Is_KRW:
             
-            KRW = self.portfolio.KRW_Balance * amount * (1 - FEE)
-            KRW_2_COIN = KRW / (current_price+1e-3)
+            KRW = self.portfolio.KRW_Balance * amount 
+            KRW_2_COIN = KRW / current_price * (1 - FEE)
 
-            self.portfolio.KRW_Balance *= (1 - amount)
+            self.portfolio.KRW_Balance -= KRW
             self.portfolio.Coin_Balance += KRW_2_COIN
             self.portfolio.Average_Price = current_price
 
@@ -250,11 +250,11 @@ class Simulator:
         idle = False
         if self.portfolio.Is_Coin:
             
-            COIN = self.portfolio.Coin_Balance * amount
-            COIN_2_KRW =COIN * (current_price)
+            COIN = self.portfolio.Coin_Balance * amount 
+            COIN_2_KRW =COIN * (current_price) * (1 - FEE)
 
-            self.portfolio.Coin_Balance *= (1 - amount)
-            self.portfolio.KRW_Balance += COIN_2_KRW * (1 - FEE)
+            self.portfolio.Coin_Balance -= COIN
+            self.portfolio.KRW_Balance += COIN_2_KRW 
             self.portfolio.Average_Price = current_price
             self.portfolio.update()
 
