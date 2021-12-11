@@ -152,14 +152,14 @@ class Player():
             # coin_value = value - KRW_value
             ratio = KRW_value / value
             return (image, ratio)
-        
+        raw_yield = 0
         for t in count():
             cumulative_reward = 0   
             done = False
             mean_yield = 0
             step = 0
             num_idle = 0
-            # raw_yield = 0
+            # 
             try:
                 port = deepcopy(self.sim.portfolio)
                 obs = self.sim.reset(True, port=port)
