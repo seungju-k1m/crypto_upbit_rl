@@ -190,7 +190,7 @@ class Player():
 
                 cumulative_reward += reward
                 if idle:
-                    raw_yield += reward / (1 - FEE)
+                    raw_yield += LEVERAGE * math.log(math.exp(reward/LEVERAGE) / (1 - FEE))
                     num_idle += 1
                 else:
                     raw_yield += reward
