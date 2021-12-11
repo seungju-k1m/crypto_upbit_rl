@@ -58,9 +58,9 @@ class Animator:
         data_dict = self.pipe.reset()
         time_np, mindpoint_np, acc_volume_np = data_dict[self.plot_unit]
 
-        self.line, = self.ax.plot(time_np, mindpoint_np, '-', alpha=0.8, animated=True)
+        self.line, = self.ax.plot(time_np, mindpoint_np, '-', alpha=0.8, linewidth=2, animated=True)
         i = [1, 5, 15, 60].index(self.plot_unit)
-        self.line2, = self.ax02.plot(time_np, acc_volume_np * self.y2_div[i], '-', alpha=0.8, animated=True)
+        self.line2, = self.ax02.plot(time_np, acc_volume_np * self.y2_div[i], '-', alpha=0.8, linewidth=2, animated=True)
 
     def plot(self):
         i = [1, 5, 15, 60].index(self.plot_unit)
@@ -90,6 +90,7 @@ class Animator:
 
             # self.line.set_xdata(t_line_1)
             self.line.set_ydata(mid_line)
+            
 
             # self.line2.set_xdata(t_line_1)
             self.line2.set_ydata(acc_line)
@@ -98,8 +99,17 @@ class Animator:
 
             lim_info = self.ax.get_ylim()
 
+            delta = (lim_info[1] - lim_info[0]) / mean_y
+
+            linewidth = delta * 200
+            self.line.set_linewidth(linewidth)
+            # print(linewidth)
+            
+            # self.line2.set_linewidth(linewidth)
+
             if np.min(mid_line) <= lim_info[0]:
                 self.ax.set_ylim(np.min(mid_line), lim_info[1])
+                
             lim_info = self.ax.get_ylim()
             if np.max(mid_line) >= lim_info[1]:
                 self.ax.set_ylim(lim_info[0], max(mid_line))
@@ -211,7 +221,13 @@ class Renderer:
 
             # l_fill = ax.fill_between(truncated_x, truncated_y, 0,  facecolor = 'C0', alpha = 0.2)
             # l_fill_2 = ax_twin.fill_between(truncated_x, truncated_y2 * self.y2_div[i], 0, facecolor= 'C0', alpha=0.4)
+            mean_y = truncated_y.mean()
             lim_info = ax.get_ylim()
+
+            delta = (lim_info[1] - lim_info[0]) / mean_y
+
+            linewidth = delta * 200
+            line1.set_linewidth(linewidth)
 
             # if np.min(truncated_y) <= lim_info[0]:
             #     ax.set_ylim(np.min(truncated_y), lim_info[1])
