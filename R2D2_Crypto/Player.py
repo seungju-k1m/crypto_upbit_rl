@@ -162,7 +162,7 @@ class Player():
             #     port = deepcopy(self.sim.portfolio)
             #     obs = self.sim.reset(True, port=port)
             # except:
-            obs = self.sim.reset(False)
+            obs = self.sim.reset(True)
             # self.sim.print()
             obs = preprocess_obs(obs)
             # obs
