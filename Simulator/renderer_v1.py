@@ -233,18 +233,18 @@ class Renderer:
             
             
             if np.min(truncated_y) <= lim_info[0]:
-                self.ax.set_ylim(np.min(truncated_y), lim_info[1])
+                ax.set_ylim(np.min(truncated_y), lim_info[1])
                 
             lim_info = self.ax.get_ylim()
             if np.max(truncated_y) >= lim_info[1]:
-                self.ax.set_ylim(lim_info[0], max(truncated_y))
+                ax.set_ylim(lim_info[0], max(truncated_y))
             
-            lim_info = self.ax.get_ylim()
+            lim_info = ax.get_ylim()
 
             delta = (lim_info[1] - lim_info[0]) / mean_y
 
             linewidth = delta * 100
-            self.line.set_linewidth(linewidth)
+            line1.set_linewidth(linewidth)
             
             ax.set_xlim(min(truncated_x), max(truncated_x))
 
