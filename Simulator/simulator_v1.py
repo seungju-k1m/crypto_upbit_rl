@@ -203,13 +203,16 @@ class Simulator:
         # self.renderer = Renderer(self.pipe)
         self.pipe.update(pipelines)
         
-    def reset(self, test=False):
+    def resest(self, test=False, port=None):
         self.reset_pipeline(test)
         obs = self.renderer.reset()
         current_price = float(self.renderer.y_vec[1][-1])
-        self.portfolio = PortFolio(
-            0, 1, Average_price=current_price, is_coin=True
-        )
+        if port is None:
+            self.portfolio = PortFolio(
+                0, 1, Average_price=current_price, is_coin=True
+            )
+        else:
+            self.portfolio = port
         info = self.portfolio.get_info()
         return (obs, info)
     
