@@ -101,7 +101,7 @@ class Animator:
 
             delta = (lim_info[1] - lim_info[0]) / mean_y
 
-            linewidth = delta * 100
+            linewidth = delta * 200
             self.line.set_linewidth(linewidth)
             # print(linewidth)
             

@@ -125,6 +125,13 @@ class Player():
                 param
             )
 
+    def load_data(self):
+        path='./weight/r2d2_cpt/weight.pth'
+
+        self.model.load_state_dict(
+            torch.load(path)
+        )
+
     def eval(self):
         mean_cumulative_reward = 0
         mean_yield = 0
@@ -132,7 +139,8 @@ class Player():
         step = 0
         total_step = 0
         self.target_epsilon = 0
-        self.pull_param()
+        # self.pull_param()
+        self.load_data()
         action_count = np.array([0 for i in range(ACTION_SIZE)])
 
         def preprocess_obs(obs):
