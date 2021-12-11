@@ -98,11 +98,6 @@ class Animator:
             mean_y = float(mid_line.mean())
 
             lim_info = self.ax.get_ylim()
-
-            delta = (lim_info[1] - lim_info[0]) / mean_y
-
-            linewidth = delta * 200
-            self.line.set_linewidth(linewidth)
             # print(linewidth)
             
             # self.line2.set_linewidth(linewidth)
@@ -113,6 +108,13 @@ class Animator:
             lim_info = self.ax.get_ylim()
             if np.max(mid_line) >= lim_info[1]:
                 self.ax.set_ylim(lim_info[0], max(mid_line))
+            
+            lim_info = self.ax.get_ylim()
+
+            delta = (lim_info[1] - lim_info[0]) / mean_y
+
+            linewidth = delta * 100
+            self.line.set_linewidth(linewidth)
 
 
             # self.ax.set_xlim(min(t_line_1), max(t_line_1))
@@ -223,20 +225,26 @@ class Renderer:
             # l_fill_2 = ax_twin.fill_between(truncated_x, truncated_y2 * self.y2_div[i], 0, facecolor= 'C0', alpha=0.4)
             mean_y = truncated_y.mean()
             lim_info = ax.get_ylim()
-
-            delta = (lim_info[1] - lim_info[0]) / mean_y
-
-            linewidth = delta * 200
-            line1.set_linewidth(linewidth)
-
             # if np.min(truncated_y) <= lim_info[0]:
             #     ax.set_ylim(np.min(truncated_y), lim_info[1])
             # lim_info = ax.get_ylim()
             # if np.max(truncated_y) >= lim_info[1]:
             #     ax.set_ylim(lim_info[0], max(truncated_y))
             
-            if np.min(truncated_y) <= lim_info[0] or np.max(truncated_y) >= lim_info[1]:
-                ax.set_ylim(min(truncated_y), max(truncated_y))
+            
+            if np.min(truncated_y) <= lim_info[0]:
+                self.ax.set_ylim(np.min(truncated_y), lim_info[1])
+                
+            lim_info = self.ax.get_ylim()
+            if np.max(truncated_y) >= lim_info[1]:
+                self.ax.set_ylim(lim_info[0], max(truncated_y))
+            
+            lim_info = self.ax.get_ylim()
+
+            delta = (lim_info[1] - lim_info[0]) / mean_y
+
+            linewidth = delta * 100
+            self.line.set_linewidth(linewidth)
             
             ax.set_xlim(min(truncated_x), max(truncated_x))
 

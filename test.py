@@ -16,11 +16,11 @@ if __name__ == "__main__":
     # p.run()
 
 
-    # plot_unit = 5
-    # sim = Simulator(unit_step=plot_unit, size=48, day=3)
+    plot_unit = 15
+    sim = Simulator(unit_step=plot_unit, size=96, day=10)
 
-    # a = Animator(sim.pipe, plot_unit=plot_unit)
-    # a.plot()
+    a = Animator(sim.pipe, plot_unit=plot_unit)
+    a.plot()
     
     # cumulative_reward = 0
 
