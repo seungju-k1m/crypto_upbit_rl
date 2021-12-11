@@ -105,8 +105,8 @@ class Learner:
 
         with torch.no_grad():
             burn_in = burn_in.view(-1, channel, hei, wid)
-            self.model.forward([burn_in, ratio_burn_in, shape, shape])
-            self.target_model.forward([burn_in, ratio_burn_in, shape, shape])
+            self.model.forward([burn_in, ratio_burn_in, shape])
+            self.target_model.forward([burn_in, ratio_burn_in, shape])
             self.model.detachCellState()
             self.target_model.detachCellState()
         # state = state.to(self.device)
@@ -122,7 +122,7 @@ class Learner:
         reward= reward.astype(np.float32)
         reward = np.transpose(reward, (1, 0))
         reward = reward[MEM:-1]
-        action_value = self.model.forward([truncated_state, ratio_truncated, shape, shape])[0].view(-1)
+        action_value = self.model.forward([truncated_state, ratio_truncated, shape])[0].view(-1)
         selected_action_value = action_value[action]
         selected_action_value = selected_action_value
         
@@ -131,7 +131,7 @@ class Learner:
         # val, adv = self.model.forward([state])
         
         with torch.no_grad():
-            target_action_value = self.target_model.forward([truncated_state, ratio_truncated, shape, shape])[0]
+            target_action_value = self.target_model.forward([truncated_state, ratio_truncated, shape])[0]
             target_action_value = target_action_value.view(-1).detach()
             action_max = detach_action_value.argmax(-1)
             # action_idx = [6 * i + j for i, j in enumerate(action_max)]

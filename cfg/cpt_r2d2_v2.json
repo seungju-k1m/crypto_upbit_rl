@@ -56,33 +56,26 @@
             "prior":1
         },
         
-        "module01_1":{
-            "netCat":"ViewV2",
-            "prevNodeNames":["module00_1"],
-            "input":[2],
-            "prior":1
-        },
-        
         "module02":{
-            "netCat":"Cat",
-            "prior":2,
-            "prevNodeNames":["module01", "module01_1"]
-        },
-
-        "module03":{
             "netCat":"LSTMNET",
             "hiddenSize":512,
             "nLayer":1,
-            "iSize":2568,
+            "iSize":2560,
             "device":"cpu",
             "FlattenMode":true,
             "return_hidden":false,
-            "prior":3,
-            "prevNodeNames":["module02"]
+            "prior":2,
+            "prevNodeNames":["module01"]
         },
+        "module03":{
+            "netCat":"Cat",
+            "prior":3,
+            "prevNodeNames":["module02", "module00_1"]
+        },
+
         "module04":{
             "netCat":"MLP",
-            "iSize":512,
+            "iSize":520,
             "nLayer":2,
             "fSize":[512, 9],
             "act":["relu", "linear"],
@@ -92,7 +85,7 @@
         },
         "module04_1":{
             "netCat":"MLP",
-            "iSize":512,
+            "iSize":520,
             "nLayer":2,
             "fSize":[512,  1],
             "act":["relu",  "linear"],

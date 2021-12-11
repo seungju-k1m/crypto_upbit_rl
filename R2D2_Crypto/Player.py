@@ -220,7 +220,7 @@ class Player():
             ratio = ratio.view(-1, 1)
             
             shape = torch.tensor([1, 1, -1])
-            action_value = self.model.forward([state, ratio, shape, shape])[0]
+            action_value = self.model.forward([state, ratio, shape])[0]
 
         if no_epsilon:
             epsilon = 0
@@ -269,8 +269,8 @@ class Player():
             self.target_model.setCellState(hidden_state)
 
             shape = torch.tensor([FIXED_TRAJECTORY, 1, -1])
-            online_action_value = self.model.forward([state, ratio, shape, shape])[0]
-            target_action_value = self.target_model.forward([state, ratio, shape, shape])[0].view(-1)
+            online_action_value = self.model.forward([state, ratio, shape])[0]
+            target_action_value = self.target_model.forward([state, ratio, shape])[0].view(-1)
 
             action_max = online_action_value.argmax(-1).numpy()
             action_max_idx = [ACTION_SIZE * i + j for i, j in enumerate(action_max)]
