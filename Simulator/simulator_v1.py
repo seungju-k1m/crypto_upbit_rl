@@ -203,7 +203,7 @@ class Simulator:
         # self.renderer = Renderer(self.pipe)
         self.pipe.update(pipelines)
         
-    def resest(self, test=False, port=None):
+    def reset(self, test=False, port=None):
         self.reset_pipeline(test)
         obs = self.renderer.reset()
         current_price = float(self.renderer.y_vec[1][-1])
