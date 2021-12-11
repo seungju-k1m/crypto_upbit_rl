@@ -140,7 +140,7 @@ class Player():
         total_step = 0
         self.target_epsilon = 0
         # self.pull_param()
-        self.load_data()
+        # self.load_data()
         action_count = np.array([0 for i in range(ACTION_SIZE)])
 
         def preprocess_obs(obs):
@@ -152,13 +152,14 @@ class Player():
             # coin_value = value - KRW_value
             ratio = KRW_value / value
             return (image, ratio)
-        raw_yield = 0
+        
         for t in count():
             cumulative_reward = 0   
             done = False
             mean_yield = 0
             step = 0
             num_idle = 0
+            raw_yield = 0
             # try:
             #     port = deepcopy(self.sim.portfolio)
             #     obs = self.sim.reset(True, port=port)
