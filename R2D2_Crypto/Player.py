@@ -362,7 +362,7 @@ class Player():
 
             while done is False:
 
-                next_obs, reward, done, raw_reward = self.sim.step(action)
+                next_obs, reward, done, idle = self.sim.step(action)
 
                 next_state = preprocess_obs(next_obs)
 
@@ -370,7 +370,10 @@ class Player():
                 total_step += 1
 
                 cumulative_reward += reward
-                raw_yield += raw_reward
+                if idle:
+                    raw_yield += LEVERAGE * math.log(math.exp(reward/LEVERAGE) / (1 - FEE))
+                else:
+                    raw_yield += reward
                 local_buffer.push(state[0], state[1], action, reward)
                 local_buffer.push_hidden_state(hidden_state)
 
