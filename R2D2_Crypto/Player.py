@@ -144,7 +144,7 @@ class Player():
             # coin_value = value - KRW_value
             ratio = KRW_value / value
             return (image, ratio)
-
+        raw_yield = 0
         for t in count():
             cumulative_reward = 0   
             done = False
@@ -161,7 +161,7 @@ class Player():
             action, _, __ = self.forward(obs)
 
             self.model.zeroCellState()
-            raw_yield = 0
+            
             print('--------------')
             self.sim.portfolio.print()
 
