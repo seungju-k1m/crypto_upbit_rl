@@ -200,7 +200,6 @@ class DataPipeLine_Sim:
     ):
 
         self.offset = offset
-        self.offset = int(offset * (1 + 0.1 * random.random()))
         self.count = 0
         self.data = data
         self.end_step = len(data.data[1]) - self.count
