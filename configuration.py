@@ -11,7 +11,7 @@ import math
 # _path_ = './cfg/crypto_ape.json'
 # _path_ = "./cfg/cpt_ape_x.json"
 # _path_ = './cfg/r2d2.json'
-_path_ = "./cfg/cpt_r2d2.json"
+_path_ = "./cfg/cpt_r2d2_v2.json"
 
 
 _parser_ = jsonParser(_path_)
