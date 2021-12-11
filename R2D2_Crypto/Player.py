@@ -163,6 +163,7 @@ class Player():
             #     obs = self.sim.reset(True, port=port)
             # except:
             obs = self.sim.reset(True)
+            self.model.zeroCellState()
             # self.sim.print()
             obs = preprocess_obs(obs)
             # obs
@@ -171,8 +172,6 @@ class Player():
                     # image, 
 
             action, _, __ = self.forward(obs)
-
-            self.model.zeroCellState()
             
             print('--------------')
             self.sim.portfolio.print()
