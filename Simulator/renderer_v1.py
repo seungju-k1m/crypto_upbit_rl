@@ -235,7 +235,7 @@ class Renderer:
             if np.min(truncated_y) <= lim_info[0]:
                 ax.set_ylim(np.min(truncated_y), lim_info[1])
                 
-            lim_info = self.ax.get_ylim()
+            lim_info = ax.get_ylim()
             if np.max(truncated_y) >= lim_info[1]:
                 ax.set_ylim(lim_info[0], max(truncated_y))
             
