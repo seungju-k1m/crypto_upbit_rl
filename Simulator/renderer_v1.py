@@ -373,6 +373,7 @@ class Renderer:
                 # fig.canvas.draw()
         cond = [True for i in range(4)]
         image = self.render(cond)
+        image = image[0:1]
 
         return (image, (deepcopy(self.y_vec), deepcopy(self.y2_vec)))
         
@@ -390,6 +391,8 @@ class Renderer:
             return data
         j = 0
         for unit, value in output.items():
+            unit = duration
+            value = output[duration]
             time_np, midpoint_np, acc_volume_np = value
 
             prev_time_np = self.x_vec[unit]
@@ -407,6 +410,7 @@ class Renderer:
             self.y2_vec[unit] = acc_volume_np
         
         image = self.render(cond)
+        image = image[0:1]
         return (image, (deepcopy(self.y_vec), deepcopy(self.y2_vec))), done
 
     @staticmethod

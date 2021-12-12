@@ -25,7 +25,7 @@
     "model":{
         "module00":{
             "netCat":"CNN2D",
-            "iSize":4,
+            "iSize":1,
             "nLayer":4,
             "fSize":[8, 4, 3, -1],
             "nUnit":[32, 64, 64],
