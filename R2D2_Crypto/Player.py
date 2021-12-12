@@ -197,7 +197,7 @@ class Player():
                 else:
                     raw_yield += reward
                 action, _, epsilon = self.forward(next_obs)
-                if step% 240 == 0:
+                if step% 12 == 0:
                     self.sim.portfolio.print()
                 
             mean_yield += (math.exp(raw_yield/LEVERAGE) - 1)
