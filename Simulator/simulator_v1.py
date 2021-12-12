@@ -43,7 +43,7 @@ def generate_test_start(idx=0):
 
     start_id = idx
 
-    data_list = [data_list[i] for i in range(start_id, start_id+5)]
+    data_list = [data_list[i] for i in range(start_id, start_id+3)]
     pipelines = []
     for d in data_list:
         k_list = d.split(',')
