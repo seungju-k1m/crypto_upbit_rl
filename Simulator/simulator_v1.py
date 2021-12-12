@@ -22,7 +22,7 @@ def generate_random_start(day):
     data_list.sort()
     total_len = len(data_list)
 
-    start_id = random.randint(1, total_len-10)
+    start_id = random.randint(1, total_len-20)
 
     data_list = [data_list[i] for i in range(start_id, start_id+day)]
     pipelines = []

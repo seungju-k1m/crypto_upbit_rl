@@ -12,11 +12,11 @@ import time
 
 
 if __name__ == "__main__":
-    # p = Player()
-    # p.run()
+    p = Player()
+    p.run()
 
 
-    plot_unit = 15
+    plot_unit = 30
     sim = Simulator(unit_step=plot_unit, size=96, day=10)
 
     a = Animator(sim.pipe, plot_unit=plot_unit)
