@@ -82,7 +82,7 @@ class Player():
     def __init__(self, idx=0):
         # super(Player, self).__init__()
         self.idx = idx
-        self.sim = Simulator(unit_step=60, size=48, day=15)
+        self.sim = Simulator(unit_step=1, size=48, day=1)
         self.device = torch.device(DEVICE)
         self.build_model()
         self.target_epsilon =  0.4 **(1 + 7 * self.idx / (N-1))

@@ -16,10 +16,10 @@ if __name__ == "__main__":
     # p.run()
 
     plot_unit = 60
-    sim = Simulator(unit_step=plot_unit, size=96, day=10)
+    # sim = Simulator(unit_step=plot_unit, size=96, day=10)
 
-    a = Animator(sim.pipe, plot_unit=plot_unit)
-    a.plot()
+    # a = Animator(sim.pipe, plot_unit=plot_unit)
+    # a.plot()
     
     # cumulative_reward = 0
 
@@ -44,7 +44,7 @@ if __name__ == "__main__":
     to = datetime(2021, 1, 2, 0, 0)
     to_list = [to - timedelta(days=1)]
     pipe_list = []
-    for i in range(90):
+    for i in range(180):
         to_list.append(
             to + timedelta(days=i)
         )
