@@ -160,12 +160,12 @@ class Player():
             step = 0
             num_idle = 0
             # 
-            # try:
-            #     port = deepcopy(self.sim.portfolio)
-            #     obs = self.sim.reset(True, port=port)
-            # except:
-            #     obs = self.sim.reset(True)
-            obs = self.sim.reset(False)
+            try:
+                port = deepcopy(self.sim.portfolio)
+                obs = self.sim.reset(True, port=port)
+            except:
+                obs = self.sim.reset(True)
+            # obs = self.sim.reset(False)
             self.model.zeroCellState()
             # self.sim.print()
             obs = preprocess_obs(obs)
