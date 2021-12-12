@@ -43,7 +43,7 @@ def generate_test_start(idx=0):
 
     start_id = idx
 
-    data_list = [data_list[i] for i in range(start_id, start_id+3)]
+    data_list = [data_list[i] for i in range(start_id, start_id+16)]
     pipelines = []
     for d in data_list:
         k_list = d.split(',')
@@ -293,6 +293,8 @@ class Simulator:
         y1, y2 = candle_info
 
         current_price = y1[1][-1]
+        if current_price == 37495500.0:
+            print(current_price)
 
         amount_list = [.25, .5, .75, 1.0]
 
