@@ -191,11 +191,8 @@ class Player():
                 total_step += 1
 
                 cumulative_reward += reward
-                if idle:
-                    raw_yield += LEVERAGE * math.log(math.exp(reward/LEVERAGE) / (1 - FEE))
-                    num_idle += 1
-                else:
-                    raw_yield += reward
+
+                raw_yield += reward
                 action, _, epsilon = self.forward(next_obs)
                 if step% 240 == 0:
                     self.sim.portfolio.print()
@@ -371,10 +368,8 @@ class Player():
                 total_step += 1
 
                 cumulative_reward += reward
-                if idle:
-                    raw_yield += LEVERAGE * math.log(math.exp(reward/LEVERAGE) / (1 - FEE))
-                else:
-                    raw_yield += reward
+
+                raw_yield += reward
                 local_buffer.push(state[0], state[1], action, reward)
                 local_buffer.push_hidden_state(hidden_state)
 

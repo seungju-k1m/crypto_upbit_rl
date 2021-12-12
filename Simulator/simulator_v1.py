@@ -235,11 +235,12 @@ class Simulator:
             reward =  LEVERAGE * math.log(current_value / previous_value)
 
         else:
-            self.portfolio.Average_Price = current_price
-            self.portfolio.update()
-            current_value = deepcopy(self.portfolio.Current_Value) * (1 - FEE)
+            # self.portfolio.Average_Price = current_price
+            # self.portfolio.update()
+            # current_value = deepcopy(self.portfolio.Current_Value) * (1 - FEE)
 
-            reward = LEVERAGE * math.log(current_value / previous_value)
+            # reward = LEVERAGE * math.log(current_value / previous_value)
+            reward = 0
             idle = True
         
         return reward, idle
@@ -263,11 +264,13 @@ class Simulator:
             reward = LEVERAGE * math.log(current_value / previous_value)
 
         else:
-            self.portfolio.Average_Price = current_price
-            self.portfolio.update()
-            current_value = deepcopy(self.portfolio.Current_Value) * (1 - FEE)
+            # self.portfolio.Average_Price = current_price
+            # self.portfolio.update()
+            # current_value = deepcopy(self.portfolio.Current_Value) * (1 - FEE)
 
-            reward = LEVERAGE * math.log(current_value / previous_value)
+            # reward = LEVERAGE * math.log(current_value / previous_value)
+            reward = 0
+
             idle = True
         
         return reward, idle
@@ -313,11 +316,12 @@ class Simulator:
         #     reward = self.rebalance_COIN_2_KRW(1, current_price)
 
         if action == 0:
-            prev_value = deepcopy(self.portfolio.Current_Value)
-            self.portfolio.Average_Price = current_price
-            self.portfolio.update()
-            value = deepcopy(self.portfolio.Current_Value)
-            reward_ = LEVERAGE * math.log(value / prev_value)
+            # prev_value = deepcopy(self.portfolio.Current_Value)
+            # self.portfolio.Average_Price = current_price
+            # self.portfolio.update()
+            # value = deepcopy(self.portfolio.Current_Value)
+            # reward_ = LEVERAGE * math.log(value / prev_value)
+            reward_ = 0
             idle = False
         elif action < 5:
             idx = int(action - 1)

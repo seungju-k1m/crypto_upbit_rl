@@ -6,14 +6,14 @@
     "MARKET":"KRW-BTC",
     "LOG_MODE":false,
     "BACKTEST":true,
-    "FEE":0.0005,
+    "FEE":0.005,
     "ACTION_SIZE":9,
 
     "device":"cpu",
     "learner_device":"cuda:0",
 
-    "REPLAY_MEMORY_LEN":10000,
-    "unroll_step":5,
+    "REPLAY_MEMORY_LEN":15000,
+    "unroll_step":10,
     
 
     "optim":{
@@ -25,7 +25,7 @@
     "model":{
         "module00":{
             "netCat":"CNN2D",
-            "iSize":1,
+            "iSize":2,
             "nLayer":4,
             "fSize":[8, 4, 3, -1],
             "nUnit":[32, 64, 64],

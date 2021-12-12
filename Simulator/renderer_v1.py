@@ -373,7 +373,7 @@ class Renderer:
                 # fig.canvas.draw()
         cond = [True for i in range(4)]
         image = self.render(cond)
-        image = image[0:1]
+        image = image[0:2]
 
         return (image, (deepcopy(self.y_vec), deepcopy(self.y2_vec)))
         
@@ -410,7 +410,7 @@ class Renderer:
             self.y2_vec[unit] = acc_volume_np
         
         image = self.render(cond)
-        image = image[0:1]
+        image = image[0:2]
         return (image, (deepcopy(self.y_vec), deepcopy(self.y2_vec))), done
 
     @staticmethod
