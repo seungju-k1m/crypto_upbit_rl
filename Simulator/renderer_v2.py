@@ -166,7 +166,7 @@ class Renderer:
         
         # fig_np = np.array(fig.canvas.renderer._renderer)
         fig_Image = Image.fromarray(fig_np)
-        fig_Image = fig_Image.resize((96* 2, 72 * 2))
+        fig_Image = fig_Image.resize((96, 72))
         # fig_Image.show()
 
         if plot:
