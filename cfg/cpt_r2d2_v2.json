@@ -10,7 +10,7 @@
     "ACTION_SIZE":9,
 
     "device":"cpu",
-    "learner_device":"cpu",
+    "learner_device":"cuda:0",
 
     "REPLAY_MEMORY_LEN":2500,
     "unroll_step":5,
@@ -59,7 +59,7 @@
             "netCat":"LSTMNET",
             "hiddenSize":512,
             "nLayer":1,
-            "iSize":2560,
+            "iSize":17920,
             "device":"cpu",
             "FlattenMode":true,
             "return_hidden":false,
