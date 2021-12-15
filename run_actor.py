@@ -40,8 +40,6 @@ parser.add_argument(
 if __name__ == "__main__":
 
     # -------------- Player ----------------
-    p = Player()
-    p.run()
     args = parser.parse_args()
     num_worker = args.num_worker
     start_idx = args.start_idx
