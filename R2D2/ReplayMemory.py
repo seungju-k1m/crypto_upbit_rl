@@ -25,9 +25,7 @@ class Replay(threading.Thread):
     def __init__(self):
         super(Replay, self).__init__()
         self.setDaemon(True)
-        self.use_PER = USE_PER
-        # self.memory = ReplayMemory(REPLAY_MEMORY_LEN)
-        # if self.use_PER:
+
         self.memory = PER(
             maxlen=REPLAY_MEMORY_LEN,
             max_value=1.0,
@@ -143,12 +141,8 @@ class Replay(threading.Thread):
     def run(self):
         t = 0
         data = []
-        m = 1000
+        m = BUFFER_SIZE
         while True:
-            # if len(self.memory.priority.prior_torch) > m:
-            #     if t == 1:
-            #         print("Cond is True")
-            #     self.cond = True
             
             pipe = self.connect.pipeline()
             pipe.lrange("experience", 0, -1)

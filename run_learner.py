@@ -6,12 +6,9 @@ if ALG == "APE_X":
 elif ALG == "R2D2":
     from R2D2.Learner import Learner
 
-elif ALG == "APE_X_CPT":
-    from APE_X_Crypto.Learner import Learner
-
-elif ALG == "R2D2_CPT":
-    from R2D2_Crypto.Learner import Learner
-
+elif ALG == "IMPALA":
+    from IMPALA.Learner import Learner
+    
 else:
     raise RuntimeError("!!")
 

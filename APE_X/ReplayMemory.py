@@ -4,17 +4,13 @@ import torch
 import _pickle as pickle
 import threading
 import redis
-import cProfile
-from pstats import Stats
 
-import itertools
 import numpy as np
 
 from copy import deepcopy
 from collections import deque
 from baseline.utils import loads, ReplayMemory
 from baseline.PER import PER
-from random import choices
 
 from configuration import *
 
@@ -25,15 +21,12 @@ class Replay(threading.Thread):
     def __init__(self):
         super(Replay, self).__init__()
         self.setDaemon(True)
-        self.use_PER = USE_PER
-        # self.memory = ReplayMemory(REPLAY_MEMORY_LEN)
-        if self.use_PER:
-            self.memory = PER(
-                maxlen=REPLAY_MEMORY_LEN,
-                max_value=1.0,
-                beta=BETA)
-        else:
-            self.memory = ReplayMemory(REPLAY_MEMORY_LEN)
+
+        self.memory = PER(
+            maxlen=REPLAY_MEMORY_LEN,
+            max_value=1.0,
+            beta=BETA)
+
         # PER 구현해보자
         self.cond = False
         self.connect = redis.StrictRedis(host=REDIS_SERVER, port=6379)
@@ -148,29 +141,26 @@ class Replay(threading.Thread):
                 self.total_frame += len(data)
                 data.clear()
                 # assert len(self.memory.memory) == len(self.memory.priority_torch)
-                if len(self.memory) > 50000:
+                if len(self.memory) > BUFFER_SIZE:
                     if len(self.deque) < 8:
                         self.buffer()
                         t += 1
                         if t == 1:
                             print("Data Batch Start!!!")
-                self._update()
+                if len(self.idx) > 1000:
+                    self._update()
+                    self.idx.clear()
+                    self.vals.clear()
                 if self.lock:
                     if len(self.memory) < REPLAY_MEMORY_LEN:
-                        self.memory.remove_to_fit()
+                        pass
                     else:
-                        while len(self.deque) > 0:
-                            time.sleep(0.001)
+                        self.deque.clear()
                         self.memory.remove_to_fit()
                         self.idx.clear()
                         self.vals.clear()
                         self.buffer()
                     self.lock = False
-                if (t+1) % 500 == 0:
-                    # profile = cProfile.Profile()
-                    # profile.runctx('self.buffer()', globals(), locals())
-                    # profile.print_stats()
-                    a = 1
             gc.collect()
         
     def sample(self):

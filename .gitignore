@@ -1,8 +1,7 @@
 .vscode
-key.txt
 # cfg/*
 __pycache__
 log/*
 # data/*
 dump.rdb
-weight
+weight/*

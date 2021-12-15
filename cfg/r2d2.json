@@ -1,30 +1,30 @@
 {
     "ALG":"R2D2",
-    "redis_server":"10.172.88.44",
-    "redis_server_push":"localhost",
-    "redis_server_":"localhost",
-    "MARKET":"KRW-BTC",
-    "LOG_MODE":false,
-    "BACKTEST":true,
-    "FEE":0.0005,
+    "REDIS_SERVER_":"10.86.230.140",
+    "REDIS_SERVER_PUSH":"localhost",
+    "REDIS_SERVER":"localhost",
+
     "ACTION_SIZE":6,
 
-    "use_gym":true,
-    "device":"cpu",
-    "learner_device":"cuda:0",
+    "_PER_":true,
+    "ALPHA":0.9,
+    "BETA":0.4,
+    "GAMMA":0.997,
+    "TARGET_FREQUENCY":2500,
+    "N":32,
+    "BATCHSIZE":32,
+
+    "FIXED_TRAJECTORY":80,
+    "MEM":20,
+    
+    "DEVICE":"cpu",
+    "LEARNER_DEVICE":"cuda:0",
 
     "REPLAY_MEMORY_LEN":10000,
-    "unroll_step":5,
+    "BUFFER_SIZE":1000,
+    "UNROLL_STEP":5,
+    "USE_RESCALING":true,
 
-    "optim_":{
-        "name":"rmsprop",
-        "lr":0.0000625,
-        "eps":1.5e-7,
-        "decay":0,
-        "alpha":0.95,
-        "momentum":0,
-        "centered":true
-    },
     "optim":{
         "name":"adam",
         "lr":1e-4,

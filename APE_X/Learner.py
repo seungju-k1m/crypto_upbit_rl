@@ -7,10 +7,8 @@ from torch.utils.tensorboard import SummaryWriter
 from itertools import count
 
 import numpy as np
-import torch.nn as nn
 import torch
 import time
-import gc
 
 import redis
 import _pickle as pickle
@@ -24,14 +22,18 @@ class Learner:
         self.build_model()
         self.build_optim()
         self.connect = redis.StrictRedis(host=REDIS_SERVER, port=6379)
-        if USE_REDIS_SERVER:
-            self.memory = Replay_Server()
-        else:
-            self.memory = Replay()
+
+        self.memory = Replay()
         self.memory.start()
+
+        LOG_PATH = os.path.join(BASE_PATH, CURRENT_TIME)
         
         self.writer = SummaryWriter(
             LOG_PATH
+        )
+        info = writeTrainInfo(DATA)
+        self.writer.add_text(
+            "configuration", info.info, 0
         )
         
         names = self.connect.scan()
@@ -39,7 +41,7 @@ class Learner:
             self.connect.delete(*names[-1])
 
     def build_model(self):
-        info = DATA["model"]
+        info = MODEL
         self.model = baseAgent(info)
         self.model.to(self.device)
         self.target_model = baseAgent(info)
@@ -50,12 +52,9 @@ class Learner:
         
     def train(self, transition, t=0) -> dict:
         new_priority = None
-        if USE_PER:
-            state, action, reward, next_state, done, weight, idx = transition
-            weight = torch.tensor(weight).float().to(self.device)
-        else:
-            state, action, reward, next_state, done = transition
-            idx  = None
+        state, action, reward, next_state, done, weight, idx = transition
+        weight = torch.tensor(weight).float().to(self.device)
+
 
         state = torch.tensor(state).float()
         state = state / 255.
@@ -108,12 +107,9 @@ class Learner:
         td_error_for_prior = (np.abs(td_error_for_prior) + 1e-7) ** ALPHA
         new_priority = td_error_for_prior
 
-        if USE_PER:
-            loss = torch.mean(
-                weight * (td_error ** 2)
-            ) * 0.5
-        else:
-            loss = torch.mean(td_error ** 2) * 0.5
+        loss = torch.mean(
+            weight * (td_error ** 2)
+        ) * 0.5
         loss.backward()
 
         info = self.step()
@@ -142,17 +138,10 @@ class Learner:
     def run(self):
         def wait_memory():
             while True:
-                if USE_REDIS_SERVER:
-                    cond = self.connect.get("FLAG_BATCH")
-                    if cond is not None:
-                        cond = pickle.loads(cond)
-                        if cond:
-                            break
+                if len(self.memory.memory) > BUFFER_SIZE:
+                    break
                 else:
-                    if len(self.memory.memory) > 50000:
-                        break
-                    else:
-                        print(len(self.memory.memory))
+                    print(len(self.memory.memory))
                 time.sleep(1)
         wait_memory()
         state_dict = pickle.dumps(self.state_dict)
@@ -197,21 +186,13 @@ class Learner:
             
             if (step % 500) == 0:
                 
-                if USE_REDIS_SERVER:
-                    self.connect.set("FLAG_REMOVE", pickle.dumps(True))
-                else:
-                    self.memory.lock = True
+                self.memory.lock = True
             
-            if USE_PER:
-                if USE_REDIS_SERVER:
-                    self.memory.update(
-                        list(idx), priority
-                    )
-                else:
-                    if self.memory.lock is False:
-                        self.memory.update(
-                            list(idx), priority
-                        )
+
+            if self.memory.lock is False:
+                self.memory.update(
+                    list(idx), priority
+                )
 
             norm += info['p_norm']
             mean_value += info['mean_value']
@@ -251,19 +232,12 @@ class Learner:
                 amount_update_time /= mm
                 tt = time.time() - init_time
                 init_time = time.time()
-                if USE_REDIS_SERVER:
-                    print(
-                        """step:{} // mean_value:{:.3f} // norm:{:.3f} // REWARd:{:.3f}
-                        TIME:{:.3f} // TRAIN_TIME:{:.3f} // SAMPLE_TIME:{:.3f} // UPDATE_TIME:{:.3f}""".format(
-                            step, mean_value / mm, norm / mm, cumulative_reward, tt/mm, amount_train_tim, amount_sample_time, amount_update_time
-                        )
-                    )
-                else:
-                    print(
-                        """step:{} // mean_value:{:.3f} // norm: {:.3f} // REWARD:{:.3f} // NUM_MEMORY:{} 
-        Mean_Weight:{:.3f}  // MAX_WEIGHT:{:.3f}  // TIME:{:.3f} // TRAIN_TIME:{:.3f} // SAMPLE_TIME:{:.3f} // UPDATE_TIME:{:.3f}""".format(
-                            step, mean_value / mm, norm / mm, cumulative_reward, len(self.memory.memory), mean_weight / mm, self.memory.memory.max_weight,tt / mm, amount_train_tim, amount_sample_time, amount_update_time)
-                    )
+                
+                print(
+                    """step:{} // mean_value:{:.3f} // norm: {:.3f} // REWARD:{:.3f} // NUM_MEMORY:{} 
+    Mean_Weight:{:.3f}  // MAX_WEIGHT:{:.3f}  // TIME:{:.3f} // TRAIN_TIME:{:.3f} // SAMPLE_TIME:{:.3f} // UPDATE_TIME:{:.3f}""".format(
+                        step, mean_value / mm, norm / mm, cumulative_reward, len(self.memory.memory), mean_weight / mm, self.memory.memory.max_weight,tt / mm, amount_train_tim, amount_sample_time, amount_update_time)
+                )
                 amount_sample_time, amount_train_tim, amount_update_time = 0, 0, 0
                 if len(data) > 0:
                     self.writer.add_scalar(
@@ -277,7 +251,13 @@ class Learner:
                 )
                 mean_value, norm = 0, 0
                 mean_weight = 0
-                torch.save(self.state_dict, './weight/dqn/weight.pth')
+                path = os.path.join(
+                    './weight',
+                    ALG,
+                    CURRENT_TIME,
+                    'weight.pth'
+                )
+                torch.save(self.state_dict, path)
     
     @property
     def state_dict(self):

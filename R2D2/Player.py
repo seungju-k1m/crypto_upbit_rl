@@ -1,24 +1,16 @@
-from threading import local
-from numpy.core.fromnumeric import mean
-from numpy.core.shape_base import stack
-from numpy.random.mtrand import rand
+
 from configuration import *
 from baseline.baseAgent import baseAgent
-from multiprocessing import Process
 from collections import deque
 from copy import deepcopy
 from itertools import count
 
-from typing import List
 import numpy as np
 import _pickle as pickle
 import torch
 import redis
 
-import torch.nn as nn
-from torch.distributions import Categorical
 import gym
-import time
 import random
 from PIL import Image as im
 
@@ -340,85 +332,4 @@ class Player():
                     )
                 )
                 mean_cumulative_reward = 0
-
-    def eval(self):
-        obsDeque = deque(maxlen=4)
-        mean_cumulative_reward = 0
-        per_episode = 10
-        step = 0
-        keys = ['ale.lives', 'lives']
-        key = "ale.lives"
-        self.pull_param()
-        # key = "lives"
-        def rgb_to_gray(img, W=84, H=84):
-            grayImage = im.fromarray(img, mode="RGB").convert("L")
-
-            # grayImage = np.expand_dims(Avg, -1)
-            grayImage = grayImage.resize((84, 84), im.NEAREST)
-            return grayImage
         
-        def stack_obs(img):
-            gray_img = rgb_to_gray(img)
-            obsDeque.append(gray_img)
-            state = []
-            if len(obsDeque) > 3:
-                for i in range(4):
-                    state.append(obsDeque[i])
-                state = np.stack(state, axis=0)
-                return state
-            else:
-                return None
-        
-        for t in count():
-            cumulative_reward = 0   
-            done = False
-            live = -1
-            experience = []
-            step = 0
-
-            obs = self.sim.reset()
-            self.obsDeque.clear()
-            for i in range(4):
-                stack_obs(obs)
-            
-            state = stack_obs(obs)
-
-            action, _ = self.forward(state)
-            
-            while done is False:
-                reward = 0
-                for i in range(3):
-                    _, __, r, _ = self.sim.step(action)
-                    reward += r
-                next_obs, r, done, info = self.sim.step(action)
-                reward += r
-                reward_ = reward
-                reward = max(-1.0, min(reward, 1.0))
-                step += 1
-                # print(step)
-                # self.sim.render()
-
-                if live == -1:
-                    try:
-                        live = info[key]
-                    except:
-                        key = keys[1 - keys.index(key)]
-                        live = info[key]
-                
-                if info[key] != 0:
-                    _done = live != info[key]
-                    if _done:
-                        live = info[key]
-                else:
-                    _done = reward != 0
-
-                state = stack_obs(next_obs)
-                action, epsilon = self.forward(state, t, no_epsilon=True)
-                cumulative_reward += reward_
-            mean_cumulative_reward += cumulative_reward
-            if (t+1) % per_episode == 0:
-                print("""
-                EPISODE:{} // REWARD:{:.3f}
-                """.format(t+1, mean_cumulative_reward / per_episode))
-                mean_cumulative_reward = 0
-                break

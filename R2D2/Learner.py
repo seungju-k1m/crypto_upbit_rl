@@ -43,19 +43,20 @@ class Learner:
         self.build_optim()
         self.connect = redis.StrictRedis(host=REDIS_SERVER, port=6379)
 
-        if USE_REDIS_SERVER:
-            self.memory = Replay_Server()
-        else:
-            self.memory = Replay()
+        self.memory = Replay()
 
-        # self.memory = Replay()s
         self.memory.start()
         
+        LOG_PATH = os.path.join(BASE_PATH, CURRENT_TIME)
         self.writer = SummaryWriter(
             LOG_PATH
         )
         
         names = self.connect.scan()
+        info = writeTrainInfo(DATA)
+        self.writer.add_text(
+            "configuration", info.info, 0
+        )
 
         self.action_idx = torch.tensor([ACTION_SIZE * i for i in range(BATCHSIZE * (FIXED_TRAJECTORY - MEM))]).to(self.device)
         self.action_idx_np = np.array([ACTION_SIZE * i for i in range(BATCHSIZE * (FIXED_TRAJECTORY - MEM - 1))])
@@ -74,8 +75,6 @@ class Learner:
         
     def train(self, transition, t=0) -> dict:
         new_priority = None
-
-        
 
         hidden_state, state, action, reward, done, weight, idx = transition
         # state -> SEQ * BATCH
@@ -139,7 +138,10 @@ class Learner:
 
             next_max_value =  target_action_max_value
             next_max_value = next_max_value.view(FIXED_TRAJECTORY - MEM, BATCHSIZE)
-            target_value = value_inv_transform(next_max_value[UNROLL_STEP:-1].contiguous())
+
+            target_value = next_max_value[UNROLL_STEP:-1].contiguous()
+            if USE_RESCALING:
+                target_value = value_inv_transform(target_value)
             rewards = np.zeros((FIXED_TRAJECTORY- MEM - UNROLL_STEP - 1, BATCHSIZE))
             bootstrap = next_max_value[-1].detach().cpu().numpy()
             
@@ -160,7 +162,8 @@ class Learner:
             target = torch.cat((target, remainder), 0)
             
             target = target.view(-1)
-            target = value_transform(target)
+            if USE_RESCALING:
+                target = value_transform(target)
             target = target.detach()
 
             # next_max_value, _ = next_action_value.max(dim=-1) 
@@ -186,10 +189,6 @@ class Learner:
         loss = torch.mean(
             weight * (td_error_truncated ** 2)
         ) * 0.5
-        # loss = torch.sum(
-        #     weight * (td_error_truncated ** 2)
-        # ) * 0.5
-
         loss.backward()
 
         info = self.step()
@@ -218,18 +217,11 @@ class Learner:
     def run(self):
         def wait_memory():
             while True:
-                if USE_REDIS_SERVER:
-                    cond = self.connect.get("FLAG_BATCH")
-                    if cond is not None:
-                        cond = pickle.loads(cond)
-                        if cond:
-                            break
+                if len(self.memory.memory) > BUFFER_SIZE:
+                    break
                 else:
-                    if len(self.memory.memory) > 1000:
-                        break
-                    else:
-                        print(len(self.memory.memory))
-                time.sleep(1)
+                    print(len(self.memory.memory))
+                    time.sleep(1)
         wait_memory()
         state_dict = pickle.dumps(self.state_dict)
         step_bin = pickle.dumps(1)
@@ -273,21 +265,13 @@ class Learner:
             
             if (step % 500) == 0:
                 
-                if USE_REDIS_SERVER:
-                    self.connect.set("FLAG_REMOVE", pickle.dumps(True))
-                else:
-                    self.memory.lock = True
+                self.memory.lock = True
             
-            if USE_PER:
-                if USE_REDIS_SERVER:
-                    self.memory.update(
-                        list(idx), priority
-                    )
-                else:
-                    if self.memory.lock is False:
-                        self.memory.update(
-                            list(idx), priority
-                        )
+
+            if self.memory.lock is False:
+                self.memory.update(
+                    list(idx), priority
+                )
 
             norm += info['p_norm']
             mean_value += info['mean_value']
@@ -327,19 +311,12 @@ class Learner:
                 amount_update_time /= mm
                 tt = time.time() - init_time
                 init_time = time.time()
-                if USE_REDIS_SERVER:
-                    print(
-                        """step:{} // mean_value:{:.3f} // norm:{:.3f} // REWARd:{:.3f}
-                        TIME:{:.3f} // TRAIN_TIME:{:.3f} // SAMPLE_TIME:{:.3f} // UPDATE_TIME:{:.3f}""".format(
-                            step, mean_value / mm, norm / mm, cumulative_reward, tt/mm, amount_train_tim, amount_sample_time, amount_update_time
-                        )
-                    )
-                else:
-                    print(
-                        """step:{} // mean_value:{:.3f} // norm: {:.3f} // REWARD:{:.3f} // NUM_MEMORY:{} 
-        Mean_Weight:{:.3f}  // MAX_WEIGHT:{:.3f}  // TIME:{:.3f} // TRAIN_TIME:{:.3f} // SAMPLE_TIME:{:.3f} // UPDATE_TIME:{:.3f}""".format(
-                            step, mean_value / mm, norm / mm, cumulative_reward, len(self.memory.memory), mean_weight / mm, self.memory.memory.max_weight,tt / mm, amount_train_tim, amount_sample_time, amount_update_time)
-                    )
+
+                print(
+                    """step:{} // mean_value:{:.3f} // norm: {:.3f} // REWARD:{:.3f} // NUM_MEMORY:{} 
+    Mean_Weight:{:.3f}  // MAX_WEIGHT:{:.3f}  // TIME:{:.3f} // TRAIN_TIME:{:.3f} // SAMPLE_TIME:{:.3f} // UPDATE_TIME:{:.3f}""".format(
+                        step, mean_value / mm, norm / mm, cumulative_reward, len(self.memory.memory), mean_weight / mm, self.memory.memory.max_weight,tt / mm, amount_train_tim, amount_sample_time, amount_update_time)
+                )
                 amount_sample_time, amount_train_tim, amount_update_time = 0, 0, 0
                 if len(data) > 0:
                     self.writer.add_scalar(
@@ -353,7 +330,13 @@ class Learner:
                 )
                 mean_value, norm = 0, 0
                 mean_weight = 0
-                torch.save(self.state_dict, './weight/dqn/weight.pth')
+                path = os.path.join(
+                    './weight',
+                    ALG,
+                    CURRENT_TIME,
+                    'weight.pth'
+                )
+                torch.save(self.state_dict, path)
     
     @property
     def state_dict(self):

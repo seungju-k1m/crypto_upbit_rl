@@ -7,11 +7,8 @@ if ALG == "APE_X":
 elif ALG == "R2D2":
     from R2D2.Player import Player
 
-elif ALG == "APE_X_CPT":
-    from APE_X_Crypto.Player import Player
-
-elif ALG == "R2D2_CPT":
-    from R2D2_Crypto.Player import Player
+elif ALG == "IMPALA":
+    from IMPALA.Player import Player
 
 else:
     raise RuntimeError("!!")
@@ -38,7 +35,8 @@ parser.add_argument(
 
 
 if __name__ == "__main__":
-
+    # p = Player()
+    # p.run()
     # -------------- Player ----------------
     args = parser.parse_args()
     num_worker = args.num_worker

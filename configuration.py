@@ -8,149 +8,74 @@ import torch
 import math
 
 
-# _path_ = './cfg/crypto_ape.json'
-# _path_ = "./cfg/cpt_ape_x.json"
+# _path_ = "./cfg/ape_x.json"
+_path_ = "./cfg/impala.json"
 # _path_ = './cfg/r2d2.json'
-_path_ = "./cfg/cpt_r2d2_v2.json"
 
 
 _parser_ = jsonParser(_path_)
 _data_ = _parser_.loadParser()
-_key_ = list(_data_.keys())
-
 
 ALG = _data_['ALG']
 
 
 DATA = _data_
 
-CRYPTO_MODE = True
+# APE_X
 
-ACTION_SIZE = DATA["ACTION_SIZE"]
-FIXED_TRAJECTORY = 80
-MEM = 20
+if ALG == "APE_X":
+    USE_REWARD_CLIP = _data_["USE_REWARD_CLIP"]
+    BASE_PATH = "./log/APE_X"
 
+# R2D2
+elif ALG == "R2D2":
+    FIXED_TRAJECTORY = _data_["FIXED_TRAJECTORY"]
+    MEM = _data_["MEM"]
+    USE_RESCALING = _data_["USE_RESCALING"]
+    BASE_PATH = "./log/R2D2"
 
-USE_REDIS_SERVER = False
-USE_PER = True
-USE_RANDOM_START = False
-ALPHA = 0.9
-BETA = 0.4
-GAMMA = .997
-TARGET_FREQUENCY = 2500
-N = 32
-BATCHSIZE = 32
-TOTAL_TRAINING_STEP = int(5e4)
+elif ALG == "IMPALA":
+    C_LAMBDA = _data_["C_LAMBDA"]
+    C_VALUE = _data_["C_VALUE"]
+    P_VALUE = _data_["P_VALUE"]
+    ENTROPY_R = _data_["ENTROPY_R"]
+    BASE_PATH = ',/log/IMPALA'
 
-FEE = _data_['FEE']
-try:
-    ACCESS_KEY = _data_['ACCESS_KEY']
-    SECRETE_KEY = _data_['SECRETE_KEY']
-except:
-    pass
-MARKET = _data_['MARKET']
-LOG_MODE = _data_['LOG_MODE']
+# COMMOLN
 
-DEVICE = _data_["device"]
-LEARNER_DEVICE = _data_["learner_device"]
+use_per = ALG != "IMPALA"
 
-UNROLL_STEP = _data_["unroll_step"]
+if use_per:
 
-OPTIM_INFO = _data_["optim"]
+    ALPHA = _data_['ALPHA']
+    BETA = _data_['BETA']
+    TARGET_FREQUENCY = _data_['TARGET_FREQUENCY']
+    N = _data_['N']
 
-
+GAMMA = _data_['GAMMA']
+BATCHSIZE = _data_['BATCHSIZE']
+ACTION_SIZE = _data_['ACTION_SIZE']
+UNROLL_STEP = _data_['UNROLL_STEP']
 REPLAY_MEMORY_LEN = _data_["REPLAY_MEMORY_LEN"]
 
-if "use_gym" in _key_:
-    USE_GYM = _data_["use_gym"]
-else:
-    USE_GYM = False
-
+REDIS_SERVER = _data_["REDIS_SERVER"]
 try:
-    REDIS_SERVER = _data_["redis_server"]
+    REDIS_SERVER_PUSH = _data_["REDIS_SERVER_PUSH"]
 except:
-    REDIS_SERVER = "localhost"
+    pass
 
-try:
-    REDIS_SERVER_PUSH = _data_["redis_server_push"]
-except:
-    REDIS_SERVER_PUSH = "localhost"
+DEVICE = _data_["DEVICE"]
+LEARNER_DEVICE = _data_["LEARNER_DEVICE"]
 
-STARTDAY = '2021-09-13 00:00:00'
-DURATION = 15
-
-TIMEINTERVAL = 2
+BUFFER_SIZE = _data_["BUFFER_SIZE"]
 
 
-URL = "https://api.upbit.com"
+# MODEL & OPTIM
+
+OPTIM_INFO = _data_["optim"]
+MODEL = _data_["model"]
 
 
+# SAVE and LOG PATH
 _current_time_ = datetime.now()
-_logger_ = logging.getLogger("Crypto_RL")
-_logger_.setLevel(logging.ERROR)
-
-
-_str_time_ = _current_time_.strftime("%m_%d_%Y_%H_%M_%S")
-_log_path_ = os.path.join(
-    './log', _str_time_
-)
-
-LOG_PATH = _log_path_
-
-_indicator_log_path_ = os.path.join(
-    _log_path_, 'indicator.log'
-)
-
-TRAIN_LOG_MODE = False
-if TRAIN_LOG_MODE:
-    if not os.path.isdir(_log_path_):
-        os.mkdir(_log_path_)
-    _train_log_path_ = os.path.join(
-        _log_path_, "train.log"
-    )
-    TRAIN_LOGGER = setup_logger("train", _train_log_path_)
-    _train_header_ = "step,norm,mean_value,entropy"
-    TRAIN_LOGGER.info(_train_header_)
-
-    _actor_log_path_ = os.path.join(
-        _log_path_, "actor.log"
-    )
-    ACTOR_LOGGER = setup_logger("actor", _actor_log_path_)
-    _actor_header_ = "day,income"
-    ACTOR_LOGGER.info(_actor_header_)
-
-# Logging !!
-if LOG_MODE:
-    if not os.path.isdir(_log_path_):
-        os.mkdir(_log_path_)
-    INDICT_LOGGER = setup_logger('indictator', _indicator_log_path_)
-    _ask_log_path_ = os.path.join(
-        _log_path_, 'ask.log'
-    )
-    _bid_log_path_ = os.path.join(
-        _log_path_, 'bid.log'
-    )
-    _info_log_path_ = os.path.join(
-        _log_path_, 'info.log'
-    )
-
-    ASK_LOGGER = setup_logger("ask", _ask_log_path_)
-    BID_LOGGER = setup_logger("bid", _bid_log_path_)
-    INFO_LOGGER = setup_logger("info", _info_log_path_)
-
-    _ask_header_ = 'time,uuid,volume,market'
-    _bid_header_ = 'time,uuid,price,market'
-    _info_ = writeTrainInfo(_data_)
-
-    INFO_LOGGER.info(_info_)
-    ASK_LOGGER.info(_ask_header_)
-    BID_LOGGER.info(_bid_header_)
-
-# ------------------------------------------------
-
-RENDER_TIME = 0
-RUN_UNIT_TIME = 0
-# 0:1, 1:5, 2:15, 3:60
-# UNIT_MINUTE = [1, 5, 15, 60]
-UNIT_MINUTE = [5]
-RENDER_MODE = True
+CURRENT_TIME = _current_time_.strftime("%m_%d_%Y_%H_%M_%S")
