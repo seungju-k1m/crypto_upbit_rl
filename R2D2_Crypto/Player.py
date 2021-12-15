@@ -17,7 +17,7 @@ import redis
 
 import torch.nn as nn
 from torch.distributions import Categorical
-from Simulator.simulator_v1 import LEVERAGE, Simulator
+from Simulator.simulator_v2 import LEVERAGE, Simulator
 
 import time
 import random
@@ -82,7 +82,7 @@ class Player():
     def __init__(self, idx=0):
         # super(Player, self).__init__()
         self.idx = idx
-        self.sim = Simulator(unit_step=1, size=48, day=1)
+        self.sim = Simulator(unit=1, size=24, day=1)
         self.device = torch.device(DEVICE)
         self.build_model()
         self.target_epsilon =  0.4 **(1 + 7 * self.idx / (N-1))
@@ -333,8 +333,7 @@ class Player():
         total_step = 0
 
         def preprocess_obs(obs):
-            chart_info, account_info = obs
-            image, _= chart_info
+            image, account_info = obs
 
             value = account_info['Current_Value']
             KRW_value = account_info['KRW_Balance']

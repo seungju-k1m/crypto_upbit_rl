@@ -1,7 +1,7 @@
 from os import pipe
-from Simulator.pipeline_v1 import DataPipeLine, SetDataPipeLine, DataPipeLine_Sim
-from Simulator.simulator_v1 import Simulator
-from Simulator.renderer_v1 import Renderer, Animator
+from Simulator.pipeline_v2 import DataPipeLine, SetDataPipeLine, DataPipeLine_Sim
+from Simulator.simulator_v2 import Simulator
+from Simulator.renderer_v2 import Renderer, Animator
 
 from datetime import datetime, timedelta
 
@@ -12,15 +12,18 @@ import time
 
 
 if __name__ == "__main__":
-    p = Player()
-    p.run()
+    # p = Player()
+    # p.run()
 
 
-    plot_unit = 30
-    sim = Simulator(unit_step=plot_unit, size=96, day=10)
+    # plot_unit = 30
+    # sim = Simulator(size=24, day=1, unit=15)
+    # sim.reset()
+    # for i in range(100):
+    #     sim.step(0)
 
-    a = Animator(sim.pipe, plot_unit=plot_unit)
-    a.plot()
+    # a = Animator(sim.pipe, plot_unit=plot_unit)
+    # a.plot()
     
     # cumulative_reward = 0
 
@@ -42,17 +45,17 @@ if __name__ == "__main__":
     #     print(cumulative_reward)
     #     print(time.time() - m)
 
-    to = datetime(2021, 1, 2, 0, 0)
+    to = datetime(2020, 1, 2, 0, 0)
     to_list = [to - timedelta(days=1)]
     pipe_list = []
-    for i in range(90):
+    for i in range(365):
         to_list.append(
             to + timedelta(days=i)
         )
     duration = timedelta(days=1)
     for t in to_list:
         pipe_list.append(
-            DataPipeLine(t, duration, True)
+            DataPipeLine(t, duration, False)
         )
 
 

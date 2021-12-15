@@ -9,7 +9,7 @@ import math
 
 
 # _path_ = './cfg/crypto_ape.json'
-# _path_ = "./cfg/cpt_ape_x.json"
+_path_ = "./cfg/cpt_ape_x.json"
 # _path_ = './cfg/r2d2.json'
 _path_ = "./cfg/cpt_r2d2_v2.json"
 
@@ -38,7 +38,7 @@ ALPHA = 0.9
 BETA = 0.4
 GAMMA = .997
 TARGET_FREQUENCY = 2500
-N = 32
+N = 8
 BATCHSIZE = 32
 TOTAL_TRAINING_STEP = int(5e4)
 
