@@ -49,7 +49,7 @@ class Replay(threading.Thread):
         self.vals.append(vals)
     
     def buffer(self):
-        m = 16
+        m = 4
 
         experiences, prob, idx = self.memory.sample(
             BATCHSIZE * m
