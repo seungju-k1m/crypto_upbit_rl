@@ -89,7 +89,8 @@ class Player():
 
         self.to()
 
-        self.connect = redis.StrictRedis(host=REDIS_SERVER, port=6379)
+        # self.connect = redis.StrictRedis(host=REDIS_SERVER, port=6379)
+        self.connect = redis.StrictRedis()
 
         self.count = 0
         self.target_model_version = -1

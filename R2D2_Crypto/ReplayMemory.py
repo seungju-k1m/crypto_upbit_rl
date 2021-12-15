@@ -32,7 +32,8 @@ class Replay(threading.Thread):
             beta=BETA)
 
         self.cond = False
-        self.connect = redis.StrictRedis(host=REDIS_SERVER, port=6379)
+        # self.connect = redis.StrictRedis(host=REDIS_SERVER, port=6379)
+        self.connect = redis.StrictRedis()
         self._lock = threading.Lock()
         self.deque = []
         self.update_list = []
