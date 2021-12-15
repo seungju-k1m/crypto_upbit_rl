@@ -10,7 +10,7 @@
     "ACTION_SIZE":9,
 
     "device":"cpu",
-    "learner_device":"cuda:0",
+    "learner_device":"cpu",
 
     "REPLAY_MEMORY_LEN":2500,
     "unroll_step":5,

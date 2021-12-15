@@ -114,7 +114,7 @@ class Learner:
         shape = torch.tensor([FIXED_TRAJECTORY - MEM, BATCHSIZE, -1])
 
         action = np.transpose(action, (1, 0))
-        action = action[FIXED_TRAJECTORY - MEM:-1]
+        action = action[MEM:-1]
         action = action.reshape(-1)
 
         action = self.action_idx_np + action
