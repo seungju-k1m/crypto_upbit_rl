@@ -134,7 +134,7 @@ class Replay(threading.Thread):
         m = 5000
         data = []
         while True:
-            if len(self.memory.priority) > m:
+            if len(self.memory.memory) > m:
                 if t == 1:
                     print("Cond is True")
                 self.cond = True
@@ -161,11 +161,10 @@ class Replay(threading.Thread):
                             print("Data Batch Start!!!")
                 self._update()
                 if self.lock:
-                    if len(self.memory) < REPLAY_MEMORY_LEN:
-                        self.memory.remove_to_fit()
+                    if len(self.memory.memory) < REPLAY_MEMORY_LEN:
+                        pass
                     else:
-                        while len(self.deque) > 0:
-                            time.sleep(0.001)
+                        self.deque.clear()
                         self.memory.remove_to_fit()
                         self.idx.clear()
                         self.vals.clear()
