@@ -147,6 +147,7 @@ class Learner:
         return info
 
     def run(self):
+        m = 5000
         def wait_memory():
             while True:
                 if USE_REDIS_SERVER:
@@ -156,7 +157,7 @@ class Learner:
                         if cond:
                             break
                 else:
-                    if len(self.memory.memory) > 50000:
+                    if len(self.memory.memory) > m:
                         break
                     else:
                         print(len(self.memory.memory))

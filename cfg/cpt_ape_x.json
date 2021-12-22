@@ -1,7 +1,7 @@
 {
     "ALG":"APE_X_CPT",
     "crypto_mode":true,
-    "redis_server":"10.142.162.12",
+    "redis_server":"localhost",
     "redis_server_push":"localhost",
     "redis_server_":"localhost",
     "MARKET":"KRW-BTC",

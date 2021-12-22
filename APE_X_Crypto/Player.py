@@ -1,3 +1,4 @@
+from Simulator.simulator_v1 import Simulator
 from numpy.random.mtrand import rand
 from configuration import *
 from baseline.baseAgent import baseAgent
@@ -5,7 +6,8 @@ from collections import deque
 from copy import deepcopy
 from itertools import count
 
-from Simulator.simulator_v1 import Simulator
+# from Simulator.simulator_v1 import Simulator
+from Simulator.simulator_v3 import Simulator
 import numpy as np
 import _pickle as pickle
 import torch
@@ -74,7 +76,11 @@ class Player():
         # super(Player, self).__init__()
         self.idx = idx
 
-        self.sim = Simulator()
+        self.sim = Simulator(
+            unit=1,
+            size=24,
+            day=1
+        )
 
         self.device = torch.device(DEVICE)
         self.build_model()
@@ -98,13 +104,6 @@ class Player():
     
     def forward(self, state:list, no_epsilon=False) -> int:
         
-        # if step < TOTAL_TRAINING_STEP:
-        #     epsilon = 1 - step * (1 - self.target_epsilon) / phase_01_random_step
-        
-        # elif step < phase_02_random_step:
-        #     epsilon = 0.1 - (step - phase_01_random_step) / phase_02_random_step
-        # else:
-        #     epsilon = self.target_epsilon
         state, ratio = state
         epsilon = self.target_epsilon
         if no_epsilon:
@@ -112,7 +111,6 @@ class Player():
         
         if random.random() < epsilon:
             action = random.choice([i for i in range(ACTION_SIZE)])
-            # action = random.choice([0, 1, 2])
         else:
             with torch.no_grad():
                 state = np.expand_dims(state, axis=0)
@@ -120,15 +118,10 @@ class Player():
                 state = state * (1/255.)
 
                 ratio = torch.tensor(ratio).float()
-                # ratio = torch.unsqueeze(ratio, dim=0)
                 ratio = ratio.view(1, 1)
-                
-                # val, adv = self.model.forward([state])
-                # action_value = val + adv - torch.mean(adv, dim=-1, keepdim=True)
                 
                 action_value = self.model.forward([state, ratio])[0]
                 action = int(action_value.argmax(dim=-1).numpy())
-                # print(action)
         return action, epsilon
 
     def pull_param(self):
@@ -170,12 +163,8 @@ class Player():
             next_info_s = torch.tensor([ns1]).float().to(self.device).view(1, 1)
             
             state_value = self.model.forward([s, info_s])[0][0]
-            # val, adv = self.model.forward([s])
-            # state_value = val + adv - torch.mean(adv, dim=-1, keepdim=True)
             current_state_value = float(state_value[a].detach().cpu().numpy())
             next_state_value = self.target_model.forward([s_, next_info_s])[0][0]
-            # t_val, t_adv = self.target_model.forward([s_])
-            # next_state_value = t_val + t_adv - torch.mean(t_adv, dim=-1, keepdim=True)
             d = float(not d)
             action = int(state_value.argmax().cpu().detach().numpy())
             max_next_state_value = float(next_state_value[action].cpu().detach().numpy()) * d
@@ -194,15 +183,13 @@ class Player():
         total_step = 0
 
         def preprocess_obs(obs):
-            chart_info, account_info = obs
-            image, candle_info = chart_info
+            image, account_info = obs
 
             value = account_info['Current_Value']
             KRW_value = account_info['KRW_Balance']
             # coin_value = value - KRW_value
             ratio = KRW_value / value
             return (image, ratio)
-
         for t in count():
             cumulative_reward = 0   
             done = False

@@ -94,32 +94,36 @@ class Replay(threading.Thread):
         if print_f:
             print("-----PP_02:{:.3f}".format(preprocess_time - time.time()))
 
-        action = experiences[:, 1]
+        ratio = experiences[:, 1]
+        action = experiences[:, 2]
         # action = [int(i) for i in experiences[:, 1]]
-        reward = experiences[:, 2]
+        reward = experiences[:, 3]
         # reward = [float(i) for i in experiences[:, 2]]
-        next_state = np.stack(experiences[:, 3], 0)
+        next_state = np.stack(experiences[:, 4], 0)
+        next_ratio = experiences[:, 5]
         # next_state = np.stack([np.frombuffer(base64.b64decode(bin), dtype=np.uint8) for bin in experiences[:, 3]], 0)
-        done = experiences[:, 4]
+        done = experiences[:, 6]
 
         states = np.vsplit(state, m)
+        ratios = np.split(ratio, m)
 
         actions = np.split(action, m)
 
         rewards = np.split(reward, m)
 
         next_states = np.vsplit(next_state, m)
+        next_ratios = np.split(next_ratio, m)
 
         dones = np.split(done, m)
 
         weights = weight.split(BATCHSIZE)
         idices = idx.split(BATCHSIZE)
 
-        for s, a, r, n_s, d, w, i in zip(
-            states, actions, rewards, next_states, dones, weights, idices
+        for s, s_r, a, r, n_s, n_s_r, d, w, i in zip(
+            states, ratios, actions, rewards, next_states, next_ratios, dones, weights, idices
         ):
             self.deque.append(
-                [s, a, r, n_s, d, w, i]
+                [s, s_r, a, r, n_s, n_s_r, d, w, i]
             )
         # done = [bool(i) for i in experiences[:, 4]]
         if print_f:
@@ -127,9 +131,10 @@ class Replay(threading.Thread):
     
     def run(self):
         t = 0
+        m = 5000
         data = []
         while True:
-            if len(self.memory.priority) > 50000:
+            if len(self.memory.priority) > m:
                 if t == 1:
                     print("Cond is True")
                 self.cond = True
@@ -148,7 +153,7 @@ class Replay(threading.Thread):
                 self.total_frame += len(data)
                 data.clear()
                 # assert len(self.memory.memory) == len(self.memory.priority_torch)
-                if len(self.memory) > 50000:
+                if len(self.memory) > m:
                     if len(self.deque) < 8:
                         self.buffer()
                         t += 1
