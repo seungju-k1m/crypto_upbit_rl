@@ -77,7 +77,7 @@ class Player():
         self.idx = idx
 
         self.sim = Simulator(
-            unit=1,
+            unit=5,
             size=24,
             day=1
         )
@@ -195,7 +195,7 @@ class Player():
             done = False
             experience = []
             local_buffer.clear()
-            step = 0
+            # step = 0
 
             obs = self.sim.reset()
             # self.sim.print()
