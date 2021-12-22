@@ -207,9 +207,10 @@ class Player():
 
             action, _ = self.forward(obs)
             mz = 0
+            raw_yield = 0
 
             while done is False:
-                next_obs, reward, done, info = self.sim.step(action)
+                next_obs, reward, done, idle = self.sim.step(action)
                 # info 현재 수익률 
                 # reward -> 100 * log(current_value/prev_value)
                 next_obs = preprocess_obs(next_obs)
@@ -219,8 +220,8 @@ class Player():
                 total_step += 1
 
                 cumulative_reward += reward
-                mz += info
-                local_buffer.push(obs[0], obs[1], action, info)
+                raw_yield += reward
+                local_buffer.push(obs[0], obs[1], action, reward)
                 action, epsilon = self.forward(next_obs)
                 obs = next_obs
 
@@ -238,11 +239,11 @@ class Player():
                         pickle.dumps(experience)
                     )
 
-                if step % 20 == 0:
+                if step % 400 == 0:
                     self.pull_param()
                 
-            mean_cumulative_reward += mz
-            mean_yield += (math.exp(cumulative_reward/100) - 1)
+            mean_cumulative_reward += cumulative_reward
+            mean_yield += (math.exp(raw_yield/100) - 1)
             # self.sim.print()
 
             if (t+1) % per_episode == 0:
