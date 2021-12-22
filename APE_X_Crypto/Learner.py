@@ -72,7 +72,7 @@ class Learner:
 
         # action = torch.tensor(action).long().to(self.device)
 
-        action = [9 * i + a for i, a in enumerate(action)]
+        action = [ACTION_SIZE * i + a for i, a in enumerate(action)]
 
         reward= reward.astype(np.float32)
         done = done.astype(np.bool)
@@ -94,7 +94,7 @@ class Learner:
             # val_n, adv_n = self.model.forward([next_image])
             # n_action_value = val_n + adv_n - torch.mean(adv_n, dim=-1, keepdim=True)
             action_ddqn =  n_action_value.argmax(dim=-1).detach().cpu().numpy()
-            action_ddqn = [9*i + a for i, a in enumerate(action_ddqn)]
+            action_ddqn = [ACTION_SIZE*i + a for i, a in enumerate(action_ddqn)]
             next_action_value = next_action_value.view(-1)
             next_action_value = next_action_value[action_ddqn]
 
@@ -118,7 +118,7 @@ class Learner:
         if USE_PER:
             loss = torch.mean(
                 weight * (td_error ** 2)
-            ) * 0.5
+            )
         else:
             loss = torch.mean(td_error ** 2) * 0.5
         loss.backward()
@@ -174,7 +174,7 @@ class Learner:
         step, norm, mean_value = 0, 0, 0
         amount_sample_time, amount_train_tim, amount_update_time = 0, 0, 0
         init_time = time.time()
-        mm = 2500
+        mm = 500
         mean_weight = 0
         for t in count():
             time_sample = time.time()
