@@ -136,7 +136,7 @@ class Replay(threading.Thread):
         while True:
             if len(self.memory.memory) > m:
                 if t == 1:
-                    print("Cond is True")
+                    # print("Cond is True")
                 self.cond = True
                 # print(self.cond)
             
