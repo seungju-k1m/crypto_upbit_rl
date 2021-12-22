@@ -5,15 +5,16 @@ from Simulator.renderer_v3 import Renderer, Animator
 
 from datetime import datetime, timedelta
 
-from R2D2_Crypto.Player import Player
+# from R2D2_Crypto.Player import Player
+from APE_X_Crypto.Player import Player
 
 import numpy as np
 import time
 
 
 if __name__ == "__main__":
-    # p = Player()
-    # p.run()
+    p = Player()
+    p.run()
 
     plot_unit = 5
     sim = Simulator(size=48, day=1, unit=15)

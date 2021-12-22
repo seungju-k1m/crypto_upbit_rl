@@ -260,6 +260,7 @@ class Renderer:
         # self.fig, axes = plt.subplots(2, 2)
         self.axes = []
         self.figs = []
+        self.bgs = []
         for i in range(4):
             fig = plt.figure(i, figsize=(4,3))
             ax = fig.add_subplot()
@@ -284,8 +285,10 @@ class Renderer:
                 self.lines_2[i].append(line2)
         for f in self.figs:
             f.canvas.draw()
-            self.bg = f.canvas.copy_from_bbox(
-                f.bbox
+            self.bgs.append(
+                f.canvas.copy_from_bbox(
+            f.bbox
+        )
             )
 
     def reset(self):
@@ -343,8 +346,8 @@ class Renderer:
             
                 ax.draw_artist(l1)
                 ax.draw_artist(l2)
-        for f in self.figs:
-            f.canvas.blit(self.bg)
+        for f, g in zip(self.figs, self.bgs):
+            f.canvas.blit(g)
         fig = self.get_figure()
         return fig
     
@@ -357,8 +360,8 @@ class Renderer:
                 )
             )
         # self.fig.clear()
-        for f in self.figs:
-            f.canvas.restore_region(self.bg)
+        for f, g in zip(self.figs, self.bgs):
+            f.canvas.restore_region(g)
         for i, u in enumerate([1, 5, 15, 60]):
             truncated_time = self.time_vec[u][-self.size:]
             truncated_time = np.array([np.datetime64(i) for i in truncated_time])
