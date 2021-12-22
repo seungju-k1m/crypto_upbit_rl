@@ -138,7 +138,7 @@ class Replay(threading.Thread):
                 if t == 1:
                     print("Cond is True")
                 self.cond = True
-                print(self.cond)
+                # print(self.cond)
             
             pipe = self.connect.pipeline()
             pipe.lrange("experience", 0, -1)
